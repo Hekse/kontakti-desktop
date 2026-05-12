@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakti · JSON-silta</title>
+<style>
+:root{--bg:#071226;--panel:#0d1b2f;--panel2:#10233d;--line:rgba(145,180,255,.18);--text:#eef4ff;--muted:#9db0d3;--blue:#4e9eff;--green:#22c55e;--red:#ef4444;--amber:#f59e0b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 18% 0,rgba(78,158,255,.18),transparent 34%),linear-gradient(180deg,#071226,#081326);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1180px;margin:0 auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.brand h1{margin:0;font-size:28px;letter-spacing:-.04em}.brand p{margin:4px 0 0;color:var(--muted)}.pill{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 10px;color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{border:1px solid var(--line);background:rgba(13,27,47,.88);border-radius:22px;padding:14px;box-shadow:0 18px 46px rgba(0,0,0,.28)}.card h2{margin:0 0 8px;font-size:18px}.muted{color:var(--muted);font-size:13px}.btns{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.btn{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);border-radius:14px;padding:11px 13px;font:inherit;font-weight:800;cursor:pointer}.btn.primary{background:rgba(78,158,255,.18);border-color:rgba(78,158,255,.34)}.btn.green{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.34)}.btn.red{background:rgba(239,68,68,.13);border-color:rgba(239,68,68,.28)}textarea{width:100%;min-height:280px;resize:vertical;border:1px solid var(--line);border-radius:16px;background:#081427;color:var(--text);padding:12px;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none}.status{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:16px;padding:11px;margin-top:10px;color:var(--muted)}.status.ok{border-color:rgba(34,197,94,.35);color:#b9f6d4}.status.warn{border-color:rgba(245,158,11,.35);color:#ffe4a3}.status.err{border-color:rgba(239,68,68,.35);color:#ffc0c0}.frame{width:100%;height:520px;border:1px solid var(--line);border-radius:22px;background:#071226;margin-top:14px}.small{font-size:12px;color:var(--muted)}@media(max-width:900px){.grid{grid-template-columns:1fr}.frame{height:420px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Kontakti · JSON-silta</h1><p>Testityökalu desktopin ja mobiilin väliseen siirtoon.</p></div>
+    <div class="pill" id="apiStatus">Ladataan desktopia…</div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Vie desktopista mobiiliin</h2>
+      <div class="muted">Luo mobiilille sopiva JSON-paketti. Kopioi tämä myöhemmin mobiilin “Tuo desktopista” -toimintoon.</div>
+      <div class="btns">
+        <button class="btn primary" onclick="exportMobile()">Luo mobiili-JSON</button>
+        <button class="btn" onclick="copyOut()">Kopioi</button>
+        <button class="btn" onclick="downloadOut()">Lataa tiedostona</button>
+      </div>
+      <textarea id="out" placeholder="Desktopista viety mobiili-JSON tulee tähän…"></textarea>
+      <div class="status" id="outStatus">Odottaa vientiä.</div>
+    </section>
+
+    <section class="card">
+      <h2>Tuo mobiilista desktopiin</h2>
+      <div class="muted">Liitä tähän mobiilin Asetukset → Kopioi JSON -sisältö. Tämä käyttää desktopin omaa integraatiopohjaa.</div>
+      <div class="btns">
+        <button class="btn green" onclick="importMobile()">Tuo mobiilista</button>
+        <button class="btn red" onclick="clearIn()">Tyhjennä</button>
+      </div>
+      <textarea id="inp" placeholder="Liitä mobiilista kopioitu JSON tähän…"></textarea>
+      <div class="status" id="inStatus">Odottaa mobiili-JSONia.</div>
+    </section>
+  </div>
+
+  <iframe class="frame" id="desktopFrame" src="./code" title="Kontakti Desktop"></iframe>
+  <p class="small">Huom: tämä on testisilta feature-haarassa. Main-versio ja backup ovat koskematta.</p>
+</div>
+<script>
+const frame=document.getElementById('desktopFrame');
+const apiStatus=document.getElementById('apiStatus');
+function setStatus(id,text,kind=''){const el=document.getElementById(id);el.className='status '+kind;el.textContent=text}
+function getApi(){try{return frame.contentWindow?.OperoKontaktiIntegration||null}catch(e){return null}}
+function waitApi(){let tries=0;const t=setInterval(()=>{tries++;const api=getApi();if(api&&typeof api.getData==='function'){apiStatus.textContent='Desktop-yhteys valmis';apiStatus.style.color='#b9f6d4';clearInterval(t)}else if(tries>80){apiStatus.textContent='Desktop-yhteys ei auennut';apiStatus.style.color='#ffc0c0';clearInterval(t)}},250)}
+frame.addEventListener('load',()=>setTimeout(waitApi,600));
+function pick(o,keys,def=''){for(const k of keys){if(o&&o[k]!=null&&o[k]!=='' )return o[k]}return def}
+function normDate(v){if(!v)return '';const s=String(v);if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const m=s.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return s.slice(0,10)}
+function normalizeCustomer(c,i){
+  const notes=pick(c,['notes','entries','history','merkinnat'],[]);
+  let n=[];
+  if(Array.isArray(notes)) n=notes.map(x=>({date:normDate(pick(x,['date','createdAt','created_at','ts'],new Date().toISOString())),type:pick(x,['type','action','kind'],'Merkintä'),text:pick(x,['text','note','body','content','memo'],'')}));
+  return {
+    id:String(pick(c,['id','customer_id','customerId'],`desk_${i}_${Date.now()}`)),
+    customer_id:String(pick(c,['customer_id','customerId','customerCode','code'],`DESK-${String(i+1).padStart(4,'0')}`)),
+    name:pick(c,['name','customerName','company','title'],'Nimetön asiakas'),
+    city:pick(c,['city','town','kunta'],''),
+    business_id:pick(c,['business_id','businessId','ytunnus','yTunnus','vatId'],''),
+    address:pick(c,['address','street','location'],''),
+    phone:pick(c,['phone','tel','mobile'],''),
+    email:pick(c,['email','mail'],''),
+    next_date:normDate(pick(c,['next_date','nextDate','followUpDate','nextActionDate'],'')),
+    next_action:pick(c,['next_action','nextAction','action'],'Soitto'),
+    priority:!!pick(c,['priority','isPriority'],false),
+    meeting:String(pick(c,['next_action','nextAction','action'],'')).toLowerCase().includes('tapa') || !!pick(c,['meeting'],false),
+    done:!!pick(c,['done','handled','hoidettu'],false),
+    incomplete:!!pick(c,['incomplete'],false),
+    created_source:pick(c,['created_source','createdSource'],'desktop'),
+    deleted_at:pick(c,['deleted_at','deletedAt'],null),
+    notes:n
+  };
+}
+function exportMobile(){
+  const api=getApi();
+  if(!api){setStatus('outStatus','Desktop-yhteys ei ole valmis. Odota hetki ja yritä uudelleen.','err');return}
+  let data;
+  try{data=api.getMobileCallList?api.getMobileCallList():api.getData()}catch(e){setStatus('outStatus','Desktopin getData epäonnistui: '+e.message,'err');return}
+  const customers=Array.isArray(data)?data:(data.customers||data.data?.customers||[]);
+  const mobile=customers.map(normalizeCustomer).filter(c=>!c.deleted_at);
+  const pkg={schema:'kontakti-mobile-json-v1',source:'kontakti-desktop',exported_at:new Date().toISOString(),customers:mobile};
+  out.value=JSON.stringify(pkg,null,2);
+  setStatus('outStatus',`Valmis: ${mobile.length} asiakasta viety mobiilimuotoon.`,'ok');
+}
+async function copyOut(){try{await navigator.clipboard.writeText(out.value);setStatus('outStatus','JSON kopioitu leikepöydälle.','ok')}catch(e){setStatus('outStatus','Kopiointi ei onnistunut. Kopioi käsin tekstikentästä.','warn')}}
+function downloadOut(){const blob=new Blob([out.value||''],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kontakti-desktop-to-mobile.json';a.click();URL.revokeObjectURL(a.href)}
+function clearIn(){inp.value='';setStatus('inStatus','Tyhjennetty.','')}
+function mobileToDesktopPayload(raw){
+  const obj=typeof raw==='string'?JSON.parse(raw):raw;
+  const customers=obj.customers||obj.data?.customers||obj;
+  if(!Array.isArray(customers)) throw new Error('JSONissa ei ole customers-listaa');
+  return {customers:customers.map(c=>({
+    ...c,
+    name:c.name||'Nimetön asiakas',
+    nextDate:c.next_date||c.nextDate||'',
+    nextAction:c.next_action||c.nextAction||'',
+    businessId:c.business_id||c.businessId||'',
+    createdSource:c.created_source||c.createdSource||'mobile',
+    incomplete:c.incomplete===true
+  }))};
+}
+function importMobile(){
+  const api=getApi();
+  if(!api||typeof api.importData!=='function'){setStatus('inStatus','Desktopin importData ei ole käytettävissä.','err');return}
+  try{const payload=mobileToDesktopPayload(inp.value);const ok=api.importData(payload);setStatus('inStatus',ok===false?'Tuonti estyi desktopissa.':'Tuonti ajettu. Tarkista desktopin asiakaslista.','ok')}
+  catch(e){setStatus('inStatus','Tuonti epäonnistui: '+e.message,'err')}
+}
+</script>
+</body>
+</html>
