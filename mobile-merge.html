@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakti · mobiilimuutosten yhdistäjä</title>
+<style>
+:root{--bg:#071226;--panel:#0d1b2f;--line:rgba(145,180,255,.18);--text:#eef4ff;--muted:#9db0d3;--green:#22c55e;--red:#ef4444}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 18% 0,rgba(78,158,255,.16),transparent 36%),linear-gradient(180deg,#071226,#081326);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:980px;margin:0 auto;padding:20px}.top{margin-bottom:16px}.top h1{margin:0;font-size:28px}.top p{margin:6px 0 0;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{border:1px solid var(--line);background:rgba(13,27,47,.88);border-radius:22px;padding:16px;box-shadow:0 18px 46px rgba(0,0,0,.24)}.card h2{margin:0 0 8px;font-size:18px}.muted{color:var(--muted);font-size:13px}.btn{border:1px solid rgba(78,158,255,.35);background:rgba(78,158,255,.18);color:var(--text);border-radius:14px;padding:11px 13px;font:inherit;font-weight:800;cursor:pointer}.btn.green{border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.16)}input[type=file]{display:none}.pick{display:inline-flex;margin-top:12px}.status{margin-top:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:11px;color:var(--muted);white-space:pre-wrap}.status.ok{border-color:rgba(34,197,94,.35);color:#b9f6d4}.status.err{border-color:rgba(239,68,68,.35);color:#ffc0c0}.wide{margin-top:14px}.small{font-size:12px;color:var(--muted);margin-top:12px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Kontakti · mobiilimuutosten yhdistäjä</h1><p>Turvallinen välivaihe: yhdistää mobiilin muutokset desktop-varmuuskopioon.</p></div>
+  <div class="grid">
+    <section class="card"><h2>1. Desktop-varmuuskopio</h2><div class="muted">Valitse desktopista viety JSON-varmuuskopio: <b>Vie varmuuskopio (JSON)</b>.</div><label class="btn pick" for="desktopFile">Valitse desktop JSON</label><input id="desktopFile" type="file" accept=".json,application/json,text/plain"><div class="status" id="desktopStatus">Ei tiedostoa.</div></section>
+    <section class="card"><h2>2. Mobiilimuutokset</h2><div class="muted">Valitse mobiilista viety tiedosto: <b>Vie mobiilimuutokset</b>.</div><label class="btn pick" for="mobileFile">Valitse mobiili JSON</label><input id="mobileFile" type="file" accept=".json,application/json,text/plain"><div class="status" id="mobileStatus">Ei tiedostoa.</div></section>
+  </div>
+  <section class="card wide"><h2>3. Yhdistä ja lataa uusi varmuuskopio</h2><div>Uusi tiedosto palautetaan desktopiin kohdasta <b>Asetukset → Palauta varmuuskopio</b>.</div><br><button class="btn green" id="mergeBtn">Yhdistä tiedostot</button><div class="status" id="mergeStatus">Odottaa kahta tiedostoa.</div><div class="small">Vinkki: testaa ensin yhdellä uudella mobiiliasiakkaalla.</div></section>
+</div>
+<script>
+let desktopObj=null,mobileObj=null;
+const $=id=>document.getElementById(id);
+function setStatus(id,text,kind=''){const el=$(id);el.className='status '+kind;el.textContent=text}
+function today(){return new Date().toISOString().slice(0,10)}
+function uid(){return 'm_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)}
+function pick(o,keys,def=''){for(const k of keys){if(o&&o[k]!==undefined&&o[k]!==null&&o[k]!=='')return o[k]}return def}
+function dateOnly(v){if(!v)return '';const s=String(v);return /^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(0,10):s}
+function norm(s){return String(s||'').trim().toLowerCase()}
+function desktopData(root){return root&&root.data&&Array.isArray(root.data.customers)?root.data:root}
+function getCustomers(root){const d=desktopData(root);return Array.isArray(d.customers)?d.customers:null}
+function mobileChanges(root){return root?.changes||root?.customers||root?.data?.customers||null}
+function noteKey(n){return [dateOnly(pick(n,['createdAt','created_at','date'],'')),pick(n,['action','type'],''),pick(n,['noteText','text','note'],'')].join('|')}
+function toDesktopNote(n,customerId,nextDate){return{id:pick(n,['id'],uid()),createdAt:dateOnly(pick(n,['date','createdAt','created_at'],today())),noteText:String(pick(n,['text','note','body','content'],'')),purchasesText:'',action:String(pick(n,['type','action','kind'],'Merkintä')),nextDate:nextDate||'',sales:0,customerId}}
+function mobileToDesktop(m){const id=String(pick(m,['id','customer_id','customerId'],uid()));const customerId=String(pick(m,['customer_id','customerId','id'],id));const nextDate=dateOnly(pick(m,['next_date','nextDate'],''));const nextAction=String(pick(m,['next_action','nextAction','action'],''));const notes=(Array.isArray(m.notes)?m.notes:[]).map(n=>toDesktopNote(n,id,nextDate)).filter(n=>n.noteText||n.action);return{id,customerId,name:String(pick(m,['name','customerName','company'],'Nimetön asiakas')),city:String(pick(m,['city','town'],'')),region:String(pick(m,['region'],'')),country:String(pick(m,['country'],'FI')),businessId:String(pick(m,['business_id','businessId','ytunnus'],'')),phone:String(pick(m,['phone','tel'],'')),email:String(pick(m,['email','mail'],'')),address:String(pick(m,['address','street'],'')),contactPerson:String(pick(m,['contact_person','contactPerson'],'')),priority:!!pick(m,['priority','isPriority'],false),meeting:!!pick(m,['meeting'],false)||nextAction.toLowerCase().includes('tapa'),done:!!pick(m,['done','handled'],false),incomplete:!!pick(m,['incomplete'],false),mobileVisible:true,nextDate,nextAction,notes,createdSource:'mobile',updatedAt:new Date().toISOString()}}
+function findCustomer(list,m){return list.find(c=>c.id&&m.id&&String(c.id)===String(m.id))||list.find(c=>(c.customerId||c.customer_id)&&m.customerId&&String(c.customerId||c.customer_id)===String(m.customerId))||list.find(c=>(c.businessId||c.business_id)&&m.businessId&&String(c.businessId||c.business_id)===String(m.businessId))||list.find(c=>norm(c.name)===norm(m.name)&&norm(m.name))}
+function mergeCustomer(c,m){['name','city','region','country','phone','email','address','contactPerson'].forEach(k=>{if(m[k]&&!c[k])c[k]=m[k]});if(m.customerId&&!c.customerId)c.customerId=m.customerId;if(m.businessId&&!c.businessId)c.businessId=m.businessId;if(m.nextDate)c.nextDate=m.nextDate;if(m.nextAction)c.nextAction=m.nextAction;c.priority=!!m.priority;c.meeting=!!m.meeting;c.done=!!m.done;c.incomplete=!!m.incomplete;c.mobileVisible=c.mobileVisible!==false;c.notes=Array.isArray(c.notes)?c.notes:[];const existing=new Set(c.notes.map(noteKey));let n=0;m.notes.forEach(x=>{if(!existing.has(noteKey(x))){c.notes.unshift(x);n++}});c.updatedAt=new Date().toISOString();return n}
+function downloadJson(obj){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kontakti_backup_merged_'+today()+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}
+async function readJsonFile(file){return JSON.parse(await file.text())}
+$('desktopFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{desktopObj=await readJsonFile(f);const customers=getCustomers(desktopObj);if(!customers)throw new Error('customers-listaa ei löytynyt');setStatus('desktopStatus','OK: '+customers.length+' asiakasta\n'+f.name,'ok')}catch(err){desktopObj=null;setStatus('desktopStatus','Virhe: '+err.message,'err')}});
+$('mobileFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{mobileObj=await readJsonFile(f);const changes=mobileChanges(mobileObj);if(!Array.isArray(changes))throw new Error('changes-listaa ei löytynyt');setStatus('mobileStatus','OK: '+changes.length+' muutosta\n'+f.name,'ok')}catch(err){mobileObj=null;setStatus('mobileStatus','Virhe: '+err.message,'err')}});
+$('mergeBtn').addEventListener('click',()=>{try{if(!desktopObj)throw new Error('Valitse ensin desktop-varmuuskopio.');if(!mobileObj)throw new Error('Valitse ensin mobiilimuutokset.');const customers=getCustomers(desktopObj);const changes=mobileChanges(mobileObj);if(!customers||!Array.isArray(changes))throw new Error('Tiedostojen rakenne ei kelpaa.');let updated=0,added=0,notes=0;changes.map(mobileToDesktop).forEach(m=>{const c=findCustomer(customers,m);if(c){updated++;notes+=mergeCustomer(c,m)}else{customers.unshift(m);added++;notes+=m.notes.length}});const out=structuredClone(desktopObj);const outData=desktopData(out);outData.customers=customers;out.exportedAt=new Date().toISOString();out.mergedAt=new Date().toISOString();out.mergeSource='kontakti-mobile-changes';if(out.data)out.data=outData;downloadJson(out);setStatus('mergeStatus','Valmis.\nPäivitetty: '+updated+'\nUusia: '+added+'\nLisättyjä merkintöjä: '+notes+'\n\nPalauta ladattu tiedosto desktopiin: Asetukset → Palauta varmuuskopio','ok')}catch(err){setStatus('mergeStatus','Virhe: '+err.message,'err')}});
+</script>
+</body>
+</html>
