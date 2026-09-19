@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakti Cloud UI v3</title>
+<style>
+:root{
+  --bg0:#071226;--bg1:#091a35;--panel:rgba(255,255,255,.05);--stroke:rgba(255,255,255,.12);
+  --text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.62);
+  --brand:#2d6bff;--brand2:#2153c8;--ok:#26d07c;--warn:#ffcc66;--amber:#ff9f43;--danger:#ff4d4d;--priority:#8b5cf6;
+  --shadow:0 14px 40px rgba(0,0,0,.35);--shadow2:0 10px 24px rgba(0,0,0,.22);--r22:22px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradient(1200px 700px at 18% 0%, rgba(45,107,255,.22), transparent 62%),radial-gradient(1000px 520px at 90% 10%, rgba(38,208,124,.10), transparent 65%),linear-gradient(180deg,var(--bg0),var(--bg1));overflow:hidden}
+.app{height:100%;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:18px;min-height:0}
+.sidebar,.card,.topbar{background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(8px)}
+.sidebar{border-radius:var(--r22);box-shadow:var(--shadow);padding:16px 14px;display:flex;flex-direction:column;min-height:0;overflow:auto}
+.brand{display:flex;align-items:center;gap:11px;margin:8px 10px 16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.opero-logo-mini{width:42px;height:42px;flex:0 0 42px}
+.opero-logo-img{display:block;width:100%;height:100%;object-fit:contain}
+.brand .title{font-size:28px;font-weight:760;line-height:1.02}.brand .sub{font-size:12px;font-weight:600;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:10px;padding:6px}
+.nav-btn{appearance:none;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);color:var(--text);border-radius:999px;padding:12px 14px;text-align:left;cursor:pointer;font-weight:650;font-size:22px;display:flex;align-items:center;justify-content:space-between;transition:.15s ease}
+.nav-btn:hover{background:rgba(255,255,255,.055);box-shadow:0 0 0 1px rgba(45,107,255,.10),0 8px 18px rgba(45,107,255,.10)}
+.nav-btn.active{border-color:rgba(45,107,255,.55);background:rgba(45,107,255,.18);box-shadow:0 0 0 1px rgba(45,107,255,.18),0 0 20px rgba(45,107,255,.26);transform:translateY(-1px)}
+.nav-btn.settings span:first-child{color:#7b8798}
+.pill{font-size:12px;font-weight:640;color:var(--text);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:2px 8px;border-radius:999px}
+.pill.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.16);font-weight:700}
+.sales-box{margin:6px 6px 0;padding:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);border-radius:16px}
+.sales-title{font-size:12px;color:var(--muted);font-weight:720}.sales-main{font-size:20px;font-weight:780;line-height:1.05;margin-top:5px}
+.side-tools{margin-top:auto;padding:6px;display:flex;flex-direction:column;gap:10px}
+.login-box{margin:6px;padding:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);border-radius:16px;display:flex;flex-direction:column;gap:8px}
+.login-box input{margin:0}
+.btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:600;transition:.15s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;user-select:none;text-decoration:none}
+.btn:hover{background:rgba(255,255,255,.06)} .btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:linear-gradient(180deg, rgba(45,107,255,.95), rgba(33,83,200,.95));border-color:rgba(45,107,255,.35);box-shadow:0 10px 18px rgba(45,107,255,.10);color:#fff;font-weight:660}
+.btn.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.10)} .btn.priority.active{background:linear-gradient(180deg, rgba(139,92,246,.95), rgba(109,40,217,.95));border-color:rgba(139,92,246,.55);box-shadow:0 10px 18px rgba(139,92,246,.16);color:#fff}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;font-weight:560}.footer{margin-top:2px;font-size:12px;color:var(--muted);font-weight:560;text-align:center;padding:6px 0 0}
+.main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:14px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:var(--r22);box-shadow:var(--shadow);padding:12px 14px}
+.topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:16px;font-weight:700;white-space:nowrap}
+.search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:10px 12px;max-width:520px}
+.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-weight:560}.search input::placeholder{color:var(--muted)}
+.content{flex:1;min-height:0;display:grid;grid-template-columns:40% 60%;gap:14px}
+.card{border-radius:var(--r22);box-shadow:var(--shadow);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.card-head{padding:14px 14px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.card-title{font-size:14px;font-weight:660}.card-sub{font-size:12px;color:var(--muted);font-weight:560;margin-top:3px}.card-body{padding:12px 14px 14px;min-height:0;overflow:auto}
+.list{display:flex;flex-direction:column;gap:10px}.row{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);border-radius:14px;padding:12px;cursor:pointer;transition:.14s ease;overflow:hidden}
+.row:hover{background:rgba(255,255,255,.05);transform:translateY(-1px)}
+.row.active{border-color:rgba(45,107,255,.62);background:rgba(45,107,255,.16);box-shadow:0 0 0 1px rgba(45,107,255,.16),0 14px 30px rgba(0,0,0,.12);transform:translateY(-2px)}
+.row-main{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.row-left{min-width:0;flex:1;display:flex;gap:10px;align-items:flex-start}.row-right{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.row-name{font-weight:680;line-height:1.2}.row-meta{font-size:12px;color:var(--muted);font-weight:560;margin-top:6px;line-height:1.35}
+.status-dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px;margin-top:4px;border:1px solid rgba(255,255,255,.22);box-shadow:0 0 0 3px rgba(255,255,255,.03)}
+.status-dot.green{background:var(--ok)} .status-dot.yellow{background:var(--warn)} .status-dot.orange{background:var(--amber)} .status-dot.red{background:var(--danger)} .status-dot.gray{background:rgba(255,255,255,.28)}
+.tagline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.tag{font-size:12px;font-weight:560;color:var(--text);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:2px 8px;border-radius:999px}
+.tag.ok{border-color:rgba(38,208,124,.30);background:rgba(38,208,124,.09)} .tag.bad{border-color:rgba(255,77,77,.30);background:rgba(255,77,77,.09)} .tag.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.12);font-weight:680}
+.detail{display:grid;grid-template-rows:auto 1fr;min-height:0}.detail-header{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.detail-header h2{margin:0;font-size:24px;font-weight:760;line-height:1.1}.subline{margin-top:8px;font-size:12px;font-weight:560;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.detail-body{padding:12px 14px 14px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px}
+.note-box{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow2)}
+.note-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.note-top .t{font-weight:620}.note-top .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:560}
+.field{display:flex;flex-direction:column;gap:8px}.label{font-size:12px;color:var(--muted);font-weight:560}
+input,textarea,select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:560;font-family:inherit}
+textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placeholder{color:var(--muted)} select option{background:#0d1a33;color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap}.switchline{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:14px;padding:10px 12px}
+.kvlist{display:flex;flex-direction:column;gap:8px}.kvrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);border-radius:12px;padding:10px}
+.kvrow b{font-weight:620}.kvrow span,.kvrow a{color:var(--text);font-weight:580;text-decoration:none;word-break:break-word;text-align:right;max-width:65%}.kvrow a:hover{text-decoration:underline}
+.quick{display:flex;gap:10px;flex-wrap:wrap}
+.history-popover{position:fixed;right:24px;bottom:24px;width:min(460px, calc(100vw - 32px));max-height:min(72vh,760px);z-index:120;border:1px solid rgba(255,255,255,.12);background:rgba(7,18,38,.96);backdrop-filter:blur(14px);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.38);display:flex;flex-direction:column;overflow:hidden}
+.history-popover[hidden]{display:none}
+.history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08)}.history-title{font-size:15px;font-weight:700}.history-sub{font-size:12px;color:var(--muted);font-weight:560;margin-top:3px}.history-body{padding:12px 14px 14px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.history-item{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.history-meta{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.history-date{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:560}.history-badges{display:flex;gap:8px;flex-wrap:wrap}.history-text{white-space:pre-wrap;line-height:1.45;font-size:13px}
+.saveflash.is-ok{background:rgba(38,208,124,.16)!important;border-color:rgba(38,208,124,.35)!important;box-shadow:0 0 0 1px rgba(38,208,124,.12),0 12px 26px rgba(38,208,124,.08)}
+.filter-dots{display:flex;gap:8px;align-items:center;margin-top:8px}.filter-dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,.24);cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,.03);transition:.15s ease}
+.filter-dot:hover{transform:scale(1.08)} .filter-dot.active{box-shadow:0 0 0 2px rgba(255,255,255,.08),0 0 12px currentColor} .filter-dot.green{background:var(--ok);color:var(--ok)} .filter-dot.yellow{background:var(--warn);color:var(--warn)} .filter-dot.orange{background:var(--amber);color:var(--amber)} .filter-dot.red{background:var(--danger);color:var(--danger)}
+.list-arrows{display:flex;gap:6px}.list-arrows .btn{min-width:42px;padding-inline:0}
+.quick-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.07)}
+.btn.qa{font-size:12.5px;padding:7px 12px;border-radius:10px;font-weight:700;letter-spacing:.01em;transition:.12s ease}
+.btn.qa:active{transform:scale(.97)}
+.btn.qa-ok{border-color:rgba(38,208,124,.42);background:rgba(38,208,124,.11);color:var(--ok)}
+.btn.qa-ok:hover{background:rgba(38,208,124,.20);border-color:rgba(38,208,124,.55)}
+.btn.qa-miss{border-color:rgba(255,77,77,.36);background:rgba(255,77,77,.09);color:var(--danger)}
+.btn.qa-miss:hover{background:rgba(255,77,77,.18);border-color:rgba(255,77,77,.5)}
+.btn.qa-snooze{border-color:rgba(255,204,102,.36);background:rgba(255,204,102,.09);color:var(--warn)}
+.btn.qa-snooze:hover{background:rgba(255,204,102,.18);border-color:rgba(255,204,102,.5)}
+.empty{padding:14px 2px;color:var(--muted);font-size:13px}
+@media (max-width:980px){body{overflow:auto}.app{grid-template-columns:1fr;overflow:auto}.content{grid-template-columns:1fr}}
+@media (max-width:680px){.content{position:relative}.card.detail{position:fixed;inset:12px;z-index:50;display:none}.card.detail.show{display:flex}.mobile-back{display:inline-flex!important}.grid2{grid-template-columns:1fr}.row-main{flex-direction:column}.row-right{justify-content:flex-start}.history-popover{left:12px;right:12px;bottom:12px;width:auto;max-height:68vh}}
+.mobile-back{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="opero-logo-mini"><img class="opero-logo-img" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+      </div>
+      <div><div class="title">Kontakti</div><div class="sub">by Opero · Pilvi</div></div>
+    </div>
+    <nav class="nav">
+      <button type="button" class="nav-btn active" data-view="today"><span>📞</span><span class="pill" id="pillToday">0</span></button>
+      <button type="button" class="nav-btn" data-view="customers"><span>👥</span><span class="pill" id="pillCustomers">0</span></button>
+      <button type="button" class="nav-btn" data-view="weekly"><span>📊</span><span class="pill" id="pillWeek">vko</span></button>
+      <button type="button" class="nav-btn settings" data-view="settings"><span>⚙</span></button>
+    </nav>
+    <div class="sales-box">
+      <div class="sales-title">💶 Myynti YTD</div>
+      <div class="sales-main" id="salesTotal">€0</div>
+      <div class="hint" id="salesSub">Pilvisynkka käytössä</div>
+    </div>
+    <div id="loginBox" class="login-box" style="display:none">
+      <div class="label">Kirjautuminen</div>
+      <input id="loginEmail" placeholder="sähköposti">
+      <input id="loginPassword" type="password" placeholder="salasana">
+      <button class="btn primary" id="btnLogin" type="button">Kirjaudu</button>
+      <div class="hint" id="loginStatus"></div>
+    </div>
+    <div class="side-tools">
+      <a class="btn" href="import.html?v=1">📥 Import</a>
+      <a class="btn" href="report.html?v=1">📊 Raportti</a>
+      <a class="btn" href="supabase.html?v=5">🛟 Varaversio</a>
+      <button class="btn" id="btnLogout" type="button" style="display:none">Kirjaudu ulos</button>
+      <div class="hint" id="authStatus">Tarkistetaan...</div>
+      <div class="footer">© 2026 ReHeko<br>All rights reserved.</div>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="left">
+        <div class="page-title" id="pageTitle">Soita tänään</div>
+        <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta..."></div>
+      </div>
+      <div class="right"><button class="btn" id="btnRefresh" type="button">↻ Päivitä</button></div>
+    </header>
+    <section class="content">
+      <div class="card">
+        <div class="card-head">
+          <div class="list-arrows" id="listArrows"><button class="btn" id="btnScrollTop" type="button" title="Listan alkuun / tuorein ensin">▲</button><button class="btn" id="btnScrollBottom" type="button" title="Listan loppuun / vanhin ensin">▼</button></div>
+          <div style="flex:1;min-width:0">
+            <div class="card-title" id="listTitle">Lista</div>
+            <div class="card-sub" id="listSub">Erääntyneet + tänään</div>
+            <div class="filter-dots" id="filterDots" style="display:none">
+              <button class="filter-dot green" data-color="green" title="0–30 päivää kärkeen" type="button"></button>
+              <button class="filter-dot yellow" data-color="yellow" title="31–60 päivää kärkeen" type="button"></button>
+              <button class="filter-dot orange" data-color="orange" title="61–90 päivää kärkeen" type="button"></button>
+              <button class="filter-dot red" data-color="red" title="90+ päivää kärkeen" type="button"></button>
+            </div>
+          </div>
+          <div class="hint" id="listStatus">Valmis.</div>
+        </div>
+        <div class="card-body" id="listBody"><div id="list" class="list"></div></div>
+      </div>
+      <div class="card detail" id="detailCard">
+        <div class="detail-header">
+          <div style="min-width:0"><h2 id="detailName">Valitse asiakas</h2><div class="subline" id="detailSub">Klikkaa listasta asiakasta.</div></div>
+          <button class="btn mobile-back" id="btnBack" type="button">← Takaisin</button>
+        </div>
+        <div class="detail-body" id="detailBody"><div class="note-box"><div class="hint">Valitse asiakas vasemmalta.</div></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
+const $=id=>document.getElementById(id);
+let user=null,ws=null,cs=[],ns=[],sel=null,view='today',search='',colorPriority='',customerSort='newest',historyOpen=false;
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+// Paikallinen (ei UTC) YYYY-MM-DD -muotoilu. new Date().toISOString() siirtäisi päivämäärän
+// vuorokauden taaksepäin UTC:tä edellä olevissa aikavyöhykkeissä (esim. Suomi) keskiyön tienoilla.
+const localISODate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayISO=()=>localISODate(new Date());
+const toFI=iso=>iso?new Date(iso+'T00:00:00').toLocaleDateString('fi-FI'):'–';
+const addDaysISO=(iso,n)=>{const d=new Date((iso||todayISO())+'T00:00:00');d.setDate(d.getDate()+n);return localISODate(d)};
+const daysBetween=(a,b)=>{if(!a||!b)return null;return Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)};
+const parseNum=v=>{if(v===null||v===undefined||v==='')return 0;const n=Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+const fmtMoney=n=>parseNum(n).toLocaleString('fi-FI',{maximumFractionDigits:0});
+function contactStatus(lastContact){if(!lastContact)return{cls:'gray',text:'Ei kontaktia'};const d=daysBetween(lastContact,todayISO());if(d===null)return{cls:'gray',text:'Ei kontaktia'};if(d<=30)return{cls:'green',text:d+' pv'};if(d<=60)return{cls:'yellow',text:d+' pv'};if(d<=90)return{cls:'orange',text:d+' pv'};return{cls:'red',text:d+' pv'}}
+function dueTag(nextDate){if(!nextDate)return{text:'Ei päivää',cls:''};const t=todayISO();if(nextDate<t)return{text:'Erääntynyt',cls:'bad'};if(nextDate===t)return{text:'Tänään',cls:'ok'};return{text:'Tulossa',cls:''}}
+function isoWeekNumber(d){const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dayNum=date.getUTCDay()||7;date.setUTCDate(date.getUTCDate()+4-dayNum);const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil((((date-yearStart)/86400000)+1)/7)}
+function weekBounds(){const now=new Date();const dow=now.getDay()||7;const mon=new Date(now);mon.setDate(now.getDate()-dow+1);mon.setHours(0,0,0,0);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return{start:localISODate(mon),end:localISODate(sun),weekNum:isoWeekNumber(mon),year:mon.getFullYear()}}
+function toast(t){let el=$('__toast');if(!el){el=document.createElement('div');el.id='__toast';el.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.16);color:#fff;padding:10px 14px;border-radius:999px;font-weight:650;box-shadow:0 14px 30px rgba(0,0,0,.35);z-index:9999;backdrop-filter:blur(8px)';document.body.appendChild(el)}el.textContent=t;el.style.opacity='1';clearTimeout(window.__toastT);window.__toastT=setTimeout(()=>{el.style.opacity='0'},1800)}
+function setListStatus(t,c='hint'){const el=$('listStatus');el.className=c;el.textContent=t}
+
+async function auth(){const r=await sb.auth.getUser();user=r.data?.user||null;
+  $('authStatus').textContent=user?('Kirjautunut: '+user.email):'Ei kirjautunut';
+  $('loginBox').style.display=user?'none':'flex';
+  $('btnLogout').style.display=user?'inline-flex':'none';
+  return user}
+async function workspace(){if(ws)return ws;if(!await auth())throw Error('Kirjaudu ensin');let r=await sb.from('kontakti_workspaces').select('*').limit(1);if(r.error)throw r.error;if(!r.data?.length)throw Error('Työtilaa ei löytynyt. Kirjaudu varaversiossa (supabase.html) ensin.');ws=r.data[0];return ws}
+
+async function load(){
+  try{
+    setListStatus('Haetaan...');
+    const w=await workspace();
+    const a=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('priority',{ascending:false}).order('next_date',{ascending:true,nullsFirst:false}).limit(1000);
+    if(a.error)throw a.error; cs=a.data||[];
+    const b=await sb.from('kontakti_notes').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('note_date',{ascending:false}).order('created_at',{ascending:false}).limit(3000);
+    if(b.error)throw b.error; ns=b.data||[];
+    if(sel&&!cs.some(c=>c.id===sel)) sel=null;
+    if(!sel&&cs[0]) sel=cs[0].id;
+    renderAll();
+    setListStatus('Haettu '+cs.length+' asiakasta','ok');
+  }catch(e){ setListStatus('Virhe: '+e.message,'err'); }
+}
+
+function visible(){
+  let arr=[...cs];
+  if(view==='today'){
+    const t=todayISO();
+    arr=arr.filter(c=>c.next_date&&c.next_date<=t);
+    arr.sort((a,b)=>((a.priority?0:1)-(b.priority?0:1))||((a.next_date<t?0:1)-(b.next_date<t?0:1))||(a.next_date||'').localeCompare(b.next_date||'')||(a.name||'').localeCompare(b.name||''));
+  }
+  if(view==='customers'){
+    const q=search.toLowerCase();
+    if(q) arr=arr.filter(c=>[c.name,c.city,c.region,c.business_id,c.phone,c.email,c.address].map(x=>String(x||'').toLowerCase()).join(' | ').includes(q));
+    arr.sort((a,b)=>{
+      const ap=a.priority?0:1,bp=b.priority?0:1; if(ap!==bp) return ap-bp;
+      if(colorPriority){const am=contactStatus(a.last_contact).cls===colorPriority?0:1,bm=contactStatus(b.last_contact).cls===colorPriority?0:1;if(am!==bm) return am-bm}
+      const ad=a.last_contact||'',bd=b.last_contact||'';
+      return customerSort==='newest'?(bd.localeCompare(ad)||(a.name||'').localeCompare(b.name||'')):(ad.localeCompare(bd)||(a.name||'').localeCompare(b.name||''));
+    });
+  }
+  return arr;
+}
+
+function renderList(){
+  const host=$('list'); host.innerHTML='';
+  if(view==='weekly'){ renderWeeklyList(); return; }
+  if(view==='settings'){ renderSettingsList(); return; }
+  const arr=visible();
+  if(!arr.length){ host.innerHTML='<div class="empty">Ei asiakkaita tässä näkymässä.</div>'; return; }
+  const showQuick=view==='today';
+  const wrap=document.createElement('div'); wrap.className='list';
+  arr.forEach(c=>{
+    const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
+    const cityText=[c.city,c.region].filter(Boolean).join(' • ')||'–';
+    const row=document.createElement('div'); row.className='row'+(c.id===sel?' active':'');
+    const quickHtml=showQuick?`<div class="quick-row"><button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">✅ Soitettu</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">❌ Ei vastattu</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">⏭ Huomenna</button></div>`:'';
+    row.innerHTML=`<div class="row-main"><div class="row-left"><span class="status-dot ${status.cls}"></span><div style="min-width:0;flex:1"><div class="row-name">${esc(c.name||'(Nimetön)')}</div><div class="row-meta">${esc(cityText)}${c.phone?`<br>Puhelin: ${esc(c.phone)}`:''}</div></div></div><div class="row-right">${c.priority?'<span class="tag priority">🟣 Priority</span>':''}</div></div><div class="tagline"><span class="tag ${due.cls}">Seuraava: ${esc(toFI(c.next_date))} (${esc(due.text)})</span><span class="tag">Viime: ${esc(toFI(c.last_contact))} (${esc(status.text)})</span><span class="tag">${esc(c.next_action||'Soitto')}</span><span class="tag">Myynti: €${esc(fmtMoney(c.sales_ytd||0))}</span></div>${quickHtml}`;
+    row.onclick=(e)=>{ if(e.target.closest('[data-qa]')) return; sel=c.id; historyOpen=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
+    wrap.appendChild(row);
+  });
+  host.appendChild(wrap);
+  if(showQuick) host.querySelectorAll('[data-qa]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();quickAction(btn.dataset.qa,btn.dataset.qt)}));
+}
+
+function renderSettingsList(){
+  $('list').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">Työkalut</div></div><div class="actions"><a class="btn" href="import.html?v=1">📥 Import</a><a class="btn" href="report.html?v=1">📊 Raportti</a><a class="btn" href="supabase.html?v=5">🛟 Varaversio</a></div></div>`;
+}
+function renderWeeklyList(){
+  const {start,end}=weekBounds();
+  const rows=ns.filter(n=>n.note_date>=start&&n.note_date<=end);
+  $('list').innerHTML=`<div class="empty">Tämän viikon merkintöjä: ${rows.length}</div>`;
+}
+
+async function quickAction(id,type){
+  const c=cs.find(x=>x.id===id); if(!c) return;
+  try{
+    const w=await workspace(); const today=todayISO();
+    if(type==='answered'){
+      const next=addDaysISO(today,90);
+      const nr=await sb.from('kontakti_notes').insert({workspace_id:w.id,customer_id:c.id,note_type:'Soitettu',note_text:'Soitettu.',note_date:today,next_date:next,created_source:'cloud-ui-v3'});
+      if(nr.error) throw nr.error;
+      const ur=await sb.from('kontakti_customers').update({last_contact:today,next_date:next}).eq('id',c.id);
+      if(ur.error) throw ur.error;
+      toast('✅ Soitettu — seuraava 90 pv');
+    } else if(type==='missed'){
+      const next=addDaysISO(today,1);
+      const nr=await sb.from('kontakti_notes').insert({workspace_id:w.id,customer_id:c.id,note_type:'Ei vastattu',note_text:'Ei vastattu. (soittoyritys)',note_date:today,next_date:next,created_source:'cloud-ui-v3'});
+      if(nr.error) throw nr.error;
+      const ur=await sb.from('kontakti_customers').update({next_date:next}).eq('id',c.id);
+      if(ur.error) throw ur.error;
+      toast('❌ Ei vastattu — uusi yritys huomenna');
+    } else if(type==='snooze'){
+      const next=addDaysISO(today,1);
+      const ur=await sb.from('kontakti_customers').update({next_date:next}).eq('id',c.id);
+      if(ur.error) throw ur.error;
+      toast('⏭ Siirretty huomiselle');
+    }
+    await load();
+  }catch(e){ setListStatus('Virhe: '+e.message,'err'); toast('Virhe: '+e.message); }
+}
+
+const nextActionOptions=['Soitto','Tapaaminen','Tarjous','Seuranta','Sähköposti','Muu'];
+function renderDetail(){
+  if(view==='settings') return renderSettingsDetail();
+  if(view==='weekly') return renderWeeklyDetail();
+  const c=cs.find(x=>x.id===sel);
+  if(!c){ $('detailName').textContent='Valitse asiakas'; $('detailSub').textContent='Klikkaa listasta asiakasta.'; $('detailBody').innerHTML='<div class="note-box"><div class="hint">Valitse asiakas vasemmalta.</div></div>'; return; }
+  const lastText=toFI(c.last_contact), nextText=toFI(c.next_date);
+  $('detailName').textContent=c.name||'(Nimetön)';
+  $('detailSub').innerHTML=`<span>Viime kontakti: <b>${esc(lastText)}</b></span><span>Seuraava: <b>${esc(nextText)}</b></span>${c.priority?'<span class="pill priority">🟣 Priority</span>':''}`;
+  const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
+  const tel=c.phone?'tel:'+c.phone.replace(/\s/g,''):'', mail=c.email?'mailto:'+c.email:'';
+  const mapsUrl=(c.address||c.city)?'https://www.google.com/maps?q='+encodeURIComponent([c.address,c.city].filter(Boolean).join(', ')):'';
+  const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(x)}</option>`).join('');
+  $('detailBody').innerHTML=`
+    <div class="note-box">
+      <div class="note-top"><div class="t">Nykytila</div><div class="d">nyt</div></div>
+      <div class="kvlist">
+        <div class="kvrow"><b>Viime kontakti</b><span>${esc(lastText)}${c.last_contact?' ('+esc(status.text)+')':''}</span></div>
+        <div class="kvrow"><b>Seuraava</b><span>${esc(nextText)}</span></div>
+        <div class="kvrow"><b>Toimenpide</b><span>${esc(c.next_action||'Soitto')}</span></div>
+        <div class="kvrow"><b>Myynti YTD</b><span>€${esc(fmtMoney(c.sales_ytd||0))}</span></div>
+      </div>
+      <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">Näytä historia</button></div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">Muistiinpano</div><div class="d">${esc(todayISO())}</div></div>
+      <div class="field"><textarea id="noteText" placeholder="Kirjaa muistiinpano..."></textarea></div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">Ostokset</div><div class="d">teksti</div></div>
+      <div class="field"><textarea id="purchasesText" placeholder="Kirjaa ostokset / tuotteet..."></textarea></div>
+      <div class="grid2">
+        <div class="field"><div class="label">Myynti € (valinnainen)</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
+        <div class="field" style="justify-content:flex-end"><div class="label">&nbsp;</div><button class="btn primary saveflash" id="btnSaveNote" type="button">Tallenna merkintä</button></div>
+      </div>
+      <div class="hint">Muistiinpano tai ostokset riittää tallennukseen.</div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">Seuraava toimenpide</div><div class="d">${esc(due.text)}</div></div>
+      <div class="grid2">
+        <div class="field"><div class="label">Seuraava pvm</div><input id="nextDateInput" type="date" value="${esc(c.next_date||'')}"></div>
+        <div class="field"><div class="label">Toimenpide</div><select id="nextActionSelect">${optHtml}</select></div>
+      </div>
+      <div class="switchline">
+        <div><div style="font-weight:620">Priority</div><div class="hint">Nousee soittolistan kärkeen.</div></div>
+        <button class="btn priority ${c.priority?'active':''}" id="btnPriorityToggle" type="button">${c.priority?'🟣 Priority päällä':'🟣 Priority pois'}</button>
+      </div>
+      <div class="actions"><button class="btn primary saveflash" id="btnSaveNext" type="button">Tallenna seuraava toimenpide</button></div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">Perustiedot</div><div class="d">read-only</div></div>
+      <div class="kvlist">
+        <div class="kvrow"><b>Y-tunnus</b><span>${esc(c.business_id||'–')}</span></div>
+        <div class="kvrow"><b>Puhelin</b><span>${c.phone?`<a href="${esc(tel)}">${esc(c.phone)}</a>`:'–'}</span></div>
+        <div class="kvrow"><b>Email</b><span>${c.email?`<a href="${esc(mail)}">${esc(c.email)}</a>`:'–'}</span></div>
+        <div class="kvrow"><b>Osoite</b><span>${c.address?`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`:'–'}</span></div>
+      </div>
+      <div class="quick">
+        <button class="btn" id="btnCall" type="button" ${c.phone?'':'disabled'}>Soita</button>
+        <button class="btn" id="btnMaps" type="button" ${(c.address||c.city)?'':'disabled'}>Maps</button>
+        <button class="btn" id="btnEmail" type="button" ${c.email?'':'disabled'}>Email</button>
+      </div>
+    </div>
+    ${renderHistoryPopover(c)}
+  `;
+  wireDetail(c,tel,mail,mapsUrl);
+}
+
+function renderHistoryPopover(c){
+  const items=ns.filter(n=>n.customer_id===c.id).slice().sort((a,b)=>(b.note_date||'').localeCompare(a.note_date||'')||(b.created_at||'').localeCompare(a.created_at||''));
+  const body=items.length?items.map(n=>{
+    const hasNote=Boolean((n.note_text||'').trim()), hasPurch=Boolean((n.purchases_text||'').trim());
+    return `<div class="history-item"><div class="history-meta"><div class="history-date">${esc(toFI(n.note_date))}</div><div class="history-badges">${n.note_type?`<span class="tag">${esc(n.note_type)}</span>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}${n.next_date?`<span class="tag">Seuraava ${esc(toFI(n.next_date))}</span>`:''}</div></div>${hasNote?`<div class="history-text"><b>Muistiinpano</b>\n${esc(n.note_text)}</div>`:''}${hasPurch?`<div class="history-text"><b>Ostokset</b>\n${esc(n.purchases_text)}</div>`:''}</div>`;
+  }).join(''):'<div class="note-box"><div class="hint">Ei historiatapahtumia vielä.</div></div>';
+  return `<div class="history-popover" id="historyPopover" ${historyOpen?'':'hidden'}><div class="history-head"><div><div class="history-title">Historia</div><div class="history-sub">Merkinnät asiakkaalta ${esc(c.name||'')}</div></div><button class="btn" id="btnCloseHistory" type="button">Sulje</button></div><div class="history-body">${body}</div></div>`;
+}
+
+function buttonSaved(btn,text){ if(!btn) return; const old=btn.textContent; btn.classList.add('is-ok'); btn.textContent=text||'Tallennettu ✓'; setTimeout(()=>{btn.classList.remove('is-ok');btn.textContent=old},1600); }
+
+function wireDetail(c,tel,mail,mapsUrl){
+  $('btnOpenHistory')?.addEventListener('click',()=>{ historyOpen=!historyOpen; renderDetail(); });
+  $('btnCloseHistory')?.addEventListener('click',()=>{ historyOpen=false; renderDetail(); });
+  $('btnCall')?.addEventListener('click',()=>{ if(tel) window.location.href=tel; });
+  $('btnMaps')?.addEventListener('click',()=>{ if(mapsUrl) window.open(mapsUrl,'_blank','noopener'); });
+  $('btnEmail')?.addEventListener('click',()=>{ if(mail) window.location.href=mail; });
+  $('btnPriorityToggle')?.addEventListener('click',()=>togglePriority(c));
+  $('btnSaveNote')?.addEventListener('click',()=>saveNote(c));
+  $('btnSaveNext')?.addEventListener('click',()=>saveNextAction(c));
+  $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
+}
+
+async function saveNote(c){
+  const noteText=($('noteText').value||'').trim();
+  const purchasesText=($('purchasesText').value||'').trim();
+  const sales=parseNum($('salesInput').value);
+  if(!noteText&&!purchasesText){ alert('Kirjaa muistiinpano tai ostokset.'); return; }
+  try{
+    const w=await workspace(); const today=todayISO();
+    const actionType=$('nextActionSelect')?.value||'Soitto';
+    const row={workspace_id:w.id,customer_id:c.id,note_type:actionType,note_text:noteText,purchases_text:purchasesText,sales:sales||0,note_date:today,next_date:c.next_date||null,created_source:'cloud-ui-v3'};
+    const nr=await sb.from('kontakti_notes').insert(row);
+    if(nr.error) throw nr.error;
+    const patch={last_contact:today};
+    if(sales) patch.sales_ytd=Number(c.sales_ytd||0)+sales;
+    const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
+    if(ur.error) throw ur.error;
+    buttonSaved($('btnSaveNote'));
+    await load(); sel=c.id; historyOpen=false; renderAll();
+  }catch(e){ setListStatus('Virhe: '+e.message,'err'); alert('Virhe tallennuksessa: '+e.message); }
+}
+async function saveNextAction(c){
+  try{
+    const patch={next_date:$('nextDateInput').value||null,next_action:$('nextActionSelect').value||'Soitto'};
+    const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
+    if(ur.error) throw ur.error;
+    buttonSaved($('btnSaveNext'));
+    await load(); sel=c.id; renderAll();
+  }catch(e){ setListStatus('Virhe: '+e.message,'err'); alert('Virhe tallennuksessa: '+e.message); }
+}
+async function togglePriority(c){
+  try{
+    const ur=await sb.from('kontakti_customers').update({priority:!c.priority}).eq('id',c.id);
+    if(ur.error) throw ur.error;
+    await load(); sel=c.id; renderAll();
+  }catch(e){ setListStatus('Virhe: '+e.message,'err'); }
+}
+
+function renderSettingsDetail(){
+  $('detailName').textContent='Asetukset';
+  $('detailSub').textContent='Pilvisynkka ja työkalut.';
+  $('detailBody').innerHTML=`<div class="note-box"><div class="hint">Tämä on cloud-ui-v3: alkuperäisen paikallisen Kontaktin UI-rakenne pilvisynkalla. Asiakkaiden lisäys, tuonti ja varmuuskopiot hoidetaan Import- ja Varaversio-sivuilla.</div></div>`;
+}
+function renderWeeklyDetail(){
+  const w=weekBounds();
+  const rows=ns.filter(n=>n.note_date>=w.start&&n.note_date<=w.end);
+  const names=Object.fromEntries(cs.map(c=>[c.id,c.name]));
+  const lines=rows.slice().sort((a,b)=>(a.note_date||'').localeCompare(b.note_date||'')).map(n=>{
+    const head=`${toFI(n.note_date)} — ${names[n.customer_id]||'Asiakas'} — ${n.note_type||''}`;
+    const body=[n.note_text,n.purchases_text].filter(Boolean).join('\n');
+    const tail=n.sales?` — €${fmtMoney(n.sales)}`:'';
+    return head+tail+(body?`\n${body}`:'');
+  }).join('\n\n');
+  const header=`Viikko ${w.weekNum} / ${w.year}\n${toFI(w.start)} – ${toFI(w.end)}\n\nMerkintöjä: ${rows.length}\n\n`;
+  $('detailName').textContent='Viikkoraportti';
+  $('detailSub').textContent=`Viikko ${w.weekNum}: ${toFI(w.start)} – ${toFI(w.end)} (ma–su)`;
+  $('detailBody').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">Kopioitava raportti</div><div class="d">copy–paste</div></div><div class="field"><textarea id="weeklyText" style="min-height:300px">${esc(header+(lines||'–'))}</textarea></div><div class="actions"><button class="btn primary" id="btnCopyWeekly" type="button">Kopioi</button></div><div class="hint">Näyttää nykyisen viikon (ma 00:00 – su 23:59), ei kuluvaa kuukautta.</div></div>`;
+  $('btnCopyWeekly')?.addEventListener('click',async()=>{ const ta=$('weeklyText'); ta.select(); try{ await navigator.clipboard.writeText(ta.value); }catch(e){ document.execCommand('copy'); } toast('Kopioitu ✓'); });
+}
+
+function setHeaders(){
+  const pageTitle=$('pageTitle'), listSub=$('listSub'), searchWrap=$('searchWrap'), listTitle=$('listTitle'), arrows=$('listArrows'), filterDots=$('filterDots');
+  if(view==='today'){ pageTitle.textContent='Soita tänään'; listTitle.textContent='Asiakkaat'; listSub.textContent='Erääntyneet + tänään'; searchWrap.style.display='none'; arrows.style.display='flex'; filterDots.style.display='none'; }
+  else if(view==='customers'){ pageTitle.textContent='Asiakkaat'; listTitle.textContent='Asiakkaat'; listSub.textContent=(customerSort==='newest'?'Tuorein kontakti ensin':'Vanhin kontakti ensin')+(colorPriority?' • '+colorPriority.toUpperCase():''); searchWrap.style.display='flex'; arrows.style.display='flex'; filterDots.style.display='flex'; }
+  else if(view==='weekly'){ pageTitle.textContent='Viikkoraportti'; listTitle.textContent='Viikkoraportti'; listSub.textContent='Nykyinen viikko'; searchWrap.style.display='none'; arrows.style.display='none'; filterDots.style.display='none'; }
+  else { pageTitle.textContent='Asetukset'; listTitle.textContent='Työkalut'; listSub.textContent='Pilvisynkka'; searchWrap.style.display='none'; arrows.style.display='none'; filterDots.style.display='none'; }
+}
+function setPills(){
+  const t=todayISO();
+  $('pillToday').textContent=String(cs.filter(c=>c.next_date&&c.next_date<=t).length);
+  $('pillCustomers').textContent=String(cs.length);
+  $('pillWeek').textContent='vko '+isoWeekNumber(new Date());
+  const total=cs.reduce((s,c)=>s+Number(c.sales_ytd||0),0);
+  $('salesTotal').textContent='€'+fmtMoney(total);
+  $('salesSub').textContent=cs.filter(c=>Number(c.sales_ytd||0)>0).length+' ostanutta · pilvisynkka';
+}
+function setActiveNav(){ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view)); }
+function renderAll(){
+  setHeaders(); setPills(); setActiveNav();
+  document.querySelectorAll('.filter-dot').forEach(x=>x.classList.toggle('active',x.dataset.color===colorPriority));
+  renderList(); renderDetail();
+}
+
+function wire(){
+  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; $('detailCard')?.classList.remove('show'); renderAll(); }));
+  $('search')?.addEventListener('input',e=>{ search=e.target.value||''; renderList(); });
+  $('btnRefresh')?.addEventListener('click',load);
+  $('btnScrollTop')?.addEventListener('click',()=>{ if(view==='customers'){ customerSort='newest'; renderAll(); toast('Tuorein kontakti ensin'); return; } $('listBody')?.scrollTo({top:0,behavior:'smooth'}); });
+  $('btnScrollBottom')?.addEventListener('click',()=>{ if(view==='customers'){ customerSort='oldest'; renderAll(); toast('Vanhin kontakti ensin'); return; } const lb=$('listBody'); lb?.scrollTo({top:lb.scrollHeight,behavior:'smooth'}); });
+  document.querySelectorAll('.filter-dot').forEach(btn=>btn.addEventListener('click',()=>{ const c=btn.dataset.color||''; colorPriority=colorPriority===c?'':c; renderAll(); }));
+  $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
+  $('btnLogin')?.addEventListener('click',async()=>{
+    const email=$('loginEmail').value.trim(), password=$('loginPassword').value;
+    $('loginStatus').textContent='Kirjaudutaan...';
+    const r=await sb.auth.signInWithPassword({email,password});
+    if(r.error){ $('loginStatus').textContent='Virhe: '+r.error.message; return; }
+    $('loginStatus').textContent=''; ws=null; await auth(); await load();
+  });
+  $('btnLogout')?.addEventListener('click',async()=>{
+    await sb.auth.signOut(); user=null; ws=null; cs=[]; ns=[]; sel=null;
+    await auth(); renderAll(); setListStatus('Kirjauduttu ulos.');
+  });
+}
+
+async function init(){
+  wire();
+  await auth();
+  if(user){ await load(); } else { renderAll(); setListStatus('Kirjaudu sisään nähdäksesi asiakkaat.'); }
+}
+init();
+</script>
+</body>
+</html>
