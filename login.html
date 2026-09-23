@@ -6,43 +6,71 @@
 <title>Kontakti — Kirjaudu</title>
 <style>
 :root{
-  --bg0:#071226;--bg1:#091a35;--panel:rgba(255,255,255,.05);--stroke:rgba(255,255,255,.17);
-  --text:rgba(255,255,255,.96);--muted:rgba(255,255,255,.68);
-  --brand:#2d6bff;--brand2:#2153c8;--danger:#ff4d4d;
-  --shadow:0 14px 40px rgba(0,0,0,.35);--r22:22px;
+  --bg0:#050b1a;--bg1:#0a1830;
+  --panel:rgba(255,255,255,.055);--stroke:rgba(255,255,255,.18);
+  --text:rgba(255,255,255,.97);--muted:rgba(255,255,255,.62);
+  --brand:#2d6bff;--brand2:#1c4fd6;--danger:#ff5a5a;
+  --shadow:0 24px 60px rgba(0,0,0,.45);--r22:24px;
   --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--sans);color:var(--text);background:radial-gradient(1200px 700px at 18% 0%, rgba(45,107,255,.22), transparent 62%),radial-gradient(1000px 520px at 90% 10%, rgba(38,208,124,.10), transparent 65%),linear-gradient(180deg,var(--bg0),var(--bg1))}
-.login-card{width:min(380px,100%);background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r22);box-shadow:var(--shadow);backdrop-filter:blur(6px);padding:28px 26px;display:flex;flex-direction:column;gap:20px}
-.login-brand{display:flex;align-items:center;gap:12px}
-.opero-logo-mini{width:44px;height:44px;flex:0 0 44px}
+body{
+  margin:0;min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;
+  font-family:var(--sans);color:var(--text);
+  background:
+    radial-gradient(900px 620px at 16% 18%, rgba(45,107,255,.24), transparent 60%),
+    radial-gradient(760px 580px at 88% 84%, rgba(130,92,246,.14), transparent 62%),
+    radial-gradient(620px 420px at 82% 6%, rgba(45,210,220,.08), transparent 60%),
+    linear-gradient(180deg,var(--bg0),var(--bg1));
+}
+.login-card{
+  width:min(400px,100%);background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r22);
+  box-shadow:var(--shadow),0 1px 0 rgba(255,255,255,.05) inset;backdrop-filter:blur(8px);
+  padding:36px 34px;display:flex;flex-direction:column;gap:26px;
+}
+.login-brand{display:flex;align-items:center;gap:14px}
+.opero-logo-mini{width:50px;height:50px;flex:0 0 50px}
 .opero-logo-img{display:block;width:100%;height:100%;object-fit:contain}
-.title{font-size:26px;font-weight:700;line-height:1.02}
-.brand-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:2px}
+.title{font-size:30px;font-weight:720;line-height:1.05;letter-spacing:-.01em}
+.brand-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:3px}
 .sub{font-size:12px;font-weight:400;color:var(--muted)}
 .lang-switch{display:flex;align-items:center;gap:6px}
-.lang-opt{appearance:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer;padding:3px 6px;border-radius:8px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.55;transition:.15s ease}
-.lang-opt:hover{opacity:.85;background:rgba(255,255,255,.07)}
-.lang-opt.active{opacity:1;background:rgba(45,107,255,.16);border-color:rgba(45,107,255,.6);box-shadow:0 0 0 1px rgba(45,107,255,.24),0 0 8px rgba(45,107,255,.30)}
-form{display:flex;flex-direction:column;gap:14px}
-.field{display:flex;flex-direction:column;gap:6px}
-.label{font-size:12px;color:var(--muted);font-weight:400}
-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:400;font-family:inherit;font-size:14px}
-input:focus{border-color:rgba(45,107,255,.55)}
+.lang-opt{appearance:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.15);color:var(--text);cursor:pointer;padding:3px 6px;border-radius:8px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.55;transition:.15s ease}
+.lang-opt:hover{opacity:.85;background:rgba(255,255,255,.08)}
+.lang-opt.active{opacity:1;background:rgba(45,107,255,.15);border-color:rgba(45,107,255,.55);box-shadow:0 0 0 1px rgba(45,107,255,.20),0 0 6px rgba(45,107,255,.22)}
+.welcome{display:flex;flex-direction:column;gap:4px}
+.welcome-title{font-size:17px;font-weight:620;color:var(--text);line-height:1.3}
+.welcome-sub{font-size:13px;font-weight:400;color:var(--muted);line-height:1.4}
+form{display:flex;flex-direction:column;gap:18px}
+.field{display:flex;flex-direction:column;gap:7px}
+.label{font-size:12px;color:var(--muted);font-weight:450;letter-spacing:.01em}
+input{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.18);color:var(--text);
+  border-radius:13px;padding:13px 14px;min-height:46px;outline:none;font-weight:400;font-family:inherit;font-size:14.5px;
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+input:hover{border-color:rgba(255,255,255,.28)}
+input:focus{border-color:rgba(45,107,255,.65);box-shadow:0 0 0 3px rgba(45,107,255,.16);background:rgba(255,255,255,.06)}
 input::placeholder{color:var(--muted)}
 .pw-wrap{position:relative;display:flex}
-.pw-wrap input{padding-right:42px;width:100%}
-.pw-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:6px;border-radius:8px;line-height:1}
-.pw-toggle:hover{color:var(--text);background:rgba(255,255,255,.06)}
-.btn{appearance:none;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:11px 12px;cursor:pointer;font-weight:550;font-size:14px;transition:.15s ease}
-.btn.primary{background:linear-gradient(180deg, rgba(45,107,255,.95), rgba(33,83,200,.95));border-color:rgba(45,107,255,.4);box-shadow:0 10px 18px rgba(45,107,255,.10);color:#fff}
-.btn.primary:hover{background:linear-gradient(180deg, rgba(45,107,255,1), rgba(33,83,200,1))}
+.pw-wrap input{padding-right:46px;width:100%}
+.pw-toggle{position:absolute;right:5px;top:0;bottom:0;margin:auto 0;height:34px;width:34px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;border-radius:9px;line-height:1;padding:0}
+.pw-toggle:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.btn{appearance:none;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:var(--text);border-radius:13px;padding:13px 14px;min-height:46px;cursor:pointer;font-weight:600;font-size:14.5px;transition:.15s ease;display:inline-flex;align-items:center;justify-content:center;width:100%}
+.btn.primary{background:linear-gradient(180deg, rgba(51,112,255,.98), rgba(31,79,214,.98));border-color:rgba(45,107,255,.5);box-shadow:0 12px 24px rgba(31,79,214,.22);color:#fff}
+.btn.primary:hover{background:linear-gradient(180deg, rgba(63,122,255,1), rgba(38,90,224,1));box-shadow:0 14px 28px rgba(31,79,214,.28)}
+.btn.primary:active{transform:translateY(1px);box-shadow:0 8px 16px rgba(31,79,214,.20)}
 .btn:disabled{opacity:.6;cursor:not-allowed}
 .login-status{font-size:13px;line-height:1.4;min-height:0;color:var(--danger)}
 .login-status[hidden]{display:none}
 .login-status.info{color:var(--muted)}
+.login-status.error-box{background:rgba(255,77,77,.10);border:1px solid rgba(255,77,77,.28);border-radius:10px;padding:9px 11px}
+@media (max-width:480px){
+  body{padding:16px}
+  .login-card{padding:26px 22px;gap:22px;border-radius:20px}
+  .title{font-size:26px}
+}
 </style>
 </head>
 <body>
@@ -59,6 +87,10 @@ input::placeholder{color:var(--muted)}
           </div>
         </div>
       </div>
+    </div>
+    <div class="welcome">
+      <div class="welcome-title" data-i18n="welcomeTitle">Tervetuloa takaisin</div>
+      <div class="welcome-sub" data-i18n="welcomeSub">Kirjaudu jatkaaksesi Kontaktiin</div>
     </div>
     <form id="loginForm">
       <div class="field">
@@ -92,13 +124,15 @@ const TRANSLATIONS={
     byOpero:'by Opero', email:'Sähköposti', password:'Salasana', signIn:'Kirjaudu', signingIn:'Kirjaudutaan...',
     signInFailed:'Kirjautuminen epäonnistui. Tarkista sähköposti ja salasana.',
     showPassword:'Näytä salasana', hidePassword:'Piilota salasana',
-    fillBoth:'Täytä sähköposti ja salasana.'
+    fillBoth:'Täytä sähköposti ja salasana.',
+    welcomeTitle:'Tervetuloa takaisin', welcomeSub:'Kirjaudu jatkaaksesi Kontaktiin'
   },
   en:{
     byOpero:'by Opero', email:'Email', password:'Password', signIn:'Sign in', signingIn:'Signing in...',
     signInFailed:'Sign in failed. Check your email and password.',
     showPassword:'Show password', hidePassword:'Hide password',
-    fillBoth:'Enter your email and password.'
+    fillBoth:'Enter your email and password.',
+    welcomeTitle:'Welcome back', welcomeSub:'Sign in to continue to Kontakti'
   }
 };
 function t(key){ return (TRANSLATIONS[LANG]&&TRANSLATIONS[LANG][key]) ?? TRANSLATIONS.fi[key] ?? key; }
@@ -118,7 +152,15 @@ $('btnTogglePw')?.addEventListener('click',()=>{
   applyStaticI18n();
 });
 
-function setStatus(msg,cls){ const el=$('loginStatus'); if(!msg){ el.hidden=true; el.textContent=''; return; } el.hidden=false; el.className='login-status'+(cls?(' '+cls):''); el.textContent=msg; }
+// Puhtaasti visuaalinen apuri: sama viesti/logiikka kuin ennen, vain kevyt error-box-tyyli
+// virheille ja hillitympi info-tyyli latausviestille.
+function setStatus(msg,cls){
+  const el=$('loginStatus');
+  if(!msg){ el.hidden=true; el.textContent=''; el.className='login-status'; return; }
+  el.hidden=false;
+  el.className='login-status'+(cls==='info'?' info':' error-box');
+  el.textContent=msg;
+}
 
 // Jos käyttäjällä on jo voimassa oleva Supabase-sessio (esim. toiselta Kontakti-sivulta),
 // ohjataan suoraan sovellukseen sen sijaan että näytettäisiin login-lomake turhaan.
