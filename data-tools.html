@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakti — Tuonti / Vienti</title>
+<style>
+:root{
+  --bg0:#071226;--bg1:#091a35;--panel:rgba(255,255,255,.05);--stroke:rgba(255,255,255,.17);
+  --text:rgba(255,255,255,.96);--muted:rgba(255,255,255,.68);
+  --brand:#2d6bff;--brand2:#2153c8;--ok:#26d07c;--warn:#ffcc66;--amber:#ff9f43;--danger:#ff4d4d;--priority:#8b5cf6;
+  --shadow:0 14px 40px rgba(0,0,0,.35);--shadow2:0 10px 24px rgba(0,0,0,.22);--r22:22px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradient(1200px 700px at 18% 0%, rgba(45,107,255,.22), transparent 62%),radial-gradient(1000px 520px at 90% 10%, rgba(38,208,124,.10), transparent 65%),linear-gradient(180deg,var(--bg0),var(--bg1));min-height:100vh}
+.wrap{max-width:920px;margin:0 auto;padding:20px 20px 60px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border:1px solid var(--stroke);border-radius:var(--r22);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:16px;backdrop-filter:blur(6px)}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.opero-logo-mini{width:38px;height:38px;flex:0 0 38px}
+.opero-logo-img{display:block;width:100%;height:100%;object-fit:contain}
+.title{font-size:20px;font-weight:700;line-height:1.05}
+.brand-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sub{font-size:12px;font-weight:400;color:var(--muted)}
+.lang-switch{display:flex;align-items:center;gap:6px}
+.lang-opt{appearance:none;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer;padding:3px 6px;border-radius:8px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.55;transition:.15s ease}
+.lang-opt:hover{opacity:.85;background:rgba(255,255,255,.07)}
+.lang-opt.active{opacity:1;background:rgba(45,107,255,.16);border-color:rgba(45,107,255,.6);box-shadow:0 0 0 1px rgba(45,107,255,.24),0 0 8px rgba(45,107,255,.30)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn{appearance:none;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:500;transition:.15s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;user-select:none;text-decoration:none;font:inherit}
+.btn:hover{background:rgba(255,255,255,.07)} .btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:linear-gradient(180deg, rgba(45,107,255,.95), rgba(33,83,200,.95));border-color:rgba(45,107,255,.4);box-shadow:0 10px 18px rgba(45,107,255,.10);color:#fff;font-weight:600}
+.btn.green{background:rgba(38,208,124,.14);border-color:rgba(38,208,124,.36);color:#b9f6d4}
+.btn.subtle{font-size:12.5px;padding:7px 11px;font-weight:450;background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.12);color:var(--muted)}
+.btn.subtle:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab-btn{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.035);color:var(--text);border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:13.5px;transition:.15s ease}
+.tab-btn:hover{background:rgba(255,255,255,.06)}
+.tab-btn.active{border-color:rgba(45,107,255,.65);background:rgba(45,107,255,.18);box-shadow:0 0 0 1px rgba(45,107,255,.24),0 0 14px rgba(45,107,255,.24)}
+.panel{display:none}
+.panel.active{display:flex;flex-direction:column;gap:14px}
+.card{border:1px solid var(--stroke);background:var(--panel);border-radius:var(--r22);box-shadow:var(--shadow);padding:16px;backdrop-filter:blur(6px)}
+.card-title{font-size:15px;font-weight:650;margin-bottom:4px}
+.card-sub{font-size:12.5px;color:var(--muted);font-weight:400;margin-bottom:10px;line-height:1.4}
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.label{font-size:12px;color:var(--muted);font-weight:400}
+input,textarea,select{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:400;font-family:inherit;font-size:14px}
+textarea{min-height:150px;resize:vertical} input::placeholder,textarea::placeholder{color:var(--muted)} select option{background:#0d1a33;color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:680px){.grid2,.grid3{grid-template-columns:1fr}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.kv2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kv2-cell{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);border-radius:12px;padding:9px 11px;min-width:0}
+.kv2-label{font-size:11px;color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px}
+.kv2-value{font-size:14px;font-weight:450;color:var(--text);word-break:break-word;line-height:1.3}
+@media(max-width:680px){.kv2-grid{grid-template-columns:1fr}}
+.hint{font-size:12px;color:var(--muted);line-height:1.45;font-weight:400}
+.hint.ok{color:#b9f6d4}.hint.err{color:#ffc0c0}
+.tag{font-size:12px;font-weight:500;color:var(--text);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);padding:3px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+.tag.ok{border-color:rgba(38,208,124,.32);background:rgba(38,208,124,.10)}
+.tag.bad{border-color:rgba(255,77,77,.32);background:rgba(255,77,77,.10)}
+.tag.warn{border-color:rgba(255,204,102,.4);background:rgba(255,204,102,.10)}
+.tag.priority{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.13)}
+.summary-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.filepick{border:1.5px dashed rgba(255,255,255,.22);border-radius:16px;padding:22px;text-align:center;cursor:pointer;transition:.15s ease}
+.filepick:hover{background:rgba(255,255,255,.03);border-color:rgba(45,107,255,.5)}
+.filepick input{display:none}
+.list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;margin-top:6px}
+.list-empty{padding:10px 2px;color:var(--muted);font-size:13px}
+.row-item{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.row-item .name{font-weight:600;font-size:13.5px}
+.row-item .meta{font-size:12px;color:var(--muted);margin-top:3px}
+.row-item select{width:auto;padding:6px 10px;font-size:12.5px;border-radius:10px}
+.section-title{font-size:13px;font-weight:650;margin:12px 0 4px}
+.table-wrap{overflow:auto}
+table.rep{width:100%;border-collapse:collapse;font-size:13px}
+table.rep th,table.rep td{text-align:left;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+table.rep th{color:var(--muted);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:.02em}
+.signin-banner{padding:26px 16px;text-align:center}
+.signin-banner .big{font-size:16px;font-weight:650;color:var(--text)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="opero-logo-mini"><img class="opero-logo-img" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+      </div>
+      <div>
+        <div class="title" data-i18n="pageTitle">Tuonti / Vienti</div>
+        <div class="brand-row">
+          <span class="sub">Kontakti · by Opero</span>
+          <div class="lang-switch" id="langSwitch">
+            <button type="button" class="lang-opt" data-lang="fi" aria-label="Suomi">🇫🇮</button>
+            <button type="button" class="lang-opt" data-lang="en" aria-label="English">🇬🇧</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a class="btn subtle" href="cloud-ui-v8.html" data-i18n="backToApp">← Takaisin</a>
+    </div>
+  </div>
+
+  <div id="signinGate" class="card" hidden>
+    <div class="signin-banner">
+      <div class="big" data-i18n="redirecting">Ohjataan kirjautumiseen...</div>
+    </div>
+  </div>
+
+  <div id="mainArea">
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="finder" data-i18n="tabFinder">Finder / Fonecta</button>
+      <button type="button" class="tab-btn" data-tab="jsonimport" data-i18n="tabJsonImport">JSON-tuonti</button>
+      <button type="button" class="tab-btn" data-tab="jsonexport" data-i18n="tabJsonExport">JSON-vienti</button>
+    </div>
+
+    <!-- FINDER / FONECTA -->
+    <div class="panel active" id="panel-finder">
+      <div class="card">
+        <div class="card-title" data-i18n="finderTitle">Liitä kopioitu teksti</div>
+        <div class="card-sub" data-i18n="finderSub">Liitä Finderistä tai Fonectasta kopioitu asiakkaan teksti, tunnista tiedot ja tallenna Kontaktiin.</div>
+        <div class="field"><textarea id="raw" data-i18n-ph="finderPlaceholder" placeholder="Esim. RebelWerks Ltd Oy&#10;Y-tunnus&#10;3427678-5&#10;Sähköposti&#10;rebelwerks@outlook.com&#10;Puhelinnumero&#10;045...&#10;Toimipaikan osoite&#10;Katu 1, 00100 Helsinki"></textarea></div>
+        <div class="actions">
+          <button class="btn" id="btnParse" type="button" data-i18n="finderParse">Tunnista tiedot</button>
+          <button class="btn green" id="btnFinderSave" type="button" data-i18n="finderSave">Tallenna Kontaktiin</button>
+        </div>
+        <p id="finderStatus" class="hint" data-i18n="ready">Valmis.</p>
+      </div>
+      <div class="card">
+        <div class="card-title" data-i18n="finderPreview">Esikatselu</div>
+        <div class="kv2-grid">
+          <div class="kv2-cell"><div class="kv2-label" data-i18n="fName">Nimi</div><div class="kv2-value" id="pName">—</div></div>
+          <div class="kv2-cell"><div class="kv2-label" data-i18n="fBid">Y-tunnus</div><div class="kv2-value" id="pBid">—</div></div>
+          <div class="kv2-cell"><div class="kv2-label" data-i18n="fEmail">Sähköposti</div><div class="kv2-value" id="pEmail">—</div></div>
+          <div class="kv2-cell"><div class="kv2-label" data-i18n="fPhone">Puhelin</div><div class="kv2-value" id="pPhone">—</div></div>
+          <div class="kv2-cell kv2-full"><div class="kv2-label" data-i18n="fAddress">Osoite</div><div class="kv2-value" id="pAddress">—</div></div>
+          <div class="kv2-cell"><div class="kv2-label" data-i18n="fCity">Kaupunki</div><div class="kv2-value" id="pCity">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON IMPORT -->
+    <div class="panel" id="panel-jsonimport">
+      <div class="card">
+        <div class="card-title" data-i18n="jiTitle">Tuo vanha Kontakti-varmuuskopio</div>
+        <div class="card-sub" data-i18n="jiSub">Valitse paikallinen .json-tiedosto. Tiedosto luetaan selaimessa, analysoidaan ja esikatsellaan ennen kuin mitään tallennetaan Supabaseen.</div>
+        <label class="filepick" id="filepick">
+          <input type="file" id="jsonPicker" accept="application/json,.json">
+          <div data-i18n="chooseFile">📂 Valitse tiedosto</div>
+        </label>
+        <p id="jiStatus" class="hint"></p>
+      </div>
+
+      <div class="card" id="jiAnalysisCard" hidden>
+        <div class="card-title" data-i18n="jiAnalysis">Analyysi</div>
+        <div class="kv2-grid" id="jiAnalysisMeta"></div>
+        <div class="summary-row" id="jiSummary"></div>
+        <div id="jiUnmapped" class="hint warn" hidden></div>
+
+        <div class="section-title" data-i18n="jiNewCustomers">Uudet asiakkaat</div>
+        <div class="list" id="listNew"></div>
+
+        <div class="section-title" data-i18n="jiDuplicates">Duplikaatit</div>
+        <div class="list" id="listDup"></div>
+
+        <div class="section-title" data-i18n="jiInvalid">Virheelliset</div>
+        <div class="list" id="listInvalid"></div>
+
+        <div class="actions" style="margin-top:10px">
+          <button class="btn subtle" id="btnCancelImport" type="button" data-i18n="cancel">Peruuta</button>
+          <button class="btn primary" id="btnRunImport" type="button" data-i18n="importApproved">Tuo hyväksytyt</button>
+        </div>
+      </div>
+
+      <div class="card" id="jiResultCard" hidden>
+        <div class="card-title" data-i18n="jiDone">Tuonti valmis</div>
+        <div class="table-wrap"><table class="rep" id="jiResultTable"></table></div>
+        <div class="actions">
+          <button class="btn subtle" id="btnDownloadReport" type="button" data-i18n="downloadReport">Lataa tuontiraportti JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON EXPORT -->
+    <div class="panel" id="panel-jsonexport">
+      <div class="card">
+        <div class="card-title" data-i18n="jeTitle">Vie nykyisen työtilan data</div>
+        <div class="card-sub" data-i18n="jeSub">Vie kaikki nykyisen työtilan asiakkaat ja merkinnät yhtenä JSON-tiedostona. Tiedosto voidaan myöhemmin tuoda takaisin JSON-tuonnilla.</div>
+        <div class="actions">
+          <button class="btn primary" id="btnExport" type="button" data-i18n="exportJson">Vie JSON</button>
+        </div>
+        <p id="jeStatus" class="hint"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
+const $=id=>document.getElementById(id);
+let user=null,ws=null;
+
+const LS_LANG='kontakti_v5_lang';
+let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
+const TRANSLATIONS={
+  fi:{
+    pageTitle:'Tuonti / Vienti', backToApp:'← Takaisin', redirecting:'Ohjataan kirjautumiseen...',
+    tabFinder:'Finder / Fonecta', tabJsonImport:'JSON-tuonti', tabJsonExport:'JSON-vienti',
+    finderTitle:'Liitä kopioitu teksti', finderSub:'Liitä Finderistä tai Fonectasta kopioitu asiakkaan teksti, tunnista tiedot ja tallenna Kontaktiin.',
+    finderPlaceholder:'Esim. RebelWerks Ltd Oy\nY-tunnus\n3427678-5\nSähköposti\nrebelwerks@outlook.com\nPuhelinnumero\n045...\nToimipaikan osoite\nKatu 1, 00100 Helsinki',
+    finderParse:'Tunnista tiedot', finderSave:'Tallenna Kontaktiin', ready:'Valmis.',
+    finderPreview:'Esikatselu', fName:'Nimi', fBid:'Y-tunnus', fEmail:'Sähköposti', fPhone:'Puhelin', fAddress:'Osoite', fCity:'Kaupunki',
+    parsedOk:'Tiedot tunnistettu. Tarkista esikatselu ennen tallennusta.', nameMissing:'Nimi puuttuu.',
+    savedOk:'Tallennettu: {name}', saveErr:'Virhe: {msg}',
+    jiTitle:'Tuo vanha Kontakti-varmuuskopio', jiSub:'Valitse paikallinen .json-tiedosto. Tiedosto luetaan selaimessa, analysoidaan ja esikatsellaan ennen kuin mitään tallennetaan Supabaseen.',
+    chooseFile:'📂 Valitse tiedosto', jiAnalysis:'Analyysi',
+    jiNewCustomers:'Uudet asiakkaat', jiDuplicates:'Duplikaatit', jiInvalid:'Virheelliset / vaatii tarkistuksen',
+    cancel:'Peruuta', importApproved:'Tuo hyväksytyt', jiDone:'Tuonti valmis', downloadReport:'Lataa tuontiraportti JSON',
+    readingFile:'Luetaan tiedostoa...', invalidJson:'Tiedosto ei ole kelvollista JSONia.', emptyJson:'Tiedosto on tyhjä.',
+    unknownFormat:'Tuntematon JSON-rakenne. Tätä tiedostoa ei tunnisteta Kontakti-varmuuskopioksi eikä sitä tuoda.',
+    foundLine:'Löydetty: {customers} asiakasta, {notes} merkintää, {dups} mahdollista duplikaattia, {invalid} riviä ilman nimeä',
+    formatDetected:'Tunnistettu formaatti', formatVersion:'format_version', exportedAtLbl:'exported_at',
+    unmappedWarn:'Näiden kenttien arvoja löytyi, mutta niitä ei voitu mapata nykyiseen schemaan: {fields}',
+    noneFound:'Ei rivejä.', skip:'Ohita', update:'Päivitä olemassa oleva',
+    newCount:'Uusia: {n}', updateCount:'Päivitettäviä: {n}', skipCount:'Ohitettavia duplikaatteja: {n}', invalidCount:'Virheellisiä: {n}',
+    notesCount:'Merkintöjä tuotavana: {n}', orphanCount:'Orpoja merkintöjä: {n}',
+    importDone:'Tuonti valmis.', createdLbl:'Luotu', updatedLbl:'Päivitetty', skippedLbl:'Ohitettu', notesLbl:'Merkintöjä', errorsLbl:'Virheitä',
+    importing:'Tuodaan...', importErr:'Virhe tuonnissa: {msg}',
+    jeTitle:'Vie nykyisen työtilan data', jeSub:'Vie kaikki nykyisen työtilan asiakkaat ja merkinnät yhtenä JSON-tiedostona. Tiedosto voidaan myöhemmin tuoda takaisin JSON-tuonnilla.',
+    exportJson:'Vie JSON', exporting:'Kootaan vientiä...', exportedOk:'Vietiin {c} asiakasta ja {n} merkintää tiedostoon {file}', exportErr:'Virhe viennissä: {msg}',
+    orphanNote:'Orpo merkintä', invalidRow:'Virheellinen / vaatii tarkistuksen', signInRequiredError:'Kirjaudu ensin', workspaceNotFound:'Työtilaa ei löytynyt. Kirjaudu sisään ensin.'
+  },
+  en:{
+    pageTitle:'Import / Export', backToApp:'← Back', redirecting:'Redirecting to sign in...',
+    tabFinder:'Finder / Fonecta', tabJsonImport:'JSON import', tabJsonExport:'JSON export',
+    finderTitle:'Paste copied text', finderSub:'Paste customer text copied from Finder or Fonecta, detect the fields and save to Kontakti.',
+    finderPlaceholder:'E.g. RebelWerks Ltd Oy\nBusiness ID\n3427678-5\nEmail\nrebelwerks@outlook.com\nPhone number\n045...\nBusiness address\nKatu 1, 00100 Helsinki',
+    finderParse:'Analyze', finderSave:'Save to Kontakti', ready:'Ready.',
+    finderPreview:'Preview', fName:'Name', fBid:'Business ID', fEmail:'Email', fPhone:'Phone', fAddress:'Address', fCity:'City',
+    parsedOk:'Fields detected. Check the preview before saving.', nameMissing:'Name is missing.',
+    savedOk:'Saved: {name}', saveErr:'Error: {msg}',
+    jiTitle:'Import an old Kontakti backup', jiSub:'Choose a local .json file. It is read in the browser, analyzed and previewed before anything is written to Supabase.',
+    chooseFile:'📂 Choose file', jiAnalysis:'Analysis',
+    jiNewCustomers:'New customers', jiDuplicates:'Duplicates', jiInvalid:'Invalid / needs review',
+    cancel:'Cancel', importApproved:'Import approved', jiDone:'Import completed', downloadReport:'Download import report JSON',
+    readingFile:'Reading file...', invalidJson:'File is not valid JSON.', emptyJson:'File is empty.',
+    unknownFormat:'Unknown JSON structure. This file is not recognized as a Kontakti backup and will not be imported.',
+    foundLine:'Found: {customers} customers, {notes} entries, {dups} possible duplicates, {invalid} rows with no name',
+    formatDetected:'Detected format', formatVersion:'format_version', exportedAtLbl:'exported_at',
+    unmappedWarn:'Values were found for these fields but they could not be mapped to the current schema: {fields}',
+    noneFound:'No rows.', skip:'Skip', update:'Update existing',
+    newCount:'New: {n}', updateCount:'To update: {n}', skipCount:'Duplicates to skip: {n}', invalidCount:'Invalid: {n}',
+    notesCount:'Entries to import: {n}', orphanCount:'Orphan entries: {n}',
+    importDone:'Import completed.', createdLbl:'Created', updatedLbl:'Updated', skippedLbl:'Skipped', notesLbl:'Entries', errorsLbl:'Errors',
+    importing:'Importing...', importErr:'Import error: {msg}',
+    jeTitle:'Export current workspace data', jeSub:'Export all customers and entries in the current workspace as one JSON file. The file can be imported again later via JSON import.',
+    exportJson:'Export JSON', exporting:'Building export...', exportedOk:'Exported {c} customers and {n} entries to {file}', exportErr:'Export error: {msg}',
+    orphanNote:'Orphan entry', invalidRow:'Invalid / needs review', signInRequiredError:'Sign in first', workspaceNotFound:'Workspace not found. Please sign in first.'
+  }
+};
+function t(key,vars){ let s=(TRANSLATIONS[LANG]&&TRANSLATIONS[LANG][key]); if(s===undefined) s=TRANSLATIONS.fi[key]??key; if(vars) Object.keys(vars).forEach(k=>{ s=s.replace(new RegExp('\\{'+k+'\\}','g'),vars[k]); }); return s; }
+function applyStaticI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.getAttribute('data-i18n-ph')); });
+  document.documentElement.lang=LANG;
+}
+function updateLangSwitcherUI(){ document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active',b.dataset.lang===LANG)); }
+function setLang(lang){ LANG=(lang==='en')?'en':'fi'; localStorage.setItem(LS_LANG,LANG); applyStaticI18n(); updateLangSwitcherUI(); if(lastAnalysis) renderAnalysis(); }
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const localISODate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayISO=()=>localISODate(new Date());
+const clean=s=>String(s??'').trim();
+const parseNum=v=>{if(v===null||v===undefined||v==='')return 0;const n=Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+const normalize=s=>clean(s).toLowerCase().replace(/\s+/g,' ');
+function toLocalDateOnly(iso){ if(!iso) return null; const s=String(iso); if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); const d=new Date(s); if(isNaN(d)) return null; return localISODate(d); }
+function toast(msg,cls){let el=$('__toast');if(!el){el=document.createElement('div');el.id='__toast';el.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.16);color:#fff;padding:10px 14px;border-radius:999px;font-weight:650;box-shadow:0 14px 30px rgba(0,0,0,.35);z-index:9999;backdrop-filter:blur(8px)';document.body.appendChild(el)}el.textContent=msg;el.style.opacity='1';clearTimeout(window.__toastT);window.__toastT=setTimeout(()=>{el.style.opacity='0'},2000)}
+
+async function auth(){ try{ const r=await sb.auth.getUser(); user=r.data?.user||null; }catch(e){ user=null; } return user; }
+async function workspace(){ if(ws) return ws; if(!await auth()) throw Error(t('signInRequiredError')); let r=await sb.from('kontakti_workspaces').select('*').limit(1); if(r.error) throw r.error; if(!r.data?.length) throw Error(t('workspaceNotFound')); ws=r.data[0]; return ws; }
+
+function downloadText(text,filename,mime){ const blob=new Blob([text],{type:mime||'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+function wireTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+btn.dataset.tab));
+  }));
+}
+
+// ── Finder / Fonecta (ported from import.html) ──────────────────────────
+let parsed=null;
+function lines(){return $('raw').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}
+function after(label,arr){let i=arr.findIndex(x=>x.toLowerCase()===label.toLowerCase());return i>=0?clean(arr[i+1]||''):''}
+function guessName(arr){return arr.find(x=>!['Päätoimipaikka','Yrityskuvaus ei saatavilla.','Toimiala','Y-tunnus','Sähköposti','Puhelinnumero','Toimipaikan osoite','Postiosoite','Nettisivut'].includes(x)&&!x.includes('@')&&!/^\d{7}-\d$/.test(x))||''}
+function cityFromAddress(a){let m=String(a||'').match(/\b\d{5}\s+(.+)$/);return m?m[1].trim():''}
+function parseNow(){
+  const a=lines();
+  const address=after('Toimipaikan osoite',a)||after('Postiosoite',a);
+  parsed={name:guessName(a),business_id:after('Y-tunnus',a),email:after('Sähköposti',a),phone:after('Puhelinnumero',a).replace('Ei tiedossa',''),address,city:cityFromAddress(address)};
+  const map={Name:'name',Bid:'business_id',Email:'email',Phone:'phone',Address:'address',City:'city'};
+  for(const k of Object.keys(map)) $('p'+k).textContent=parsed[map[k]]||'—';
+  $('finderStatus').className='hint ok'; $('finderStatus').textContent=t('parsedOk');
+  return parsed;
+}
+async function finderSave(){
+  try{
+    if(!parsed) parseNow();
+    if(!parsed.name){ $('finderStatus').className='hint err'; $('finderStatus').textContent=t('nameMissing'); return; }
+    const w=await workspace();
+    const row={workspace_id:w.id,name:parsed.name,business_id:parsed.business_id||null,email:parsed.email||null,phone:parsed.phone||null,address:parsed.address||null,city:parsed.city||null,country:'FI',next_action:'Soitto',mobile_visible:true,created_source:'data-tools-finder'};
+    const r=await sb.from('kontakti_customers').insert(row).select().single();
+    if(r.error) throw r.error;
+    $('finderStatus').className='hint ok'; $('finderStatus').textContent=t('savedOk',{name:r.data.name});
+    toast(t('savedOk',{name:r.data.name}));
+  }catch(e){ $('finderStatus').className='hint err'; $('finderStatus').textContent=t('saveErr',{msg:e.message}); }
+}
+
+// ── JSON import: format detection + mapping ─────────────────────────────
+function detectFormat(json){
+  if(json && json.format==='opero-kontakti-backup' && Array.isArray(json.customers)) return 'new';
+  if(json && json.app==='Kontakti' && json.data && Array.isArray(json.data.customers)) return 'old';
+  return null;
+}
+function mapOldCustomer(oc,idx){
+  const unmapped=[];
+  if(clean(oc.meetingTime)) unmapped.push('meetingTime');
+  if(clean(oc.meetingPlace)) unmapped.push('meetingPlace');
+  if(clean(oc.mobileSortHint)) unmapped.push('mobileSortHint');
+  const notes=Array.isArray(oc.notes)?oc.notes.map(n=>mapOldNote(n,unmapped)):[];
+  return {
+    _oldId:oc.id||oc.customerId||('idx'+idx),
+    business_id:clean(oc.businessId), name:clean(oc.name),
+    city:clean(oc.city), region:clean(oc.region), country:clean(oc.country)||'FI',
+    phone:clean(oc.phone), email:clean(oc.email), address:clean(oc.address),
+    contact_person:clean(oc.contactPerson),
+    priority:!!oc.priority,
+    last_contact:clean(oc.lastContactAt)||null, next_date:clean(oc.nextDate)||null, next_action:clean(oc.nextAction)||null,
+    sales_ytd:parseNum(oc.salesYTD),
+    mobile_visible:oc.mobileVisible!==false,
+    _notes:notes, _unmapped:unmapped
+  };
+}
+function mapOldNote(n,unmappedOut){
+  if(clean(n.meetingTime)&&!unmappedOut.includes('meetingTime')) unmappedOut.push('meetingTime');
+  if(clean(n.meetingPlace)&&!unmappedOut.includes('meetingPlace')) unmappedOut.push('meetingPlace');
+  return { note_date:toLocalDateOnly(n.createdAt)||todayISO(), note_type:clean(n.action)||null, note_text:clean(n.noteText), purchases_text:clean(n.purchasesText), sales:parseNum(n.sales), next_date:clean(n.nextDate)||null };
+}
+function mapNewCustomer(c,idx){
+  return {
+    _oldId:c.id||('idx'+idx),
+    business_id:clean(c.business_id), name:clean(c.name),
+    city:clean(c.city), region:clean(c.region), country:clean(c.country)||'FI',
+    phone:clean(c.phone), email:clean(c.email), address:clean(c.address),
+    contact_person:clean(c.contact_person),
+    priority:!!c.priority,
+    last_contact:c.last_contact||null, next_date:c.next_date||null, next_action:c.next_action||null,
+    sales_ytd:parseNum(c.sales_ytd),
+    mobile_visible:c.mobile_visible!==false,
+    meeting:!!c.meeting, done:!!c.done,
+    _notes:[], _unmapped:[]
+  };
+}
+function mapNewNote(n){
+  return { _customerOldId:n.customer_id, note_date:n.note_date||todayISO(), note_type:n.note_type||null, note_text:clean(n.note_text), purchases_text:clean(n.purchases_text), sales:parseNum(n.sales), next_date:n.next_date||null };
+}
+
+let lastAnalysis=null, existingCustomersCache=null;
+
+async function loadExistingCustomers(){
+  if(existingCustomersCache) return existingCustomersCache;
+  const w=await workspace();
+  const r=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(5000);
+  if(r.error) throw r.error;
+  existingCustomersCache=r.data||[];
+  return existingCustomersCache;
+}
+function findExistingMatch(mc,existing){
+  if(mc.business_id){ const bid=normalize(mc.business_id); const m=existing.find(e=>e.business_id&&normalize(e.business_id)===bid); if(m) return m; }
+  if(mc.name&&mc.city){ const n=normalize(mc.name),c=normalize(mc.city); const m=existing.find(e=>normalize(e.name)===n&&normalize(e.city||'')===c); if(m) return m; }
+  if(mc.name){ const n=normalize(mc.name); const m=existing.find(e=>normalize(e.name)===n); if(m) return m; }
+  return null;
+}
+
+async function analyzeFile(file){
+  $('jiStatus').className='hint'; $('jiStatus').textContent=t('readingFile');
+  $('jiAnalysisCard').hidden=true; $('jiResultCard').hidden=true;
+  let text;
+  try{ text=await file.text(); }catch(e){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('invalidJson'); return; }
+  if(!text||!text.trim()){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('emptyJson'); return; }
+  let json;
+  try{ json=JSON.parse(text); }catch(e){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('invalidJson'); return; }
+  const kind=detectFormat(json);
+  if(!kind){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('unknownFormat'); return; }
+
+  let customersRaw=[], notesRaw=null, exportedAt=null, formatVersion=null;
+  if(kind==='old'){
+    exportedAt=json.exportedAt||json.data.exportedAt||null;
+    formatVersion=json.version||json.schemaVersion||json.data.schemaVersion||null;
+    customersRaw=json.data.customers;
+  } else {
+    exportedAt=json.exported_at||null;
+    formatVersion=json.format_version||1;
+    customersRaw=json.customers;
+    notesRaw=Array.isArray(json.notes)?json.notes:[];
+  }
+
+  const mappedCustomers=customersRaw.map((c,idx)=>kind==='old'?mapOldCustomer(c,idx):mapNewCustomer(c,idx));
+  let orphanNotes=0;
+  if(kind==='new'){
+    const byOldId=new Map(mappedCustomers.map(c=>[String(c._oldId),c]));
+    notesRaw.forEach(n=>{
+      const target=byOldId.get(String(n.customer_id));
+      if(target) target._notes.push(mapNewNote(n));
+      else orphanNotes++;
+    });
+  }
+
+  let existing=[];
+  try{ existing=await loadExistingCustomers(); }catch(e){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('importErr',{msg:e.message}); return; }
+
+  const unmappedSet=new Set();
+  const rows={new:[],dup:[],invalid:[]};
+  mappedCustomers.forEach(mc=>{
+    mc._unmapped.forEach(f=>unmappedSet.add(f));
+    if(!mc.name){ rows.invalid.push(mc); return; }
+    const match=findExistingMatch(mc,existing);
+    if(match){ mc._match=match; mc._decision='skip'; rows.dup.push(mc); }
+    else { rows.new.push(mc); }
+  });
+
+  const notesTotal=mappedCustomers.filter(c=>c.name).reduce((s,c)=>s+(c._notes?c._notes.length:0),0);
+  const orphanFromInvalid=rows.invalid.reduce((s,c)=>s+(c._notes?c._notes.length:0),0);
+
+  lastAnalysis={ kind, exportedAt, formatVersion, rows, unmapped:[...unmappedSet], notesTotal, orphanNotes:orphanNotes+orphanFromInvalid, fileName:file.name };
+  renderAnalysis();
+}
+
+function rowItemHtml(mc,kind){
+  const bits=[mc.city,mc.business_id].filter(Boolean).join(' · ');
+  let extra='';
+  if(kind==='dup'){
+    extra=`<select data-old="${esc(mc._oldId)}" class="dupDecision"><option value="skip"${mc._decision==='skip'?' selected':''}>${esc(t('skip'))}</option><option value="update"${mc._decision==='update'?' selected':''}>${esc(t('update'))}</option></select>`;
+  }
+  return `<div class="row-item"><div><div class="name">${esc(mc.name||'—')}</div><div class="meta">${esc(bits||'—')}${mc._notes&&mc._notes.length?' · '+mc._notes.length+' '+esc(t('notesLbl').toLowerCase()):''}</div></div>${extra}</div>`;
+}
+function renderAnalysis(){
+  if(!lastAnalysis) return;
+  const a=lastAnalysis;
+  $('jiAnalysisCard').hidden=false;
+  $('jiAnalysisMeta').innerHTML=`
+    <div class="kv2-cell"><div class="kv2-label">${esc(t('formatDetected'))}</div><div class="kv2-value">${a.kind==='old'?'Kontakti (local backup)':'opero-kontakti-backup'}</div></div>
+    <div class="kv2-cell"><div class="kv2-label">${esc(t('formatVersion'))}</div><div class="kv2-value">${esc(a.formatVersion??'—')}</div></div>
+    <div class="kv2-cell kv2-full"><div class="kv2-label">${esc(t('exportedAtLbl'))}</div><div class="kv2-value">${esc(a.exportedAt||'—')}</div></div>
+  `;
+  $('jiSummary').innerHTML=`
+    <span class="tag ok">${esc(t('newCount',{n:a.rows.new.length}))}</span>
+    <span class="tag warn">${esc(t('updateCount',{n:a.rows.dup.filter(d=>d._decision==='update').length}))}</span>
+    <span class="tag">${esc(t('skipCount',{n:a.rows.dup.filter(d=>d._decision==='skip').length}))}</span>
+    <span class="tag bad">${esc(t('invalidCount',{n:a.rows.invalid.length}))}</span>
+    <span class="tag">${esc(t('notesCount',{n:a.notesTotal}))}</span>
+    ${a.orphanNotes?`<span class="tag bad">${esc(t('orphanCount',{n:a.orphanNotes}))}</span>`:''}
+  `;
+  if(a.unmapped.length){ $('jiUnmapped').hidden=false; $('jiUnmapped').textContent=t('unmappedWarn',{fields:a.unmapped.join(', ')}); }
+  else { $('jiUnmapped').hidden=true; }
+
+  $('listNew').innerHTML=a.rows.new.length?a.rows.new.map(mc=>rowItemHtml(mc,'new')).join(''):`<div class="list-empty">${esc(t('noneFound'))}</div>`;
+  $('listDup').innerHTML=a.rows.dup.length?a.rows.dup.map(mc=>rowItemHtml(mc,'dup')).join(''):`<div class="list-empty">${esc(t('noneFound'))}</div>`;
+  $('listInvalid').innerHTML=a.rows.invalid.length?a.rows.invalid.map(mc=>rowItemHtml(mc,'invalid')).join(''):`<div class="list-empty">${esc(t('noneFound'))}</div>`;
+
+  document.querySelectorAll('.dupDecision').forEach(sel=>sel.addEventListener('change',()=>{
+    const mc=a.rows.dup.find(d=>String(d._oldId)===sel.dataset.old);
+    if(mc) mc._decision=sel.value;
+    renderAnalysis();
+  }));
+  $('jiResultCard').hidden=true;
+}
+
+function buildCustomerPatch(mc,existingRow){
+  const patch={};
+  const fields=['business_id','name','city','region','country','phone','email','address','contact_person','last_contact','next_date','next_action'];
+  fields.forEach(f=>{ const v=mc[f]; if(v!==null&&v!==undefined&&v!==''){ patch[f]=v; } });
+  if(mc.sales_ytd>0) patch.sales_ytd=Math.max(parseNum(existingRow.sales_ytd),mc.sales_ytd);
+  if(mc.priority) patch.priority=true;
+  if(mc.mobile_visible) patch.mobile_visible=true;
+  if(mc.meeting) patch.meeting=true;
+  if(mc.done) patch.done=true;
+  return patch;
+}
+
+let lastReport=null;
+async function runImport(){
+  if(!lastAnalysis) return;
+  const a=lastAnalysis;
+  $('btnRunImport').disabled=true;
+  const report={started_at:new Date().toISOString(),file:a.fileName,created:0,updated:0,skipped:a.rows.dup.filter(d=>d._decision==='skip').length,invalid:a.rows.invalid.length,notes:0,errors:[]};
+  try{
+    const w=await workspace();
+    const idMap=new Map();
+
+    for(const mc of a.rows.new){
+      try{
+        const row={workspace_id:w.id,business_id:mc.business_id||null,name:mc.name,city:mc.city||null,region:mc.region||null,country:mc.country||'FI',phone:mc.phone||null,email:mc.email||null,address:mc.address||null,contact_person:mc.contact_person||null,priority:!!mc.priority,last_contact:mc.last_contact||null,next_date:mc.next_date||null,next_action:mc.next_action||null,sales_ytd:mc.sales_ytd||0,mobile_visible:mc.mobile_visible!==false,created_source:'json-import'};
+        const r=await sb.from('kontakti_customers').insert(row).select().single();
+        if(r.error) throw r.error;
+        idMap.set(String(mc._oldId),r.data.id);
+        report.created++;
+      }catch(e){ report.errors.push(`${mc.name}: ${e.message}`); }
+    }
+    for(const mc of a.rows.dup){
+      idMap.set(String(mc._oldId),mc._match.id);
+      if(mc._decision==='update'){
+        try{
+          const patch=buildCustomerPatch(mc,mc._match);
+          if(Object.keys(patch).length){ const r=await sb.from('kontakti_customers').update(patch).eq('id',mc._match.id); if(r.error) throw r.error; }
+          report.updated++;
+        }catch(e){ report.errors.push(`${mc.name}: ${e.message}`); }
+      }
+    }
+
+    const noteRows=[];
+    [...a.rows.new,...a.rows.dup].forEach(mc=>{
+      const cid=idMap.get(String(mc._oldId));
+      if(!cid) return;
+      (mc._notes||[]).forEach(n=>noteRows.push({workspace_id:w.id,customer_id:cid,note_date:n.note_date,note_type:n.note_type,note_text:n.note_text||null,purchases_text:n.purchases_text||null,sales:n.sales||0,next_date:n.next_date||null,created_source:'json-import'}));
+    });
+    if(noteRows.length){
+      const r=await sb.from('kontakti_notes').insert(noteRows);
+      if(r.error) report.errors.push('notes: '+r.error.message); else report.notes=noteRows.length;
+    }
+
+    report.finished_at=new Date().toISOString();
+    lastReport=report;
+    renderReport(report);
+    existingCustomersCache=null;
+    toast(t('importDone'));
+  }catch(e){
+    $('jiStatus').className='hint err'; $('jiStatus').textContent=t('importErr',{msg:e.message});
+  }finally{
+    $('btnRunImport').disabled=false;
+  }
+}
+function renderReport(report){
+  $('jiAnalysisCard').hidden=true;
+  $('jiResultCard').hidden=false;
+  $('jiResultTable').innerHTML=`
+    <tr><th>${esc(t('createdLbl'))}</th><td>${report.created}</td></tr>
+    <tr><th>${esc(t('updatedLbl'))}</th><td>${report.updated}</td></tr>
+    <tr><th>${esc(t('skippedLbl'))}</th><td>${report.skipped}</td></tr>
+    <tr><th>${esc(t('invalidRow'))}</th><td>${report.invalid}</td></tr>
+    <tr><th>${esc(t('notesLbl'))}</th><td>${report.notes}</td></tr>
+    <tr><th>${esc(t('errorsLbl'))}</th><td>${report.errors.length}${report.errors.length?': '+esc(report.errors.slice(0,5).join(' | ')):''}</td></tr>
+  `;
+}
+
+// ── JSON export ───────────────────────────────────────────────────────
+async function runExport(){
+  $('jeStatus').className='hint'; $('jeStatus').textContent=t('exporting');
+  try{
+    const w=await workspace();
+    const custRes=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(5000);
+    if(custRes.error) throw custRes.error;
+    const noteRes=await sb.from('kontakti_notes').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(20000);
+    if(noteRes.error) throw noteRes.error;
+    const payload={ format:'opero-kontakti-backup', format_version:1, exported_at:new Date().toISOString(), workspace:{id:w.id,name:w.name||''}, customers:custRes.data||[], notes:noteRes.data||[] };
+    const filename=`kontakti-backup-${todayISO()}.json`;
+    downloadText(JSON.stringify(payload,null,2),filename);
+    $('jeStatus').className='hint ok'; $('jeStatus').textContent=t('exportedOk',{c:payload.customers.length,n:payload.notes.length,file:filename});
+  }catch(e){ $('jeStatus').className='hint err'; $('jeStatus').textContent=t('exportErr',{msg:e.message}); }
+}
+
+function wire(){
+  wireTabs();
+  document.querySelectorAll('.lang-opt').forEach(btn=>btn.addEventListener('click',()=>setLang(btn.dataset.lang)));
+  $('btnParse').addEventListener('click',parseNow);
+  $('btnFinderSave').addEventListener('click',finderSave);
+  $('jsonPicker').addEventListener('change',()=>{ const f=$('jsonPicker').files[0]; if(f) analyzeFile(f); });
+  $('btnCancelImport').addEventListener('click',()=>{ lastAnalysis=null; $('jiAnalysisCard').hidden=true; $('jsonPicker').value=''; $('jiStatus').textContent=''; });
+  $('btnRunImport').addEventListener('click',runImport);
+  $('btnDownloadReport').addEventListener('click',()=>{ if(lastReport) downloadText(JSON.stringify(lastReport,null,2),`kontakti-import-report-${todayISO()}.json`); });
+  $('btnExport').addEventListener('click',runExport);
+}
+
+async function init(){
+  applyStaticI18n(); updateLangSwitcherUI();
+  wire();
+  await auth();
+  if(!user){ $('mainArea').hidden=true; $('signinGate').hidden=false; window.location.href='login.html'; return; }
+  $('signinGate').hidden=true; $('mainArea').hidden=false;
+}
+init();
+</script>
+</body>
+</html>

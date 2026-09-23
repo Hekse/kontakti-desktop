@@ -155,7 +155,7 @@ textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placehol
     <div class="side-tools">
       <div class="tools-block">
         <div class="tools-label" data-i18n="tools">Työkalut</div>
-        <a class="btn tool" href="import.html?v=1">📥 <span data-i18n="import">Import</span></a>
+        <a class="btn tool" href="data-tools.html">📥 <span data-i18n="import">Tuonti / Vienti</span></a>
         <a class="btn tool" href="report.html?v=1">📊 <span data-i18n="report">Raportti</span></a>
       </div>
       <div class="footer"><span data-i18n="footerLine1">© 2026 Opero</span><br><span data-i18n="footerLine2">All rights reserved.</span></div>
@@ -296,7 +296,7 @@ const TRANSLATIONS={
   fi:{
     today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', settings:'Asetukset',
     searchPlaceholder:'Hae asiakasta...', refresh:'↻ Päivitä',
-    byOperoCloud:'by Opero', salesYTD:'Myynti YTD', tools:'Työkalut', import:'Import', report:'Raportti',
+    byOperoCloud:'by Opero', salesYTD:'Myynti YTD', tools:'Työkalut', import:'Tuonti / Vienti', report:'Raportti',
     listSubToday:'Erääntyneet + tänään', weeklyReportView:'Nykyinen viikko', toolsView:'', listDefault:'Lista',
     sortNewest:'Tuorein kontakti ensin', sortOldest:'Vanhin kontakti ensin', sortNewestTitle:'Listan alkuun / tuorein ensin', sortOldestTitle:'Listan loppuun / vanhin ensin',
     dot030:'0–30 päivää kärkeen', dot3160:'31–60 päivää kärkeen', dot6190:'61–90 päivää kärkeen', dot90plus:'90+ päivää kärkeen',
@@ -344,7 +344,7 @@ const TRANSLATIONS={
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
     searchPlaceholder:'Search customers...', refresh:'↻ Refresh',
-    byOperoCloud:'by Opero', salesYTD:'Sales YTD', tools:'Tools', import:'Import', report:'Report',
+    byOperoCloud:'by Opero', salesYTD:'Sales YTD', tools:'Tools', import:'Import / Export', report:'Report',
     listSubToday:'Overdue + today', weeklyReportView:'Current week', toolsView:'', listDefault:'List',
     sortNewest:'Most recent contact first', sortOldest:'Oldest contact first', sortNewestTitle:'To top of list / most recent first', sortOldestTitle:'To bottom of list / oldest first',
     dot030:'0–30 days to top', dot3160:'31–60 days to top', dot6190:'61–90 days to top', dot90plus:'90+ days to top',
@@ -641,7 +641,7 @@ function renderList(){
 }
 
 function renderSettingsList(){
-  $('list').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="import.html?v=1">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutList" type="button">${esc(t('signOut'))}</button></div>`;
+  $('list').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutList" type="button">${esc(t('signOut'))}</button></div>`;
   $('btnSignOutList')?.addEventListener('click',doSignOut);
 }
 function renderWeeklyList(){
@@ -831,7 +831,7 @@ async function togglePriority(c){
 function renderSettingsDetail(){
   $('detailName').textContent=t('settings');
   $('detailSub').textContent='';
-  $('detailBody').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="import.html?v=1">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
+  $('detailBody').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
   $('btnSignOutDetail')?.addEventListener('click',doSignOut);
 }
 async function doSignOut(){
