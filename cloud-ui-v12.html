@@ -30,9 +30,9 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .brand-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .opero-logo-mini{width:42px;height:42px;flex:0 0 42px}
 .opero-logo-img{display:block;width:100%;height:100%;object-fit:contain}
-.brand .title{font-size:27px;font-weight:640;line-height:1.02}.brand .sub{font-size:12px;font-weight:400;color:var(--muted)}
+.brand .title{font-size:27px;font-weight:600;line-height:1.02}.brand .sub{font-size:12px;font-weight:400;color:var(--muted)}
 .nav{display:flex;flex-direction:column;gap:8px;padding:6px}
-.nav-btn{appearance:none;border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.035);color:var(--text);border-radius:14px;padding:11px 13px;text-align:left;cursor:pointer;font-weight:560;font-size:14px;display:flex;align-items:center;justify-content:space-between;transition:.15s ease;min-height:44px}
+.nav-btn{appearance:none;border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.035);color:var(--text);border-radius:14px;padding:11px 13px;text-align:left;cursor:pointer;font-weight:500;font-size:14px;display:flex;align-items:center;justify-content:space-between;transition:.15s ease;min-height:44px}
 .nav-btn:hover{background:rgba(var(--tint),.055);box-shadow:0 0 0 1px rgba(45,107,255,.12),0 8px 18px rgba(45,107,255,.10)}
 .nav-btn.active{border-color:rgba(45,107,255,.65);background:rgba(45,107,255,.14);box-shadow:0 0 0 1px rgba(45,107,255,.22),0 0 14px rgba(45,107,255,.24);transform:translateY(-1px)}
 .nav-btn-left{display:flex;align-items:center;gap:10px;min-width:0}
@@ -44,18 +44,17 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .tool-row{appearance:none;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);color:var(--text);border-radius:14px;padding:9px 13px;text-align:left;cursor:pointer;transition:.15s ease;min-height:52px;display:flex;flex-direction:column;justify-content:center;gap:2px;width:100%}
 .tool-row:hover{background:rgba(var(--tint),.055)}
 .tool-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.tool-row-main{display:flex;align-items:center;gap:9px;font-weight:560;font-size:13.5px;min-width:0}
+.tool-row-main{display:flex;align-items:center;gap:9px;font-weight:500;font-size:13.5px;min-width:0}
 .tool-row-main .nav-icon{font-size:15px}
 .tool-row-sub{font-size:11px;color:var(--muted);font-weight:400;padding-left:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-tools{display:flex;flex-direction:column;gap:8px;padding:2px 6px 4px}
 .sales-box{margin:8px 6px 0;padding:12px;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);border-radius:16px}
-.sales-title{font-size:11.5px;color:var(--muted);font-weight:560}.sales-main{font-size:19px;font-weight:640;line-height:1.05;margin-top:5px}
-.context-card{margin:10px 6px 0;padding:12px;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);border-radius:16px;display:flex;align-items:center;gap:10px}
-.context-card[hidden]{display:none}
-.context-icon{width:36px;height:36px;border-radius:11px;background:rgba(45,107,255,.14);border:1px solid rgba(45,107,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 36px}
-.context-info{min-width:0}
-.context-name{font-size:13px;font-weight:560;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.context-city{font-size:11.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sales-title{font-size:11.5px;color:var(--muted);font-weight:500}.sales-main{font-size:19px;font-weight:600;line-height:1.05;margin-top:5px}
+.company-logo-card{margin:10px 6px 0;padding:10px 12px;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);border-radius:16px;display:flex;align-items:center;gap:10px}
+.company-logo-card[hidden]{display:none}
+.company-logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);flex:0 0 34px}
+.company-logo-fallback{width:34px;height:34px;border-radius:10px;background:rgba(45,107,255,.13);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 34px}
+.company-logo-name{font-size:12px;font-weight:460;color:var(--muted);line-height:1.3;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .side-tools{margin-top:auto;padding:6px;display:flex;flex-direction:column;gap:8px}
 .tools-block{margin-top:6px;padding-top:10px;border-top:1px solid rgba(var(--tint),.10);display:flex;flex-direction:column;gap:6px}
 .tools-label{font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;padding:0 2px}
@@ -67,20 +66,20 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .btn.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.10)} .btn.priority.active{background:linear-gradient(180deg, rgba(139,92,246,.95), rgba(109,40,217,.95));border-color:rgba(139,92,246,.55);box-shadow:0 10px 18px rgba(139,92,246,.16);color:#fff}
 .btn.compact{padding:6px 10px;font-size:12.5px;border-radius:10px}
 .hint{font-size:12px;color:var(--muted);line-height:1.4;font-weight:400}.footer{margin-top:2px;font-size:11px;color:var(--muted);font-weight:400;text-align:center;padding:6px 0 0;opacity:.75}
-.lang-switch{display:flex;align-items:center;gap:6px}
-.lang-opt{appearance:none;background:rgba(var(--tint),.03);border:1px solid rgba(var(--tint),.14);color:var(--text);cursor:pointer;padding:3px 6px;border-radius:8px;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.55;transition:.15s ease}
-.lang-opt:hover{opacity:.85;background:rgba(var(--tint),.07)}
-.lang-opt.active{opacity:1;background:rgba(45,107,255,.16);border-color:rgba(45,107,255,.6);box-shadow:0 0 0 1px rgba(45,107,255,.24),0 0 8px rgba(45,107,255,.30)}
+.lang-switch{display:flex;align-items:center;gap:5px}
+.lang-opt{appearance:none;background:none;border:none;color:var(--text);cursor:pointer;padding:2px 3px;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.45;transition:.15s ease;border-radius:6px}
+.lang-opt:hover{opacity:.8;background:rgba(var(--tint),.06)}
+.lang-opt.active{opacity:1;background:rgba(var(--tint),.07)}
 .main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:14px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:var(--r22);box-shadow:var(--shadow);padding:12px 14px}
-.topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:15.5px;font-weight:580;white-space:nowrap}
+.topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:15.5px;font-weight:600;white-space:nowrap}
 .search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;background:rgba(var(--tint),.04);border:1px solid rgba(var(--tint),.16);border-radius:999px;padding:10px 12px;max-width:520px}
 .search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-weight:400}.search input::placeholder{color:var(--muted)}
 .content{flex:1;min-height:0;display:grid;grid-template-columns:40% 60%;gap:14px}
 .card{border-radius:var(--r22);box-shadow:var(--shadow);min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.card-head{padding:14px 14px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(var(--tint),.12)}
-.card-title{font-size:13.5px;font-weight:580}.card-sub{font-size:12px;color:var(--muted);font-weight:400;margin-top:3px}.card-body{padding:12px 14px 14px;min-height:0;overflow:auto}
-.list-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.list-toolbar{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid rgba(var(--tint),.10)}
+.list-toolbar[hidden]{display:none}
+.card-body{padding:12px 14px 14px;min-height:0;overflow:auto}
 .list{display:flex;flex-direction:column;gap:10px}.row{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:14px;padding:12px;cursor:pointer;transition:.14s ease;overflow:hidden}
 .row:hover{background:rgba(var(--tint),.055);transform:translateY(-1px)}
 .row.active{border-color:rgba(45,107,255,.68);background:rgba(45,107,255,.13);box-shadow:0 0 0 1px rgba(45,107,255,.22),0 14px 30px rgba(0,0,0,.10);transform:translateY(-2px)}
@@ -91,10 +90,10 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .tagline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.tag{font-size:12px;font-weight:480;color:var(--text);background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);padding:2px 8px;border-radius:999px}
 .tag.ok{border-color:rgba(38,208,124,.32);background:rgba(38,208,124,.10)} .tag.bad{border-color:rgba(255,77,77,.32);background:rgba(255,77,77,.10)} .tag.priority{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.13);font-weight:600}
 .detail{display:grid;grid-template-rows:auto 1fr;min-height:0}.detail-header{padding:14px 14px 10px;border-bottom:1px solid rgba(var(--tint),.12);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.detail-header h2{margin:0;font-size:22px;font-weight:640;line-height:1.1}.subline{margin-top:8px;font-size:12px;font-weight:400;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.detail-header h2{margin:0;font-size:22px;font-weight:600;line-height:1.1}.subline{margin-top:8px;font-size:12px;font-weight:400;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
 .detail-body{padding:12px 14px 14px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px}
 .note-box{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow2)}
-.note-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.note-top .t{font-weight:560;font-size:13.5px}.note-top .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
+.note-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.note-top .t{font-weight:550;font-size:13.5px}.note-top .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
 .field{display:flex;flex-direction:column;gap:8px}.label{font-size:12px;color:var(--muted);font-weight:400}
 input,textarea,select{width:100%;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.16);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:400;font-family:inherit}
 textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placeholder{color:var(--muted)} select option{background:var(--solid-panel);color:var(--text)}
@@ -131,16 +130,22 @@ textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placehol
 .btn.qa-snooze:hover{background:rgba(255,190,90,.16);border-color:rgba(255,190,90,.48)}
 .empty{padding:14px 2px;color:var(--muted);font-size:13px;font-weight:400}
 .filter-badge{display:none;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--brand);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:16px}
-.filter-panel{position:fixed;width:min(380px, calc(100vw - 32px));max-height:min(78vh,760px);z-index:130;border:1px solid rgba(var(--tint),.16);background:var(--popover-bg);backdrop-filter:blur(12px);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.30);display:flex;flex-direction:column;overflow:hidden}
+.filter-panel{position:fixed;width:min(380px, calc(100vw - 32px));max-height:calc(100vh - 24px);z-index:130;border:1px solid rgba(var(--tint),.16);background:var(--popover-bg);backdrop-filter:blur(12px);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.30);display:flex;flex-direction:column;overflow:hidden}
 .filter-panel[hidden]{display:none}
-.filter-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(var(--tint),.12)}
-.filter-panel-body{padding:12px 16px 16px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.filter-panel-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(var(--tint),.12)}
+.filter-panel-body{flex:1 1 auto;min-height:0;padding:12px 16px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
 .filter-section{display:flex;flex-direction:column;gap:8px;padding-bottom:12px;border-bottom:1px solid rgba(var(--tint),.09)}
 .filter-section:last-of-type{border-bottom:none;padding-bottom:0}
 .chk-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer}
 .chk-row input{width:auto;margin:0}
 .chip-line{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;font-weight:400}
 .chip-line div{margin:0}
+.filter-panel-active{flex:0 0 auto;padding:10px 16px;border-top:1px solid rgba(var(--tint),.10)}
+.filter-panel-active[hidden]{display:none}
+.active-filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.af-chip{appearance:none;border:1px solid rgba(45,107,255,.35);background:rgba(45,107,255,.10);color:var(--text);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:480;cursor:pointer;transition:.15s ease}
+.af-chip:hover{background:rgba(45,107,255,.18);border-color:rgba(45,107,255,.5)}
+.filter-panel-footer{flex:0 0 auto;padding:12px 16px;border-top:1px solid rgba(var(--tint),.10)}
 .signin-banner{padding:16px;text-align:center}
 .signin-banner .big{font-size:16px;font-weight:620;color:var(--text)}
 @media (max-width:980px){body{overflow:auto}.app{grid-template-columns:1fr;overflow:auto}.content{grid-template-columns:1fr}}
@@ -168,9 +173,13 @@ select:disabled{opacity:.5;cursor:not-allowed}
 .ac-item:hover,.ac-item.ac-active{background:rgba(var(--tint),.09)}
 .ac-empty{padding:8px 10px;font-size:12.5px;color:var(--muted)}
 .theme-switch{display:flex;gap:8px}
-.theme-opt{appearance:none;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);color:var(--text);border-radius:12px;padding:9px 16px;cursor:pointer;font-weight:520;font-size:13px;transition:.15s ease}
+.theme-opt{appearance:none;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);color:var(--text);border-radius:12px;padding:9px 16px;cursor:pointer;font-weight:500;font-size:13px;transition:.15s ease}
 .theme-opt:hover{background:rgba(var(--tint),.06)}
 .theme-opt.active{border-color:rgba(45,107,255,.6);background:rgba(45,107,255,.14);box-shadow:0 0 0 1px rgba(45,107,255,.22)}
+.logo-upload-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo-preview{width:56px;height:56px;border-radius:14px;object-fit:contain;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.14);flex:0 0 56px}
+.logo-preview-fallback{width:56px;height:56px;border-radius:14px;background:rgba(45,107,255,.12);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 56px}
+.logo-actions{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:180px}
 </style>
 </head>
 <body>
@@ -210,12 +219,10 @@ select:disabled{opacity:.5;cursor:not-allowed}
       <div class="sales-title">💶 <span data-i18n="salesYTD">Myynti YTD</span></div>
       <div class="sales-main" id="salesTotal">€0</div>
     </div>
-    <div class="context-card" id="contextCard" hidden>
-      <div class="context-icon">🏢</div>
-      <div class="context-info">
-        <div class="context-name" id="contextName"></div>
-        <div class="context-city" id="contextCity"></div>
-      </div>
+    <div class="company-logo-card" id="companyLogoCard" hidden>
+      <img class="company-logo-img" id="companyLogoImg" alt="" hidden>
+      <div class="company-logo-fallback" id="companyLogoFallback">🏢</div>
+      <div class="company-logo-name" id="companyLogoName"></div>
     </div>
     <div class="side-tools">
       <div class="tools-block">
@@ -308,8 +315,9 @@ select:disabled{opacity:.5;cursor:not-allowed}
             <option value="flat" data-i18n="salesFlat">Myynti ennallaan</option>
           </select>
         </div>
-        <div class="actions"><button class="btn" id="btnClearFilters" type="button" data-i18n="clearFilters">Tyhjennä suodattimet</button></div>
       </div>
+      <div class="filter-panel-active" id="filterPanelActive" hidden></div>
+      <div class="filter-panel-footer"><button class="btn" id="btnClearFilters" type="button" data-i18n="clearFilters">Tyhjennä kaikki</button></div>
     </div>
     <div class="filter-panel" id="sortPanel" hidden>
       <div class="filter-panel-head">
@@ -326,20 +334,12 @@ select:disabled{opacity:.5;cursor:not-allowed}
     </div>
     <section class="content">
       <div class="card">
-        <div class="card-head">
-          <div class="list-arrows" id="listArrows"><button class="btn" id="btnScrollTop" type="button" data-i18n-title="sortNewestTitle" title="Listan alkuun / tuorein ensin">▲</button><button class="btn" id="btnScrollBottom" type="button" data-i18n-title="sortOldestTitle" title="Listan loppuun / vanhin ensin">▼</button></div>
-          <div style="flex:1;min-width:0">
-            <div class="card-title" id="listTitle">Lista</div>
-            <div class="card-sub" id="listSub">Erääntyneet + tänään</div>
-            <div class="list-controls" id="listControls" style="display:none">
-              <div class="filter-dots" id="filterDots">
-                <button class="filter-dot green" data-color="green" data-i18n-title="dot030" title="0–30 päivää kärkeen" type="button"></button>
-                <button class="filter-dot yellow" data-color="yellow" data-i18n-title="dot3160" title="31–60 päivää kärkeen" type="button"></button>
-                <button class="filter-dot orange" data-color="orange" data-i18n-title="dot6190" title="61–90 päivää kärkeen" type="button"></button>
-                <button class="filter-dot red" data-color="red" data-i18n-title="dot90plus" title="90+ päivää kärkeen" type="button"></button>
-              </div>
-            </div>
-            <div class="chip-line" id="filterChips" style="display:none"></div>
+        <div class="list-toolbar" id="listToolbar" hidden>
+          <div class="filter-dots" id="filterDots">
+            <button class="filter-dot green" data-color="green" data-i18n-title="dot030" title="0–30 päivää kärkeen" type="button"></button>
+            <button class="filter-dot yellow" data-color="yellow" data-i18n-title="dot3160" title="31–60 päivää kärkeen" type="button"></button>
+            <button class="filter-dot orange" data-color="orange" data-i18n-title="dot6190" title="61–90 päivää kärkeen" type="button"></button>
+            <button class="filter-dot red" data-color="red" data-i18n-title="dot90plus" title="90+ päivää kärkeen" type="button"></button>
           </div>
           <div class="hint" id="listStatus"></div>
         </div>
@@ -401,7 +401,7 @@ const TRANSLATIONS={
     changeAll:'Myynnin muutos: kaikki', salesDown:'Myynti laskenut', salesUp:'Myynti kasvanut', salesFlat:'Myynti ennallaan',
     changeHint:'Myynnin muutos vaatii aikavälin (ei "Kaikki aika").',
     cityAll:'Kaupunki: kaikki', regionAll:'Maakunta: kaikki', newAll:'Uudet asiakkaat: kaikki', newThisWeek:'Uudet tällä viikolla', newThisMonth:'Uudet tässä kuussa',
-    clearFilters:'Tyhjennä suodattimet', filtersCleared:'Suodattimet tyhjennetty',
+    clearFilters:'Tyhjennä kaikki', filtersCleared:'Suodattimet tyhjennetty',
     activeFilters:'Suodattimet', showingCustomers:'Näytetään {shown} / {total} asiakasta',
     salesInPeriod:'Myynti valitulla jaksolla', salesAllHistory:'Myynti (koko historia)', sortLabelPrefix:'Järjestys: ',
     priorityOnlyChip:'Vain priority', nextActionTodayChip:'Seuraava toimenpide tänään',
@@ -437,7 +437,12 @@ const TRANSLATIONS={
     filterOnly:'Suodata', sortOnly:'Järjestä', citySearchPlaceholder:'Hae kaupunkia...', regionSearchPlaceholder:'Hae maakuntaa...',
     noCitiesFound:'Kaupunkeja ei löytynyt', noRegionsFound:'Maakuntia ei löytynyt',
     sortDefaultShort:'Priority + erääntyminen', noActiveFiltersCaption:'Ei aktiivisia suodattimia', activeFiltersCountCaption:'{n} suodatinta aktiivisena',
-    theme:'Teema', themeDark:'Tumma', themeLight:'Vaalea'
+    theme:'Teema', themeDark:'Tumma', themeLight:'Vaalea',
+    companyLogo:'Yrityksen logo', uploadLogo:'Lataa logo', changeLogo:'Vaihda logo', removeLogo:'Poista logo', logoUploadHint:'PNG, JPG, WebP tai SVG',
+    logoSaveError:'Logon tallennus epäonnistui: {msg}', logoRemoveError:'Logon poisto epäonnistui: {msg}', logoNeedsSetup:'Yrityksen logo vaatii Supabase Storage -asetuksen (kysy ylläpitäjältä).',
+    ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', ownerPhoneFieldsNeedSetup:'Yrittäjä ja Yhteyshenkilön numero vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
+    noteAndNextAction:'Muistiinpano & seuraava toimenpide',
+    activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin'
   },
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
@@ -461,7 +466,7 @@ const TRANSLATIONS={
     changeAll:'Sales change: all', salesDown:'Sales decreased', salesUp:'Sales increased', salesFlat:'Sales unchanged',
     changeHint:'Sales change requires a date range (not "All time").',
     cityAll:'City: all', regionAll:'Region: all', newAll:'New customers: all', newThisWeek:'New this week', newThisMonth:'New this month',
-    clearFilters:'Clear filters', filtersCleared:'Filters cleared',
+    clearFilters:'Clear all', filtersCleared:'Filters cleared',
     activeFilters:'Filters', showingCustomers:'Showing {shown} / {total} customers',
     salesInPeriod:'Sales in selected period', salesAllHistory:'Sales (all history)', sortLabelPrefix:'Sort: ',
     priorityOnlyChip:'Priority only', nextActionTodayChip:'Next action today',
@@ -497,7 +502,12 @@ const TRANSLATIONS={
     filterOnly:'Filter', sortOnly:'Sort', citySearchPlaceholder:'Search city...', regionSearchPlaceholder:'Search region...',
     noCitiesFound:'No cities found', noRegionsFound:'No regions found',
     sortDefaultShort:'Priority + overdue', noActiveFiltersCaption:'No active filters', activeFiltersCountCaption:'{n} filters active',
-    theme:'Theme', themeDark:'Dark', themeLight:'Light'
+    theme:'Theme', themeDark:'Dark', themeLight:'Light',
+    companyLogo:'Company logo', uploadLogo:'Upload logo', changeLogo:'Change logo', removeLogo:'Remove logo', logoUploadHint:'PNG, JPG, WebP or SVG',
+    logoSaveError:'Could not save logo: {msg}', logoRemoveError:'Could not remove logo: {msg}', logoNeedsSetup:'Company logo needs a Supabase Storage setup (ask an admin).',
+    ownerName:'Owner', contactPhone:'Contact phone', ownerPhoneFieldsNeedSetup:'Owner and Contact phone need a database update — the rest was saved.',
+    noteAndNextAction:'Note & next action',
+    activeFiltersHeading:'Active filters', removeFilter:'Remove filter'
   }
 };
 function t(key,vars){
@@ -662,19 +672,7 @@ function syncSortPanelInputs(){
   updateFilterPanelViewVisibility();
   $('fSort').value=f.sortMode; $('fPriorityFirst').checked=f.priorityFirst;
 }
-function countActiveFilters(f){
-  let n=0;
-  if(f.range!=='all') n++;
-  if(f.priorityOnly) n++;
-  if(f.neverContacted) n++;
-  if(f.bought) n++;
-  if(f.change) n++;
-  if(f.city) n++;
-  if(f.region) n++;
-  if(view==='customers'&&f.nextAction) n++;
-  if(view==='customers'&&f.newFilter) n++;
-  return n;
-}
+function countActiveFilters(f){ return activeFilterEntries(f).length; }
 function currentSortCaption(){
   const f=curFilters();
   if(f.sortMode==='default') return t('sortDefaultShort');
@@ -888,16 +886,18 @@ function kv2Pair(a,b){
   const only=a||b;
   return only?kv2Cell(only.label,only.valueHtml,true):'';
 }
-function buildCustomerDetailsGrid(c,tel,mail,mapsUrl){
+function buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel){
   const nameCell=c.name?{label:t('customerName'),valueHtml:esc(c.name)}:null;
   const bizCell=c.business_id?{label:t('businessId'),valueHtml:esc(c.business_id)}:null;
-  const phoneCell=c.phone?{label:t('phone'),valueHtml:`<a href="${esc(tel)}">${esc(c.phone)}</a>`}:null;
-  const emailCell=c.email?{label:t('email'),valueHtml:`<a href="${esc(mail)}">${esc(c.email)}</a>`}:null;
+  const ownerCell=c.owner_name?{label:t('ownerName'),valueHtml:esc(c.owner_name)}:null;
   const contactCell=c.contact_person?{label:t('contactPerson'),valueHtml:esc(c.contact_person)}:null;
+  const phoneCell=c.phone?{label:t('phone'),valueHtml:`<a href="${esc(tel)}">${esc(c.phone)}</a>`}:null;
+  const contactPhoneCell=c.contact_phone?{label:t('contactPhone'),valueHtml:`<a href="${esc(contactTel)}">${esc(c.contact_phone)}</a>`}:null;
+  const emailCell=c.email?{label:t('email'),valueHtml:`<a href="${esc(mail)}">${esc(c.email)}</a>`}:null;
   const addressCell=c.address?{label:t('address'),valueHtml:`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`}:null;
   const cityRegionText=[c.city,c.region].filter(Boolean).join(' / ');
   const cityRegionCell=cityRegionText?{label:t('cityRegion'),valueHtml:esc(cityRegionText)}:null;
-  return kv2Pair(nameCell,bizCell)+kv2Pair(phoneCell,emailCell)+kv2Pair(contactCell,null)+kv2Pair(addressCell,cityRegionCell);
+  return kv2Pair(nameCell,bizCell)+kv2Pair(ownerCell,contactCell)+kv2Pair(phoneCell,contactPhoneCell)+kv2Pair(emailCell,null)+kv2Pair(addressCell,cityRegionCell);
 }
 function editField(id,label,val,type){
   return `<div class="field"><div class="label">${esc(label)}</div><input id="${id}" type="${type||'text'}" value="${esc(val||'')}"></div>`;
@@ -907,9 +907,11 @@ function buildCustomerEditForm(c){
     <div class="grid2">
       ${editField('editName',t('customerName'),c.name)}
       ${editField('editBusinessId',t('businessId'),c.business_id)}
-      ${editField('editPhone',t('phone'),c.phone)}
-      ${editField('editEmail',t('email'),c.email,'email')}
+      ${editField('editOwnerName',t('ownerName'),c.owner_name)}
       ${editField('editContactPerson',t('contactPerson'),c.contact_person)}
+      ${editField('editPhone',t('phone'),c.phone)}
+      ${editField('editContactPhone',t('contactPhone'),c.contact_phone)}
+      ${editField('editEmail',t('email'),c.email,'email')}
       ${editField('editCity',t('cityFieldLabel'),c.city)}
       ${editField('editAddress',t('address'),c.address)}
       ${editField('editRegion',t('regionFieldLabel'),c.region)}
@@ -952,6 +954,7 @@ function renderDetail(){
   $('detailSub').innerHTML=`<span>${esc(t('lastContact'))}: <b>${esc(lastText)}</b></span><span>${esc(t('next'))}: <b>${esc(nextText)}</b></span>${c.priority?'<span class="pill priority">🟣 '+esc(t('priority'))+'</span>':''}`;
   const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
   const tel=c.phone?'tel:'+c.phone.replace(/\s/g,''):'', mail=c.email?'mailto:'+c.email:'';
+  const contactTel=c.contact_phone?'tel:'+c.contact_phone.replace(/\s/g,''):'';
   const mapsUrl=(c.address||c.city)?'https://www.google.com/maps?q='+encodeURIComponent([c.address,c.city].filter(Boolean).join(', ')):'';
   const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
   $('detailBody').innerHTML=`
@@ -963,10 +966,14 @@ function renderDetail(){
         ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')))}
         ${kv2Cell(t('salesYTD'), '€'+esc(fmtMoney(c.sales_ytd||0)))}
       </div>
+      <div class="switchline">
+        <div><div style="font-weight:550">${esc(t('priority'))}</div><div class="hint">${esc(t('priorityHint'))}</div></div>
+        <button class="btn priority ${c.priority?'active':''}" id="btnPriorityToggle" type="button">${c.priority?esc(t('priorityOn')):esc(t('priorityOff'))}</button>
+      </div>
       <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">${esc(t('showHistory'))}</button></div>
     </div>
     <div class="note-box">
-      <div class="note-top"><div class="t">${esc(t('note'))}</div><div class="d">${esc(todayISO())}</div></div>
+      <div class="note-top"><div class="t">${esc(t('noteAndNextAction'))}</div><div class="d">${esc(todayISO())}</div></div>
       <div class="split2">
         <div class="split-col">
           <div class="split-col-label">${esc(t('newNote'))}</div>
@@ -977,6 +984,12 @@ function renderDetail(){
           ${(()=>{ const ln=lastNoteFor(c.id); return ln ? `<div class="prev-entry"><div class="prev-date">${esc(toFI(ln.note_date))}</div>${ln.note_type?`<span class="tag">${esc(actionLabel(ln.note_type))}</span>`:''}<div class="prev-text">${esc(ln.note_text||'—')}</div></div>` : `<div class="hint">${esc(t('noEntriesYet'))}</div>`; })()}
         </div>
       </div>
+      <div class="grid2">
+        <div class="field"><div class="label">${esc(t('nextAction'))}</div><select id="nextActionSelect">${optHtml}</select></div>
+        <div class="field"><div class="label">${esc(t('nextDate'))}</div><input id="nextDateInput" type="date" value="${esc(c.next_date||'')}"></div>
+      </div>
+      <div class="actions"><button class="btn primary saveflash" id="btnSaveNote" type="button">${esc(t('saveEntry'))}</button></div>
+      <div class="hint">${esc(t('noteOrPurchasesHint'))}</div>
     </div>
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('purchases'))}</div><div class="d">${esc(t('text'))}</div></div>
@@ -984,11 +997,7 @@ function renderDetail(){
         <div class="split-col">
           <div class="split-col-label">${esc(t('newPurchase'))}</div>
           <div class="field"><textarea id="purchasesText" placeholder="${esc(t('purchasesPlaceholder'))}"></textarea></div>
-          <div class="grid2">
-            <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
-            <div class="field" style="justify-content:flex-end"><div class="label">&nbsp;</div><button class="btn primary saveflash" id="btnSaveNote" type="button">${esc(t('saveEntry'))}</button></div>
-          </div>
-          <div class="hint">${esc(t('noteOrPurchasesHint'))}</div>
+          <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
         </div>
         <div class="split-col divider">
           <div class="split-col-label">${esc(t('previousPurchases'))}</div>
@@ -998,24 +1007,12 @@ function renderDetail(){
       </div>
     </div>
     <div class="note-box">
-      <div class="note-top"><div class="t">${esc(t('nextAction'))}</div><div class="d">${esc(due.text)}</div></div>
-      <div class="grid2">
-        <div class="field"><div class="label">${esc(t('nextDate'))}</div><input id="nextDateInput" type="date" value="${esc(c.next_date||'')}"></div>
-        <div class="field"><div class="label">${esc(t('action'))}</div><select id="nextActionSelect">${optHtml}</select></div>
-      </div>
-      <div class="switchline">
-        <div><div style="font-weight:580">${esc(t('priority'))}</div><div class="hint">${esc(t('priorityHint'))}</div></div>
-        <button class="btn priority ${c.priority?'active':''}" id="btnPriorityToggle" type="button">${c.priority?esc(t('priorityOn')):esc(t('priorityOff'))}</button>
-      </div>
-      <div class="actions"><button class="btn primary saveflash" id="btnSaveNext" type="button">${esc(t('saveNextAction'))}</button></div>
-    </div>
-    <div class="note-box">
       <div class="note-top">
-        <div><div class="t">${esc(t('customerDetails'))}</div>${editingCustomer?'':'<div class="d">'+esc(t('readOnly'))+'</div>'}</div>
+        <div><div class="t">${esc(t('customerDetails'))}</div></div>
         ${editingCustomer?'':'<button class="btn subtle" id="btnEditCustomer" type="button">'+esc(t('editCustomer'))+'</button>'}
       </div>
       ${editingCustomer ? buildCustomerEditForm(c) : `
-      <div class="kv2-grid">${buildCustomerDetailsGrid(c,tel,mail,mapsUrl)}</div>
+      <div class="kv2-grid">${buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel)}</div>
       <div class="quick">
         <button class="btn" id="btnCall" type="button" ${c.phone?'':'disabled'}>${esc(t('call'))}</button>
         <button class="btn" id="btnMaps" type="button" ${(c.address||c.city)?'':'disabled'}>${esc(t('maps'))}</button>
@@ -1046,7 +1043,6 @@ function wireDetail(c,tel,mail,mapsUrl){
   $('btnEmail')?.addEventListener('click',()=>{ if(mail) window.location.href=mail; });
   $('btnPriorityToggle')?.addEventListener('click',()=>togglePriority(c));
   $('btnSaveNote')?.addEventListener('click',()=>saveNote(c));
-  $('btnSaveNext')?.addEventListener('click',()=>saveNextAction(c));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
   $('btnEditCustomer')?.addEventListener('click',()=>{ editingCustomer=true; renderDetail(); });
   $('btnCancelCustomerEdit')?.addEventListener('click',()=>{ editingCustomer=false; renderDetail(); });
@@ -1056,7 +1052,7 @@ function wireDetail(c,tel,mail,mapsUrl){
 async function saveCustomerEdit(c){
   const name=($('editName').value||'').trim();
   if(!name){ $('editCustomerError').className='hint err'; $('editCustomerError').textContent=t('nameRequiredError'); return; }
-  const patch={
+  const basePatch={
     name,
     business_id:($('editBusinessId').value||'').trim()||null,
     phone:($('editPhone').value||'').trim()||null,
@@ -1067,13 +1063,26 @@ async function saveCustomerEdit(c){
     region:($('editRegion').value||'').trim()||null,
     country:($('editCountry').value||'').trim()||null
   };
+  const extendedPatch={...basePatch,
+    owner_name:($('editOwnerName').value||'').trim()||null,
+    contact_phone:($('editContactPhone').value||'').trim()||null
+  };
   try{
-    const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
-    if(ur.error) throw ur.error;
+    let ur=await sb.from('kontakti_customers').update(extendedPatch).eq('id',c.id);
+    let partial=false;
+    if(ur.error){
+      // owner_name/contact_phone eivät (vielä) ole nykyisessä schemassa - tallenna loput kentät silti
+      const msg=(ur.error.message||'').toLowerCase();
+      if(msg.includes('owner_name')||msg.includes('contact_phone')||msg.includes('column')||msg.includes('schema cache')){
+        ur=await sb.from('kontakti_customers').update(basePatch).eq('id',c.id);
+        partial=true;
+      }
+      if(ur.error) throw ur.error;
+    }
     buttonSaved($('btnSaveCustomerEdit'),'✓ '+t('saveChanges'));
     editingCustomer=false;
     await load(); sel=c.id; renderAll();
-    toast(t('customerSaved'));
+    toast(partial ? t('ownerPhoneFieldsNeedSetup') : t('customerSaved'));
   }catch(e){ $('editCustomerError').className='hint err'; $('editCustomerError').textContent=t('saveError',{msg:e.message}); }
 }
 
@@ -1085,24 +1094,16 @@ async function saveNote(c){
   try{
     const w=await workspace(); const today=todayISO();
     const actionType=$('nextActionSelect')?.value||'Soitto';
-    const row={workspace_id:w.id,customer_id:c.id,note_type:actionType,note_text:noteText,purchases_text:purchasesText,sales:sales||0,note_date:today,next_date:c.next_date||null,created_source:'cloud-ui-v5'};
+    const nextDateVal=$('nextDateInput')?.value||null;
+    const row={workspace_id:w.id,customer_id:c.id,note_type:actionType,note_text:noteText,purchases_text:purchasesText,sales:sales||0,note_date:today,next_date:nextDateVal,created_source:'cloud-ui-v12'};
     const nr=await sb.from('kontakti_notes').insert(row);
     if(nr.error) throw nr.error;
-    const patch={last_contact:today};
+    const patch={last_contact:today,next_date:nextDateVal,next_action:actionType};
     if(sales) patch.sales_ytd=Number(c.sales_ytd||0)+sales;
     const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
     if(ur.error) throw ur.error;
     buttonSaved($('btnSaveNote'),'✓ '+t('saveEntry'));
     await load(); sel=c.id; historyOpen=false; editingCustomer=false; renderAll();
-  }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); alert(t('saveError',{msg:e.message})); }
-}
-async function saveNextAction(c){
-  try{
-    const patch={next_date:$('nextDateInput').value||null,next_action:$('nextActionSelect').value||'Soitto'};
-    const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
-    if(ur.error) throw ur.error;
-    buttonSaved($('btnSaveNext'),'✓ '+t('saveNextAction'));
-    await load(); sel=c.id; renderAll();
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); alert(t('saveError',{msg:e.message})); }
 }
 async function togglePriority(c){
@@ -1116,6 +1117,7 @@ async function togglePriority(c){
 function renderSettingsDetail(){
   $('detailName').textContent=t('settings');
   $('detailSub').textContent='';
+  const hasLogo=ws&&ws.logo_url;
   $('detailBody').innerHTML=`
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('theme'))}</div></div>
@@ -1124,10 +1126,61 @@ function renderSettingsDetail(){
         <button type="button" class="theme-opt ${THEME==='light'?'active':''}" id="btnThemeLight">${esc(t('themeLight'))}</button>
       </div>
     </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">${esc(t('companyLogo'))}</div></div>
+      <div class="logo-upload-row">
+        ${hasLogo?`<img class="logo-preview" id="logoPreviewImg" src="${esc(ws.logo_url)}" alt="">`:`<div class="logo-preview-fallback">🏢</div>`}
+        <div class="logo-actions">
+          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+          <button class="btn subtle" id="btnLogoUpload" type="button">${esc(hasLogo?t('changeLogo'):t('uploadLogo'))}</button>
+          ${hasLogo?`<button class="btn subtle" id="btnLogoRemove" type="button">${esc(t('removeLogo'))}</button>`:''}
+        </div>
+      </div>
+      <div class="hint">${esc(t('logoUploadHint'))}</div>
+      <div class="hint err" id="logoStatus" style="display:none"></div>
+    </div>
     <div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
   $('btnSignOutDetail')?.addEventListener('click',doSignOut);
   $('btnThemeDark')?.addEventListener('click',()=>setTheme('dark'));
   $('btnThemeLight')?.addEventListener('click',()=>setTheme('light'));
+  $('btnLogoUpload')?.addEventListener('click',()=>$('logoFileInput').click());
+  $('logoFileInput')?.addEventListener('change',(e)=>{ const f=e.target.files&&e.target.files[0]; if(f) uploadCompanyLogo(f); });
+  $('btnLogoRemove')?.addEventListener('click',removeCompanyLogo);
+}
+async function uploadCompanyLogo(file){
+  const statusEl=$('logoStatus');
+  statusEl.style.display='none';
+  try{
+    const w=await workspace();
+    const ext=(file.name.split('.').pop()||'png').toLowerCase();
+    const path=`${w.id}/logo.${ext}`;
+    const up=await sb.storage.from('company-logos').upload(path,file,{upsert:true,contentType:file.type||undefined});
+    if(up.error) throw up.error;
+    const pub=sb.storage.from('company-logos').getPublicUrl(path);
+    const publicUrl=pub?.data?.publicUrl;
+    if(!publicUrl) throw new Error('no public URL');
+    const ur=await sb.from('kontakti_workspaces').update({logo_url:publicUrl}).eq('id',w.id);
+    if(ur.error) throw ur.error;
+    ws.logo_url=publicUrl;
+    renderAll();
+  }catch(e){
+    statusEl.style.display='block';
+    statusEl.textContent = /bucket|not found|does not exist|schema cache|column/i.test(e.message||'') ? t('logoNeedsSetup') : t('logoSaveError',{msg:e.message});
+  }
+}
+async function removeCompanyLogo(){
+  const statusEl=$('logoStatus');
+  statusEl.style.display='none';
+  try{
+    const w=await workspace();
+    const ur=await sb.from('kontakti_workspaces').update({logo_url:null}).eq('id',w.id);
+    if(ur.error) throw ur.error;
+    ws.logo_url=null;
+    renderAll();
+  }catch(e){
+    statusEl.style.display='block';
+    statusEl.textContent=t('logoRemoveError',{msg:e.message});
+  }
 }
 async function doSignOut(){
   try{ await sb.auth.signOut(); }
@@ -1152,14 +1205,14 @@ function renderWeeklyDetail(){
 }
 
 function setHeaders(){
-  const pageTitle=$('pageTitle'), listSub=$('listSub'), searchWrap=$('searchWrap'), listTitle=$('listTitle'), arrows=$('listArrows'), listControls=$('listControls');
+  const pageTitle=$('pageTitle'), searchWrap=$('searchWrap'), listToolbar=$('listToolbar');
   const toolBtnsVisible = (view==='today'||view==='customers');
   if($('btnFilter')) $('btnFilter').style.display = toolBtnsVisible ? '' : 'none';
   if($('btnSort')) $('btnSort').style.display = toolBtnsVisible ? '' : 'none';
-  if(view==='today'){ pageTitle.textContent=t('today'); listTitle.textContent=t('customers'); listSub.textContent=t('listSubToday'); searchWrap.style.display='none'; arrows.style.display='flex'; listControls.style.display='none'; }
-  else if(view==='customers'){ pageTitle.textContent=t('customers'); listTitle.textContent=t('customers'); listSub.textContent=(customerSort==='newest'?t('sortNewest'):t('sortOldest'))+(colorPriority?' • '+colorPriority.toUpperCase():''); searchWrap.style.display='flex'; arrows.style.display='flex'; listControls.style.display='flex'; }
-  else if(view==='weekly'){ pageTitle.textContent=t('weekly'); listTitle.textContent=t('weekly'); listSub.textContent=t('weeklyReportView'); searchWrap.style.display='none'; arrows.style.display='none'; listControls.style.display='none'; }
-  else { pageTitle.textContent=t('settings'); listTitle.textContent=t('tools'); listSub.textContent=t('toolsView'); searchWrap.style.display='none'; arrows.style.display='none'; listControls.style.display='none'; }
+  if(view==='today'){ pageTitle.textContent=t('today'); searchWrap.style.display='none'; listToolbar.hidden=true; }
+  else if(view==='customers'){ pageTitle.textContent=t('customers'); searchWrap.style.display='flex'; listToolbar.hidden=false; }
+  else if(view==='weekly'){ pageTitle.textContent=t('weekly'); searchWrap.style.display='none'; listToolbar.hidden=true; }
+  else { pageTitle.textContent=t('settings'); searchWrap.style.display='none'; listToolbar.hidden=true; }
   if(!toolBtnsVisible){
     if(filterPanelOpen){ filterPanelOpen=false; $('filterPanel').hidden=true; }
     if(sortPanelOpen){ sortPanelOpen=false; $('sortPanel').hidden=true; }
@@ -1186,60 +1239,68 @@ function sortLabelFor(mode){
   };
   return map[mode]?t(map[mode]):null;
 }
-function renderFilterSummary(){
-  const el=$('filterChips');
-  if(view!=='customers'&&view!=='today'){ el.style.display='none'; return; }
+// Aktiivisten suodattimien lista jaetaan kahden paikan kesken: sidebar-badge (countActiveFilters)
+// ja suodatinpaneelin poistettavat chipit (activeFilterEntries) — pidettävä samassa linjassa.
+function activeFilterEntries(f){
+  const entries=[];
+  if(f.range!=='all'){ const r=computeRange(f); entries.push({key:'range', label:(r&&r.label)||t('dateRange')}); }
+  if(f.priorityOnly) entries.push({key:'priorityOnly', label:t('priorityOnlyChip')});
+  if(f.neverContacted) entries.push({key:'neverContacted', label:t('neverContactedLabel')});
+  if(f.city) entries.push({key:'city', label:f.city});
+  if(f.region) entries.push({key:'region', label:f.region});
+  if(f.bought==='bought') entries.push({key:'bought', label:t('bought')});
+  if(f.bought==='not-bought') entries.push({key:'bought', label:t('notBought')});
+  if(view==='customers'&&f.nextAction){
+    const m={overdue:'overdue',today:'nextActionTodayChip',next7:'next7',none:'noNextAction'};
+    if(m[f.nextAction]) entries.push({key:'nextAction', label:t(m[f.nextAction])});
+  }
+  if(view==='customers'&&f.newFilter){
+    const m={'this-week':'newThisWeek','this-month':'newThisMonth'};
+    if(m[f.newFilter]) entries.push({key:'newFilter', label:t(m[f.newFilter])});
+  }
+  if(f.change==='down') entries.push({key:'change', label:t('salesDown')});
+  if(f.change==='up') entries.push({key:'change', label:t('salesUp')});
+  if(f.change==='flat') entries.push({key:'change', label:t('salesFlat')});
+  return entries;
+}
+function clearOneFilter(key){
   const f=curFilters();
-  const chips=[];
-  if(lastRange) chips.push(lastRange.label);
-  if(f.priorityOnly) chips.push(t('priorityOnlyChip'));
-  if(f.neverContacted) chips.push(t('neverContactedLabel'));
-  if(f.bought==='bought') chips.push(t('bought'));
-  if(f.bought==='not-bought') chips.push(t('notBought'));
-  if(view==='customers'){
-    if(f.nextAction==='overdue') chips.push(t('overdue'));
-    if(f.nextAction==='today') chips.push(t('nextActionTodayChip'));
-    if(f.nextAction==='next7') chips.push(t('next7'));
-    if(f.nextAction==='none') chips.push(t('noNextAction'));
-  }
-  if(lastRange&&lastPrevRange){
-    if(f.change==='down') chips.push(t('salesDown'));
-    if(f.change==='up') chips.push(t('salesUp'));
-    if(f.change==='flat') chips.push(t('salesFlat'));
-  }
-  if(f.city) chips.push(f.city);
-  if(f.region) chips.push(f.region);
-  if(view==='customers'){
-    if(f.newFilter==='this-week') chips.push(t('newThisWeek'));
-    if(f.newFilter==='this-month') chips.push(t('newThisMonth'));
-  }
-
-  let html='';
-  if(chips.length) html+=`<div>${esc(t('activeFilters'))}: ${esc(chips.join(' · '))}</div>`;
-  html+= view==='today'
-    ? `<div>${esc(t('showingTodayCustomers',{shown:lastVisibleArr.length,total:lastTodayEligibleTotal}))}</div>`
-    : `<div>${esc(t('showingCustomers',{shown:lastVisibleArr.length,total:cs.length}))}</div>`;
-  if(lastMetrics){
-    const sum=lastVisibleArr.reduce((s,c)=>s+((lastMetrics.get(c.id)?.cur)||0),0);
-    html+=`<div>${esc(lastRange?t('salesInPeriod'):t('salesAllHistory'))}: €${esc(fmtMoney(sum))}</div>`;
-  }
-  el.innerHTML=html; el.style.display='block';
+  if(key==='range'){ f.range='all'; f.pickedWeek=''; f.pickedMonth=''; f.customStart=''; f.customEnd=''; }
+  else if(key==='priorityOnly') f.priorityOnly=false;
+  else if(key==='neverContacted') f.neverContacted=false;
+  else if(key==='city') f.city='';
+  else if(key==='region') f.region='';
+  else if(key==='bought') f.bought='';
+  else if(key==='nextAction') f.nextAction='';
+  else if(key==='newFilter') f.newFilter='';
+  else if(key==='change') f.change='';
+  syncFilterPanelInputs(); renderAll();
+}
+function renderActiveFilterChips(){
+  const el=$('filterPanelActive'); if(!el) return;
+  const f=curFilters();
+  const entries=activeFilterEntries(f);
+  if(!entries.length){ el.hidden=true; el.innerHTML=''; return; }
+  el.hidden=false;
+  el.innerHTML=`<div class="filter-group-label">${esc(t('activeFiltersHeading'))}</div><div class="active-filter-chips">${entries.map(e=>`<button type="button" class="af-chip" data-key="${esc(e.key)}" title="${esc(t('removeFilter'))}">${esc(e.label)} ×</button>`).join('')}</div>`;
+  el.querySelectorAll('.af-chip').forEach(btn=>btn.addEventListener('click',()=>clearOneFilter(btn.dataset.key)));
 }
 
-function updateContextCard(){
-  const card=$('contextCard');
-  const c=(view==='today'||view==='customers')?cs.find(x=>x.id===sel):null;
-  if(!c){ card.hidden=true; return; }
+function updateCompanyLogoCard(){
+  const card=$('companyLogoCard');
+  if(!ws){ card.hidden=true; return; }
   card.hidden=false;
-  $('contextName').textContent=c.name||t('unnamed');
-  $('contextCity').textContent=[c.city,c.region].filter(Boolean).join(' / ')||'—';
+  const img=$('companyLogoImg'), fallback=$('companyLogoFallback');
+  if(ws.logo_url){ img.src=ws.logo_url; img.hidden=false; fallback.hidden=true; }
+  else { img.hidden=true; img.removeAttribute('src'); fallback.hidden=false; }
+  $('companyLogoName').textContent=ws.name||t('companyLogo');
 }
 
 function renderAll(){
   setHeaders(); setPills(); setActiveNav();
   document.querySelectorAll('.filter-dot').forEach(x=>x.classList.toggle('active',x.dataset.color===colorPriority));
-  renderList(); renderFilterSummary(); renderDetail();
-  updateSidebarToolCaptions(); updateContextCard();
+  renderList(); renderDetail();
+  updateSidebarToolCaptions(); updateCompanyLogoCard(); renderActiveFilterChips();
 }
 
 function positionPanel(btnId,panelId){
@@ -1255,8 +1316,6 @@ function wire(){
   document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; editingCustomer=false; $('detailCard')?.classList.remove('show'); if(filterPanelOpen){ syncFilterPanelInputs(); } if(sortPanelOpen){ syncSortPanelInputs(); } renderAll(); }));
   $('search')?.addEventListener('input',e=>{ search=e.target.value||''; renderList(); });
   $('btnRefresh')?.addEventListener('click',load);
-  $('btnScrollTop')?.addEventListener('click',()=>{ if(view==='customers'){ customerSort='newest'; renderAll(); toast(t('sortNewest')); return; } $('listBody')?.scrollTo({top:0,behavior:'smooth'}); });
-  $('btnScrollBottom')?.addEventListener('click',()=>{ if(view==='customers'){ customerSort='oldest'; renderAll(); toast(t('sortOldest')); return; } const lb=$('listBody'); lb?.scrollTo({top:lb.scrollHeight,behavior:'smooth'}); });
   document.querySelectorAll('.filter-dot').forEach(btn=>btn.addEventListener('click',()=>{ const c=btn.dataset.color||''; colorPriority=colorPriority===c?'':c; renderAll(); }));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
 
