@@ -163,6 +163,7 @@ select:disabled{opacity:.5;cursor:not-allowed}
 .prev-entry{border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:5px}
 .prev-date{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .prev-text{white-space:pre-wrap;font-size:13px;line-height:1.4}
+.prev-next-action{font-size:12px;color:var(--muted);margin-top:2px}
 .total-sales{margin-top:2px;font-size:12.5px;font-weight:580;color:var(--text);border-top:1px solid rgba(var(--tint),.10);padding-top:8px}
 @media (max-width:680px){.split2{grid-template-columns:1fr}.split-col.divider{border-left:none;padding-left:0;border-top:1px solid rgba(var(--tint),.12);padding-top:12px}}
 .ac-wrap{position:relative}
@@ -438,7 +439,8 @@ const TRANSLATIONS={
     noCitiesFound:'Kaupunkeja ei löytynyt', noRegionsFound:'Maakuntia ei löytynyt',
     sortDefaultShort:'Priority + erääntyminen', noActiveFiltersCaption:'Ei aktiivisia suodattimia', activeFiltersCountCaption:'{n} suodatinta aktiivisena',
     theme:'Teema', themeDark:'Tumma', themeLight:'Vaalea',
-    companyLogo:'Yrityksen logo', uploadLogo:'Lataa logo', changeLogo:'Vaihda logo', removeLogo:'Poista logo', logoUploadHint:'PNG, JPG, WebP tai SVG',
+    companyLogo:'Yrityksen logo', uploadLogo:'Lataa logo', changeLogo:'Vaihda logo', removeLogo:'Poista logo', logoUploadHint:'PNG, JPG tai WebP, enintään 2 Mt',
+    logoTooLarge:'Tiedosto on liian suuri (enintään 2 Mt).', logoInvalidType:'Tiedostomuotoa ei tueta. Käytä PNG, JPG tai WebP.',
     logoSaveError:'Logon tallennus epäonnistui: {msg}', logoRemoveError:'Logon poisto epäonnistui: {msg}', logoNeedsSetup:'Yrityksen logo vaatii Supabase Storage -asetuksen (kysy ylläpitäjältä).',
     ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', ownerPhoneFieldsNeedSetup:'Yrittäjä ja Yhteyshenkilön numero vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
     noteAndNextAction:'Muistiinpano & seuraava toimenpide',
@@ -503,7 +505,8 @@ const TRANSLATIONS={
     noCitiesFound:'No cities found', noRegionsFound:'No regions found',
     sortDefaultShort:'Priority + overdue', noActiveFiltersCaption:'No active filters', activeFiltersCountCaption:'{n} filters active',
     theme:'Theme', themeDark:'Dark', themeLight:'Light',
-    companyLogo:'Company logo', uploadLogo:'Upload logo', changeLogo:'Change logo', removeLogo:'Remove logo', logoUploadHint:'PNG, JPG, WebP or SVG',
+    companyLogo:'Company logo', uploadLogo:'Upload logo', changeLogo:'Change logo', removeLogo:'Remove logo', logoUploadHint:'PNG, JPG or WebP, max 2 MB',
+    logoTooLarge:'File is too large (max 2 MB).', logoInvalidType:'File type not supported. Use PNG, JPG or WebP.',
     logoSaveError:'Could not save logo: {msg}', logoRemoveError:'Could not remove logo: {msg}', logoNeedsSetup:'Company logo needs a Supabase Storage setup (ask an admin).',
     ownerName:'Owner', contactPhone:'Contact phone', ownerPhoneFieldsNeedSetup:'Owner and Contact phone need a database update — the rest was saved.',
     noteAndNextAction:'Note & next action',
@@ -875,29 +878,23 @@ async function quickAction(id,type){
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); toast(t('genericError',{msg:e.message})); }
 }
 
-// Perustiedot: tiivis 2-sarakkeinen grid. Vain kentät joilla on oikeasti arvoa näytetään;
-// pariton kenttä (esim. Yhteyshenkilö, jolla ei ole nykyisessä skeemassa paria) saa oman
-// koko levyisen lokeron sen sijaan että viereen jäisi ruma tyhjä laatikko.
 function kv2Cell(label,valueHtml,full){
   return `<div class="kv2-cell${full?' kv2-full':''}"><div class="kv2-label">${esc(label)}</div><div class="kv2-value">${valueHtml}</div></div>`;
 }
-function kv2Pair(a,b){
-  if(a&&b) return kv2Cell(a.label,a.valueHtml)+kv2Cell(b.label,b.valueHtml);
-  const only=a||b;
-  return only?kv2Cell(only.label,only.valueHtml,true):'';
-}
+// Perustiedot-kortin rivijärjestys on kiinteä (sovittu rakenne), joten näytetään aina
+// kaikki 6 riviä ja käytetään "—"-merkkiä puuttuvalle arvolle sen sijaan että rivi piilotettaisiin.
 function buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel){
-  const nameCell=c.name?{label:t('customerName'),valueHtml:esc(c.name)}:null;
-  const bizCell=c.business_id?{label:t('businessId'),valueHtml:esc(c.business_id)}:null;
-  const ownerCell=c.owner_name?{label:t('ownerName'),valueHtml:esc(c.owner_name)}:null;
-  const contactCell=c.contact_person?{label:t('contactPerson'),valueHtml:esc(c.contact_person)}:null;
-  const phoneCell=c.phone?{label:t('phone'),valueHtml:`<a href="${esc(tel)}">${esc(c.phone)}</a>`}:null;
-  const contactPhoneCell=c.contact_phone?{label:t('contactPhone'),valueHtml:`<a href="${esc(contactTel)}">${esc(c.contact_phone)}</a>`}:null;
-  const emailCell=c.email?{label:t('email'),valueHtml:`<a href="${esc(mail)}">${esc(c.email)}</a>`}:null;
-  const addressCell=c.address?{label:t('address'),valueHtml:`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`}:null;
-  const cityRegionText=[c.city,c.region].filter(Boolean).join(' / ');
-  const cityRegionCell=cityRegionText?{label:t('cityRegion'),valueHtml:esc(cityRegionText)}:null;
-  return kv2Pair(nameCell,bizCell)+kv2Pair(ownerCell,contactCell)+kv2Pair(phoneCell,contactPhoneCell)+kv2Pair(emailCell,null)+kv2Pair(addressCell,cityRegionCell);
+  const d='—';
+  const phoneVal=c.phone?`<a href="${esc(tel)}">${esc(c.phone)}</a>`:d;
+  const contactPhoneVal=c.contact_phone?`<a href="${esc(contactTel)}">${esc(c.contact_phone)}</a>`:d;
+  const emailVal=c.email?`<a href="${esc(mail)}">${esc(c.email)}</a>`:d;
+  const addressVal=c.address?`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`:d;
+  return kv2Cell(t('customerName'),esc(c.name)||d)+kv2Cell(t('businessId'),esc(c.business_id)||d)
+    +kv2Cell(t('ownerName'),esc(c.owner_name)||d)+kv2Cell(t('contactPerson'),esc(c.contact_person)||d)
+    +kv2Cell(t('phone'),phoneVal)+kv2Cell(t('contactPhone'),contactPhoneVal)
+    +kv2Cell(t('email'),emailVal,true)
+    +kv2Cell(t('address'),addressVal)+kv2Cell(t('cityFieldLabel'),esc(c.city)||d)
+    +kv2Cell(t('regionFieldLabel'),esc(c.region)||d)+kv2Cell(t('countryFieldLabel'),esc(c.country)||d);
 }
 function editField(id,label,val,type){
   return `<div class="field"><div class="label">${esc(label)}</div><input id="${id}" type="${type||'text'}" value="${esc(val||'')}"></div>`;
@@ -912,8 +909,8 @@ function buildCustomerEditForm(c){
       ${editField('editPhone',t('phone'),c.phone)}
       ${editField('editContactPhone',t('contactPhone'),c.contact_phone)}
       ${editField('editEmail',t('email'),c.email,'email')}
-      ${editField('editCity',t('cityFieldLabel'),c.city)}
       ${editField('editAddress',t('address'),c.address)}
+      ${editField('editCity',t('cityFieldLabel'),c.city)}
       ${editField('editRegion',t('regionFieldLabel'),c.region)}
       ${editField('editCountry',t('countryFieldLabel'),c.country)}
     </div>
@@ -955,7 +952,9 @@ function renderDetail(){
   const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
   const tel=c.phone?'tel:'+c.phone.replace(/\s/g,''):'', mail=c.email?'mailto:'+c.email:'';
   const contactTel=c.contact_phone?'tel:'+c.contact_phone.replace(/\s/g,''):'';
-  const mapsUrl=(c.address||c.city)?'https://www.google.com/maps?q='+encodeURIComponent([c.address,c.city].filter(Boolean).join(', ')):'';
+  const callTel=contactTel||tel; // Soita-pikanappi: contact_phone jos olemassa, muuten phone
+  const mapsParts=[c.address,c.city,c.region,c.country].filter(Boolean);
+  const mapsUrl=mapsParts.length?'https://www.google.com/maps?q='+encodeURIComponent(mapsParts.join(', ')):'';
   const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
   $('detailBody').innerHTML=`
     <div class="note-box">
@@ -981,7 +980,9 @@ function renderDetail(){
         </div>
         <div class="split-col divider">
           <div class="split-col-label">${esc(t('previousNote'))}</div>
-          ${(()=>{ const ln=lastNoteFor(c.id); return ln ? `<div class="prev-entry"><div class="prev-date">${esc(toFI(ln.note_date))}</div>${ln.note_type?`<span class="tag">${esc(actionLabel(ln.note_type))}</span>`:''}<div class="prev-text">${esc(ln.note_text||'—')}</div></div>` : `<div class="hint">${esc(t('noEntriesYet'))}</div>`; })()}
+          ${(()=>{ const ln=lastNoteFor(c.id); if(!ln) return `<div class="hint">${esc(t('noEntriesYet'))}</div>`;
+            const nextLine=c.next_action?`<div class="prev-next-action">${esc(t('nextAction'))}: <b>${esc(actionLabel(c.next_action))}</b>${c.next_date?' · '+esc(toFI(c.next_date)):''}</div>`:'';
+            return `<div class="prev-entry"><div class="prev-date">${esc(toFI(ln.note_date))}</div><div class="prev-text">${esc(ln.note_text||'—')}</div>${nextLine}</div>`; })()}
         </div>
       </div>
       <div class="grid2">
@@ -1014,14 +1015,14 @@ function renderDetail(){
       ${editingCustomer ? buildCustomerEditForm(c) : `
       <div class="kv2-grid">${buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel)}</div>
       <div class="quick">
-        <button class="btn" id="btnCall" type="button" ${c.phone?'':'disabled'}>${esc(t('call'))}</button>
-        <button class="btn" id="btnMaps" type="button" ${(c.address||c.city)?'':'disabled'}>${esc(t('maps'))}</button>
+        <button class="btn" id="btnCall" type="button" ${callTel?'':'disabled'}>${esc(t('call'))}</button>
+        <button class="btn" id="btnMaps" type="button" ${mapsUrl?'':'disabled'}>${esc(t('maps'))}</button>
         <button class="btn" id="btnEmail" type="button" ${c.email?'':'disabled'}>${esc(t('email'))}</button>
       </div>`}
     </div>
     ${renderHistoryPopover(c)}
   `;
-  wireDetail(c,tel,mail,mapsUrl);
+  wireDetail(c,callTel,mail,mapsUrl);
 }
 
 function renderHistoryPopover(c){
@@ -1095,8 +1096,18 @@ async function saveNote(c){
     const w=await workspace(); const today=todayISO();
     const actionType=$('nextActionSelect')?.value||'Soitto';
     const nextDateVal=$('nextDateInput')?.value||null;
-    const row={workspace_id:w.id,customer_id:c.id,note_type:actionType,note_text:noteText,purchases_text:purchasesText,sales:sales||0,note_date:today,next_date:nextDateVal,created_source:'cloud-ui-v12'};
-    const nr=await sb.from('kontakti_notes').insert(row);
+    // note_type on eri asia kuin next_action (mitä tehdään seuraavaksi) - ei enää peilata
+    // automaattisesti next_actionista, koska note_type kuvaa tehdyn merkinnän tyyppiä eikä
+    // käyttäjä valitse sitä tässä lomakkeessa erikseen. Jos Supabase vaatii ei-null-arvon,
+    // yritetään uudelleen hillityllä oletusarvolla ilman että koko tallennus kaatuu.
+    const row={workspace_id:w.id,customer_id:c.id,note_type:null,note_text:noteText,purchases_text:purchasesText,sales:sales||0,note_date:today,next_date:nextDateVal,created_source:'cloud-ui-v12'};
+    let nr=await sb.from('kontakti_notes').insert(row);
+    if(nr.error){
+      const msg=(nr.error.message||'').toLowerCase();
+      if(msg.includes('note_type')||msg.includes('null value')){
+        nr=await sb.from('kontakti_notes').insert({...row,note_type:'Muu'});
+      }
+    }
     if(nr.error) throw nr.error;
     const patch={last_contact:today,next_date:nextDateVal,next_action:actionType};
     if(sales) patch.sales_ytd=Number(c.sales_ytd||0)+sales;
@@ -1129,9 +1140,9 @@ function renderSettingsDetail(){
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('companyLogo'))}</div></div>
       <div class="logo-upload-row">
-        ${hasLogo?`<img class="logo-preview" id="logoPreviewImg" src="${esc(ws.logo_url)}" alt="">`:`<div class="logo-preview-fallback">🏢</div>`}
+        ${hasLogo?`<img class="logo-preview" id="logoPreviewImg" src="${esc(ws.logo_url)}" alt="" onerror="this.style.display='none'">`:`<div class="logo-preview-fallback">🏢</div>`}
         <div class="logo-actions">
-          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp" hidden>
           <button class="btn subtle" id="btnLogoUpload" type="button">${esc(hasLogo?t('changeLogo'):t('uploadLogo'))}</button>
           ${hasLogo?`<button class="btn subtle" id="btnLogoRemove" type="button">${esc(t('removeLogo'))}</button>`:''}
         </div>
@@ -1147,14 +1158,19 @@ function renderSettingsDetail(){
   $('logoFileInput')?.addEventListener('change',(e)=>{ const f=e.target.files&&e.target.files[0]; if(f) uploadCompanyLogo(f); });
   $('btnLogoRemove')?.addEventListener('click',removeCompanyLogo);
 }
+const LOGO_MAX_BYTES=2*1024*1024;
+const LOGO_EXT_BY_TYPE={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};
 async function uploadCompanyLogo(file){
   const statusEl=$('logoStatus');
   statusEl.style.display='none';
+  const ext=LOGO_EXT_BY_TYPE[file.type];
+  if(!ext){ statusEl.style.display='block'; statusEl.textContent=t('logoInvalidType'); return; }
+  if(file.size>LOGO_MAX_BYTES){ statusEl.style.display='block'; statusEl.textContent=t('logoTooLarge'); return; }
   try{
     const w=await workspace();
-    const ext=(file.name.split('.').pop()||'png').toLowerCase();
+    // ei käyttäjän alkuperäistä tiedostonimeä - kiinteä polku workspacea kohden
     const path=`${w.id}/logo.${ext}`;
-    const up=await sb.storage.from('company-logos').upload(path,file,{upsert:true,contentType:file.type||undefined});
+    const up=await sb.storage.from('company-logos').upload(path,file,{upsert:true,contentType:file.type});
     if(up.error) throw up.error;
     const pub=sb.storage.from('company-logos').getPublicUrl(path);
     const publicUrl=pub?.data?.publicUrl;
@@ -1291,7 +1307,10 @@ function updateCompanyLogoCard(){
   if(!ws){ card.hidden=true; return; }
   card.hidden=false;
   const img=$('companyLogoImg'), fallback=$('companyLogoFallback');
-  if(ws.logo_url){ img.src=ws.logo_url; img.hidden=false; fallback.hidden=true; }
+  if(ws.logo_url){
+    img.onerror=()=>{ img.hidden=true; fallback.hidden=false; };
+    img.src=ws.logo_url; img.hidden=false; fallback.hidden=true;
+  }
   else { img.hidden=true; img.removeAttribute('src'); fallback.hidden=false; }
   $('companyLogoName').textContent=ws.name||t('companyLogo');
 }
