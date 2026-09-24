@@ -442,7 +442,7 @@ const TRANSLATIONS={
     companyLogo:'Yrityksen logo', uploadLogo:'Lataa logo', changeLogo:'Vaihda logo', removeLogo:'Poista logo', logoUploadHint:'PNG, JPG tai WebP, enintään 2 Mt',
     logoTooLarge:'Tiedosto on liian suuri (enintään 2 Mt).', logoInvalidType:'Tiedostomuotoa ei tueta. Käytä PNG, JPG tai WebP.',
     logoSaveError:'Logon tallennus epäonnistui: {msg}', logoRemoveError:'Logon poisto epäonnistui: {msg}', logoNeedsSetup:'Yrityksen logo vaatii Supabase Storage -asetuksen (kysy ylläpitäjältä).',
-    ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', ownerPhoneFieldsNeedSetup:'Yrittäjä ja Yhteyshenkilön numero vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
+    ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', contactEmail:'Yhteyshenkilön sähköposti', ownerPhoneFieldsNeedSetup:'Yrittäjä, Yhteyshenkilön numero ja/tai Yhteyshenkilön sähköposti vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
     noteAndNextAction:'Muistiinpano & seuraava toimenpide',
     activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin'
   },
@@ -508,7 +508,7 @@ const TRANSLATIONS={
     companyLogo:'Company logo', uploadLogo:'Upload logo', changeLogo:'Change logo', removeLogo:'Remove logo', logoUploadHint:'PNG, JPG or WebP, max 2 MB',
     logoTooLarge:'File is too large (max 2 MB).', logoInvalidType:'File type not supported. Use PNG, JPG or WebP.',
     logoSaveError:'Could not save logo: {msg}', logoRemoveError:'Could not remove logo: {msg}', logoNeedsSetup:'Company logo needs a Supabase Storage setup (ask an admin).',
-    ownerName:'Owner', contactPhone:'Contact phone', ownerPhoneFieldsNeedSetup:'Owner and Contact phone need a database update — the rest was saved.',
+    ownerName:'Owner', contactPhone:'Contact phone', contactEmail:'Contact email', ownerPhoneFieldsNeedSetup:'Owner, Contact phone and/or Contact email need a database update — the rest was saved.',
     noteAndNextAction:'Note & next action',
     activeFiltersHeading:'Active filters', removeFilter:'Remove filter'
   }
@@ -883,16 +883,17 @@ function kv2Cell(label,valueHtml,full){
 }
 // Perustiedot-kortin rivijärjestys on kiinteä (sovittu rakenne), joten näytetään aina
 // kaikki 6 riviä ja käytetään "—"-merkkiä puuttuvalle arvolle sen sijaan että rivi piilotettaisiin.
-function buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel){
+function buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel,contactMail){
   const d='—';
   const phoneVal=c.phone?`<a href="${esc(tel)}">${esc(c.phone)}</a>`:d;
   const contactPhoneVal=c.contact_phone?`<a href="${esc(contactTel)}">${esc(c.contact_phone)}</a>`:d;
   const emailVal=c.email?`<a href="${esc(mail)}">${esc(c.email)}</a>`:d;
+  const contactEmailVal=c.contact_email?`<a href="${esc(contactMail)}">${esc(c.contact_email)}</a>`:d;
   const addressVal=c.address?`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`:d;
   return kv2Cell(t('customerName'),esc(c.name)||d)+kv2Cell(t('businessId'),esc(c.business_id)||d)
     +kv2Cell(t('ownerName'),esc(c.owner_name)||d)+kv2Cell(t('contactPerson'),esc(c.contact_person)||d)
     +kv2Cell(t('phone'),phoneVal)+kv2Cell(t('contactPhone'),contactPhoneVal)
-    +kv2Cell(t('email'),emailVal,true)
+    +kv2Cell(t('email'),emailVal)+kv2Cell(t('contactEmail'),contactEmailVal)
     +kv2Cell(t('address'),addressVal)+kv2Cell(t('cityFieldLabel'),esc(c.city)||d)
     +kv2Cell(t('regionFieldLabel'),esc(c.region)||d)+kv2Cell(t('countryFieldLabel'),esc(c.country)||d);
 }
@@ -909,6 +910,7 @@ function buildCustomerEditForm(c){
       ${editField('editPhone',t('phone'),c.phone)}
       ${editField('editContactPhone',t('contactPhone'),c.contact_phone)}
       ${editField('editEmail',t('email'),c.email,'email')}
+      ${editField('editContactEmail',t('contactEmail'),c.contact_email,'email')}
       ${editField('editAddress',t('address'),c.address)}
       ${editField('editCity',t('cityFieldLabel'),c.city)}
       ${editField('editRegion',t('regionFieldLabel'),c.region)}
@@ -952,7 +954,9 @@ function renderDetail(){
   const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
   const tel=c.phone?'tel:'+c.phone.replace(/\s/g,''):'', mail=c.email?'mailto:'+c.email:'';
   const contactTel=c.contact_phone?'tel:'+c.contact_phone.replace(/\s/g,''):'';
+  const contactMail=c.contact_email?'mailto:'+c.contact_email:'';
   const callTel=contactTel||tel; // Soita-pikanappi: contact_phone jos olemassa, muuten phone
+  const emailBtnMail=contactMail||mail; // Sähköposti-pikanappi: contact_email jos olemassa, muuten email
   const mapsParts=[c.address,c.city,c.region,c.country].filter(Boolean);
   const mapsUrl=mapsParts.length?'https://www.google.com/maps?q='+encodeURIComponent(mapsParts.join(', ')):'';
   const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
@@ -1013,16 +1017,16 @@ function renderDetail(){
         ${editingCustomer?'':'<button class="btn subtle" id="btnEditCustomer" type="button">'+esc(t('editCustomer'))+'</button>'}
       </div>
       ${editingCustomer ? buildCustomerEditForm(c) : `
-      <div class="kv2-grid">${buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel)}</div>
+      <div class="kv2-grid">${buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel,contactMail)}</div>
       <div class="quick">
         <button class="btn" id="btnCall" type="button" ${callTel?'':'disabled'}>${esc(t('call'))}</button>
         <button class="btn" id="btnMaps" type="button" ${mapsUrl?'':'disabled'}>${esc(t('maps'))}</button>
-        <button class="btn" id="btnEmail" type="button" ${c.email?'':'disabled'}>${esc(t('email'))}</button>
+        <button class="btn" id="btnEmail" type="button" ${emailBtnMail?'':'disabled'}>${esc(t('email'))}</button>
       </div>`}
     </div>
     ${renderHistoryPopover(c)}
   `;
-  wireDetail(c,callTel,mail,mapsUrl);
+  wireDetail(c,callTel,emailBtnMail,mapsUrl);
 }
 
 function renderHistoryPopover(c){
@@ -1066,15 +1070,16 @@ async function saveCustomerEdit(c){
   };
   const extendedPatch={...basePatch,
     owner_name:($('editOwnerName').value||'').trim()||null,
-    contact_phone:($('editContactPhone').value||'').trim()||null
+    contact_phone:($('editContactPhone').value||'').trim()||null,
+    contact_email:($('editContactEmail').value||'').trim()||null
   };
   try{
     let ur=await sb.from('kontakti_customers').update(extendedPatch).eq('id',c.id);
     let partial=false;
     if(ur.error){
-      // owner_name/contact_phone eivät (vielä) ole nykyisessä schemassa - tallenna loput kentät silti
+      // owner_name/contact_phone/contact_email eivät (vielä) ole nykyisessä schemassa - tallenna loput kentät silti
       const msg=(ur.error.message||'').toLowerCase();
-      if(msg.includes('owner_name')||msg.includes('contact_phone')||msg.includes('column')||msg.includes('schema cache')){
+      if(msg.includes('owner_name')||msg.includes('contact_phone')||msg.includes('contact_email')||msg.includes('column')||msg.includes('schema cache')){
         ur=await sb.from('kontakti_customers').update(basePatch).eq('id',c.id);
         partial=true;
       }
