@@ -110,17 +110,23 @@ textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placehol
 .kv2-value a{color:var(--text);text-decoration:none}
 .kv2-value a:hover{text-decoration:underline}
 @media (max-width:680px){.kv2-grid{grid-template-columns:1fr}}
-.sales-compare{display:flex;flex-direction:column;gap:5px}
-.sales-compare-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12.5px}
-.sales-compare-label{font-weight:500;color:var(--muted);min-width:30px}
-.sales-compare-amount{font-weight:600;color:var(--text)}
-.sales-compare-pct,.sales-compare-diff{font-weight:500;color:var(--muted)}
-.sales-compare-pct.up,.sales-compare-diff.up{color:var(--ok)}
-.sales-compare-pct.down,.sales-compare-diff.down{color:var(--danger)}
-.sales-compare-yoy{color:var(--muted);font-size:11px;font-weight:400}
+.sales-table{display:grid;grid-template-columns:minmax(46px,0.7fr) minmax(72px,1fr) minmax(72px,1fr) minmax(92px,1.15fr) minmax(72px,0.95fr);row-gap:7px;column-gap:8px;width:100%}
+.sales-row{display:contents}
+.sales-cell{font-size:12.5px;min-width:0;text-align:center;font-weight:520;color:var(--text)}
+.sales-cell.period{text-align:left;font-weight:500;color:var(--muted)}
+.sales-row.head .sales-cell{font-weight:460;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+.sales-cell.up{color:var(--ok)}
+.sales-cell.down{color:var(--danger)}
+.sales-cell.neutral{color:var(--muted)}
+@media (max-width:680px){
+  .sales-table{grid-template-columns:minmax(34px,0.6fr) minmax(54px,1fr) minmax(54px,1fr) minmax(66px,1.1fr) minmax(54px,0.9fr);column-gap:5px}
+  .sales-cell{font-size:11px}
+}
 .legend-list{display:flex;flex-direction:column;gap:8px}
 .legend-row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .legend-term{font-weight:560;font-size:12.5px;min-width:52px;flex:0 0 auto;color:var(--text)}
+.legend-term.up{color:var(--ok)}
+.legend-term.down{color:var(--danger)}
 .legend-desc{font-size:12.5px;color:var(--muted);font-weight:400}
 .legend-dots{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:2px}
 .quick{display:flex;gap:10px;flex-wrap:wrap}
@@ -463,14 +469,17 @@ const TRANSLATIONS={
     ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', contactEmail:'Yhteyshenkilön sähköposti', ownerPhoneFieldsNeedSetup:'Yrittäjä, Yhteyshenkilön numero ja/tai Yhteyshenkilön sähköposti vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
     noteAndNextAction:'Muistiinpano & seuraava toimenpide',
     activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin',
-    metricYtdShort:'YTD', metric6moShort:'6 kk', metric1moShort:'1 kk', yoyBadge:'← 1 v',
+    metricYtdShort:'YTD', metric6moShort:'6 kk', metric1moShort:'1 kk',
+    changeEuroHeader:'Muutos €', changePercentHeader:'Muutos %',
     legendTitle:'Selitteet',
     legendYtdDesc:'Myynti vuoden alusta tähän päivään.',
     legend6moDesc:'Viimeisten kuuden kuukauden myynti.',
     legend1moDesc:'Viimeisen kuukauden myynti.',
-    legendYoyDesc:'Vertailu samaan ajanjaksoon vuotta aiemmin.',
-    legendPctDesc:'Myynnin prosentuaalinen muutos verrattuna samaan jaksoon vuotta aiemmin.',
-    legendEuroDesc:'Myynnin euromääräinen muutos verrattuna samaan jaksoon vuotta aiemmin.',
+    legendPctDesc:'Prosentuaalinen ero samaan ajanjaksoon vuotta aiemmin.',
+    legendEuroDesc:'Euromääräinen ero samaan ajanjaksoon vuotta aiemmin.',
+    legendDashDesc:'Prosenttimuutosta ei voida laskea, koska vertailujakson myynti oli €0.',
+    legendUpDesc:'Myynti kasvanut.', legendDownDesc:'Myynti laskenut.', legendNeutralDesc:'Ei muutosta / neutraali arvo.',
+    legendGreen:'Vihreä', legendRed:'Punainen', legendGray:'Harmaa',
     legendColorsTitle:'Viime kontaktista',
     legendColor030:'0–30 pv', legendColor3160:'31–60 pv', legendColor6190:'61–90 pv', legendColor90plus:'yli 90 pv'
   },
@@ -539,14 +548,17 @@ const TRANSLATIONS={
     ownerName:'Owner', contactPhone:'Contact phone', contactEmail:'Contact email', ownerPhoneFieldsNeedSetup:'Owner, Contact phone and/or Contact email need a database update — the rest was saved.',
     noteAndNextAction:'Note & next action',
     activeFiltersHeading:'Active filters', removeFilter:'Remove filter',
-    metricYtdShort:'YTD', metric6moShort:'6 mo', metric1moShort:'1 mo', yoyBadge:'← 1 yr',
+    metricYtdShort:'YTD', metric6moShort:'6 mo', metric1moShort:'1 mo',
+    changeEuroHeader:'Change €', changePercentHeader:'Change %',
     legendTitle:'Legend / Help',
     legendYtdDesc:'Sales year to date.',
     legend6moDesc:'Sales over the last 6 months.',
     legend1moDesc:'Sales over the last month.',
-    legendYoyDesc:'Compared with the same period one year earlier.',
-    legendPctDesc:'Percentage change in sales compared with the same period one year earlier.',
-    legendEuroDesc:'Absolute change in sales (€) compared with the same period one year earlier.',
+    legendPctDesc:'Percentage difference vs. the same period one year earlier.',
+    legendEuroDesc:'Euro difference vs. the same period one year earlier.',
+    legendDashDesc:'The percentage change can’t be calculated because the comparison period had €0 in sales.',
+    legendUpDesc:'Sales increased.', legendDownDesc:'Sales decreased.', legendNeutralDesc:'No change / neutral value.',
+    legendGreen:'Green', legendRed:'Red', legendGray:'Gray',
     legendColorsTitle:'Since last contact',
     legendColor030:'0–30 days', legendColor3160:'31–60 days', legendColor6190:'61–90 days', legendColor90plus:'over 90 days'
   }
@@ -652,18 +664,33 @@ function salesComparisonPeriods(){
   ].map(p=>({...p, prevStart:addYearsISO(p.start,-1), prevEnd:addYearsISO(p.end,-1)}));
 }
 function renderSalesComparisons(list){
-  return salesComparisonPeriods().map(p=>{
+  const currentYear=Number(todayISO().slice(0,4)), previousYear=currentYear-1;
+  const rows=salesComparisonPeriods().map(p=>{
     const cur=sumSalesFor(list,p.start,p.end);
     const prev=sumSalesFor(list,p.prevStart,p.prevEnd);
     const diff=cur-prev;
-    let pctText,pctCls='';
-    if(prev>0){ const pct=Math.round((diff/prev)*100); pctText=(pct>0?'+':'')+pct+'%'; pctCls=pct>0?'up':pct<0?'down':''; }
-    else if(cur>0){ pctText='—'; }
-    else { pctText='0%'; }
+    let pctText,pctCls;
+    if(prev>0){ const pct=Math.round((diff/prev)*100); pctText=(pct>0?'+':'')+pct+'%'; pctCls=pct>0?'up':pct<0?'down':'neutral'; }
+    else if(cur>0){ pctText='—'; pctCls='neutral'; }
+    else { pctText='0%'; pctCls='neutral'; }
     const diffText=(diff>0?'+':diff<0?'-':'')+'€'+fmtMoney(Math.abs(diff));
-    const diffCls=diff>0?'up':diff<0?'down':'';
-    return `<div class="sales-compare-row"><span class="sales-compare-label">${esc(p.label)}</span><span class="sales-compare-amount">€${esc(fmtMoney(cur))}</span><span class="sales-compare-pct ${pctCls}">${esc(pctText)}</span><span class="sales-compare-diff ${diffCls}">${esc(diffText)}</span><span class="sales-compare-yoy">${esc(t('yoyBadge'))}</span></div>`;
+    const diffCls=diff>0?'up':diff<0?'down':'neutral';
+    return `<div class="sales-row">
+      <div class="sales-cell period">${esc(p.label)}</div>
+      <div class="sales-cell">€${esc(fmtMoney(cur))}</div>
+      <div class="sales-cell">€${esc(fmtMoney(prev))}</div>
+      <div class="sales-cell ${diffCls}">${esc(diffText)}</div>
+      <div class="sales-cell ${pctCls}">${esc(pctText)}</div>
+    </div>`;
   }).join('');
+  const head=`<div class="sales-row head">
+    <div class="sales-cell period"></div>
+    <div class="sales-cell">${esc(String(currentYear))}</div>
+    <div class="sales-cell">${esc(String(previousYear))}</div>
+    <div class="sales-cell">${esc(t('changeEuroHeader'))}</div>
+    <div class="sales-cell">${esc(t('changePercentHeader'))}</div>
+  </div>`;
+  return `<div class="sales-table">${head}${rows}</div>`;
 }
 function buildMetrics(range,prevRange){
   const byCust=notesByCustomerMap();
@@ -1035,7 +1062,7 @@ function renderDetail(){
         ${kv2Cell(t('next'), '<span class="'+(due.cls==='bad'?'due-overdue':due.cls==='ok'?'due-today':'')+'">'+esc(nextText)+'</span>')}
         ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')), true)}
       </div>
-      <div class="sales-compare">${renderSalesComparisons(notesForCustomer(c.id))}</div>
+      ${renderSalesComparisons(notesForCustomer(c.id))}
       <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">${esc(t('showHistory'))}</button></div>
     </div>
     <div class="note-box">
@@ -1224,9 +1251,12 @@ function renderSettingsDetail(){
         <div class="legend-row"><span class="legend-term">${esc(t('metricYtdShort'))}</span><span class="legend-desc">${esc(t('legendYtdDesc'))}</span></div>
         <div class="legend-row"><span class="legend-term">${esc(t('metric6moShort'))}</span><span class="legend-desc">${esc(t('legend6moDesc'))}</span></div>
         <div class="legend-row"><span class="legend-term">${esc(t('metric1moShort'))}</span><span class="legend-desc">${esc(t('legend1moDesc'))}</span></div>
-        <div class="legend-row"><span class="legend-term">${esc(t('yoyBadge'))}</span><span class="legend-desc">${esc(t('legendYoyDesc'))}</span></div>
-        <div class="legend-row"><span class="legend-term">%</span><span class="legend-desc">${esc(t('legendPctDesc'))}</span></div>
-        <div class="legend-row"><span class="legend-term">€</span><span class="legend-desc">${esc(t('legendEuroDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('changeEuroHeader'))}</span><span class="legend-desc">${esc(t('legendEuroDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('changePercentHeader'))}</span><span class="legend-desc">${esc(t('legendPctDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">—</span><span class="legend-desc">${esc(t('legendDashDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term up">${esc(t('legendGreen'))}</span><span class="legend-desc">${esc(t('legendUpDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term down">${esc(t('legendRed'))}</span><span class="legend-desc">${esc(t('legendDownDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('legendGray'))}</span><span class="legend-desc">${esc(t('legendNeutralDesc'))}</span></div>
         <div class="legend-row"><span class="legend-term">🟣 ${esc(t('priority'))}</span><span class="legend-desc">${esc(t('priorityHint'))}</span></div>
       </div>
       <div class="legend-dots">
