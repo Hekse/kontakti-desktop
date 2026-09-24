@@ -430,8 +430,8 @@ const TRANSLATIONS={
     activeFilters:'Suodattimet', showingCustomers:'Näytetään {shown} / {total} asiakasta',
     salesInPeriod:'Myynti valitulla jaksolla', salesAllHistory:'Myynti (koko historia)', sortLabelPrefix:'Järjestys: ',
     priorityOnlyChip:'Vain priority', nextActionTodayChip:'Seuraava toimenpide tänään',
-    currentStatus:'Nykytila', now:'nyt', lastContact:'Viime kontakti', next:'Seuraava', action:'Toimenpide', showHistory:'Näytä historia',
-    note:'Muistiinpano', notePlaceholder:'Kirjaa muistiinpano...', purchases:'Ostokset', purchasesPlaceholder:'Kirjaa ostokset / tuotteet...', text:'teksti',
+    currentStatus:'Nykytila', lastContact:'Viime kontakti', next:'Seuraava', action:'Toimenpide', showHistory:'Näytä historia',
+    note:'Muistiinpano', notePlaceholder:'Kirjaa muistiinpano...', purchases:'Ostokset', purchasesPlaceholder:'Kirjaa ostokset / tuotteet...',
     salesEuroOptional:'Myynti € (valinnainen)', saveEntry:'Tallenna merkintä', noteOrPurchasesHint:'Muistiinpano tai ostokset riittää tallennukseen.',
     nextAction:'Seuraava toimenpide', nextDate:'Seuraava pvm', priority:'Priority', priorityHint:'Nousee soittolistan kärkeen.',
     priorityOn:'🟣 Priority päällä', priorityOff:'🟣 Priority pois', saveNextAction:'Tallenna seuraava toimenpide',
@@ -467,7 +467,7 @@ const TRANSLATIONS={
     logoTooLarge:'Tiedosto on liian suuri (enintään 2 Mt).', logoInvalidType:'Tiedostomuotoa ei tueta. Käytä PNG, JPG tai WebP.',
     logoSaveError:'Logon tallennus epäonnistui: {msg}', logoRemoveError:'Logon poisto epäonnistui: {msg}', logoNeedsSetup:'Yrityksen logo vaatii Supabase Storage -asetuksen (kysy ylläpitäjältä).',
     ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', contactEmail:'Yhteyshenkilön sähköposti', ownerPhoneFieldsNeedSetup:'Yrittäjä, Yhteyshenkilön numero ja/tai Yhteyshenkilön sähköposti vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
-    noteAndNextAction:'Muistiinpano & seuraava toimenpide',
+    noteAndNextAction:'Toimenpide',
     activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin',
     metricYtdShort:'YTD', metric6moShort:'6 kk', metric1moShort:'1 kk',
     changeEuroHeader:'Muutos €', changePercentHeader:'Muutos %',
@@ -509,8 +509,8 @@ const TRANSLATIONS={
     activeFilters:'Filters', showingCustomers:'Showing {shown} / {total} customers',
     salesInPeriod:'Sales in selected period', salesAllHistory:'Sales (all history)', sortLabelPrefix:'Sort: ',
     priorityOnlyChip:'Priority only', nextActionTodayChip:'Next action today',
-    currentStatus:'Current status', now:'now', lastContact:'Last contact', next:'Next', action:'Action', showHistory:'Show history',
-    note:'Note', notePlaceholder:'Write a note...', purchases:'Purchases', purchasesPlaceholder:'Enter purchases / products...', text:'text',
+    currentStatus:'Current status', lastContact:'Last contact', next:'Next', action:'Action', showHistory:'Show history',
+    note:'Note', notePlaceholder:'Write a note...', purchases:'Purchases', purchasesPlaceholder:'Enter purchases / products...',
     salesEuroOptional:'Sales € (optional)', saveEntry:'Save entry', noteOrPurchasesHint:'A note or purchases is enough to save.',
     nextAction:'Next action', nextDate:'Next date', priority:'Priority', priorityHint:'Moves to the top of the call list.',
     priorityOn:'🟣 Priority on', priorityOff:'🟣 Priority off', saveNextAction:'Save next action',
@@ -546,7 +546,7 @@ const TRANSLATIONS={
     logoTooLarge:'File is too large (max 2 MB).', logoInvalidType:'File type not supported. Use PNG, JPG or WebP.',
     logoSaveError:'Could not save logo: {msg}', logoRemoveError:'Could not remove logo: {msg}', logoNeedsSetup:'Company logo needs a Supabase Storage setup (ask an admin).',
     ownerName:'Owner', contactPhone:'Contact phone', contactEmail:'Contact email', ownerPhoneFieldsNeedSetup:'Owner, Contact phone and/or Contact email need a database update — the rest was saved.',
-    noteAndNextAction:'Note & next action',
+    noteAndNextAction:'Action',
     activeFiltersHeading:'Active filters', removeFilter:'Remove filter',
     metricYtdShort:'YTD', metric6moShort:'6 mo', metric1moShort:'1 mo',
     changeEuroHeader:'Change €', changePercentHeader:'Change %',
@@ -1056,7 +1056,7 @@ function renderDetail(){
   const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
   $('detailBody').innerHTML=`
     <div class="note-box">
-      <div class="note-top"><div class="t">${esc(t('currentStatus'))}</div><div class="d">${esc(t('now'))}</div></div>
+      <div class="note-top"><div class="t">${esc(t('currentStatus'))}</div></div>
       <div class="kv2-grid">
         ${kv2Cell(t('lastContact'), esc(lastText)+(c.last_contact?' ('+esc(status.text)+')<span class="status-dot sm '+esc(status.cls)+'"></span>':''))}
         ${kv2Cell(t('next'), '<span class="'+(due.cls==='bad'?'due-overdue':due.cls==='ok'?'due-today':'')+'">'+esc(nextText)+'</span>')}
@@ -1087,7 +1087,7 @@ function renderDetail(){
       <div class="hint">${esc(t('noteOrPurchasesHint'))}</div>
     </div>
     <div class="note-box">
-      <div class="note-top"><div class="t">${esc(t('purchases'))}</div><div class="d">${esc(t('text'))}</div></div>
+      <div class="note-top"><div class="t">${esc(t('purchases'))}</div></div>
       <div class="split2">
         <div class="split-col">
           <div class="split-col-label">${esc(t('newPurchase'))}</div>
