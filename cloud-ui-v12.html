@@ -73,6 +73,7 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:14px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:var(--r22);box-shadow:var(--shadow);padding:12px 14px}
 .topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:15.5px;font-weight:600;white-space:nowrap}
+header.list-topbar{background:none;border:none;box-shadow:none;backdrop-filter:none;border-radius:0;padding:14px 14px 10px;border-bottom:1px solid rgba(var(--tint),.12);flex:0 0 auto}
 .search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;background:rgba(var(--tint),.04);border:1px solid rgba(var(--tint),.16);border-radius:999px;padding:10px 12px;max-width:520px}
 .search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-weight:400}.search input::placeholder{color:var(--muted)}
 .content{flex:1;min-height:0;display:grid;grid-template-columns:40% 60%;gap:14px}
@@ -89,15 +90,16 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .status-dot.green{background:var(--ok)} .status-dot.yellow{background:var(--warn)} .status-dot.orange{background:var(--amber)} .status-dot.red{background:var(--danger)} .status-dot.gray{background:rgba(var(--tint),.28)}
 .tagline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.tag{font-size:12px;font-weight:480;color:var(--text);background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);padding:2px 8px;border-radius:999px}
 .tag.ok{border-color:rgba(38,208,124,.32);background:rgba(38,208,124,.10)} .tag.bad{border-color:rgba(255,77,77,.32);background:rgba(255,77,77,.10)} .tag.priority{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.13);font-weight:600}
-.detail{display:grid;grid-template-rows:auto 1fr;min-height:0}.detail-header{padding:14px 14px 10px;border-bottom:1px solid rgba(var(--tint),.12);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.detail-header h2{margin:0;font-size:22px;font-weight:600;line-height:1.1}.subline{margin-top:8px;font-size:12px;font-weight:400;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
-.detail-body{padding:12px 14px 14px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px}
+.detail{display:grid;grid-template-rows:auto 1fr;min-height:0}.detail-header{padding:12px 14px 8px;border-bottom:1px solid rgba(var(--tint),.12);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.detail-header h2{margin:0;font-size:22px;font-weight:600;line-height:1.1}.subline{margin-top:6px;font-size:12px;font-weight:400;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.detail-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.detail-body{padding:10px 14px 14px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px}
 .note-box{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow2)}
 .note-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.note-top .t{font-weight:550;font-size:13.5px}.note-top .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
 .field{display:flex;flex-direction:column;gap:8px}.label{font-size:12px;color:var(--muted);font-weight:400}
 input,textarea,select{width:100%;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.16);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:400;font-family:inherit}
 textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placeholder{color:var(--muted)} select option{background:var(--solid-panel);color:var(--text)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap}.switchline{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:14px;padding:10px 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap}
 .kvlist{display:flex;flex-direction:column;gap:8px}.kvrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:12px;padding:10px}
 .kvrow b{font-weight:550}.kvrow span,.kvrow a{color:var(--text);font-weight:400;text-decoration:none;word-break:break-word;text-align:right;max-width:65%}.kvrow a:hover{text-decoration:underline}
 .kv2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -235,15 +237,6 @@ select:disabled{opacity:.5;cursor:not-allowed}
     </div>
   </aside>
   <main class="main">
-    <header class="topbar">
-      <div class="left">
-        <div class="page-title" id="pageTitle">Soita tänään</div>
-        <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta..."></div>
-      </div>
-      <div class="right">
-        <button class="btn" id="btnRefresh" type="button">↻ Päivitä</button>
-      </div>
-    </header>
     <div class="filter-panel" id="filterPanel" hidden>
       <div class="filter-panel-head">
         <div><div class="history-title" data-i18n="filterOnly">Suodata</div><div class="history-sub" id="filterPanelSubtitle" data-i18n="customersView">Asiakkaat-näkymä</div></div>
@@ -335,6 +328,15 @@ select:disabled{opacity:.5;cursor:not-allowed}
     </div>
     <section class="content">
       <div class="card">
+        <header class="topbar list-topbar">
+          <div class="left">
+            <div class="page-title" id="pageTitle">Soita tänään</div>
+            <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta..."></div>
+          </div>
+          <div class="right">
+            <button class="btn subtle" id="btnRefresh" type="button" style="font-weight:500">↻ Päivitä</button>
+          </div>
+        </header>
         <div class="list-toolbar" id="listToolbar" hidden>
           <div class="filter-dots" id="filterDots">
             <button class="filter-dot green" data-color="green" data-i18n-title="dot030" title="0–30 päivää kärkeen" type="button"></button>
@@ -348,7 +350,10 @@ select:disabled{opacity:.5;cursor:not-allowed}
       </div>
       <div class="card detail" id="detailCard">
         <div class="detail-header">
-          <div style="min-width:0"><h2 id="detailName">Valitse asiakas</h2><div class="subline" id="detailSub">Klikkaa listasta asiakasta.</div></div>
+          <div style="min-width:0;flex:1">
+            <div class="detail-name-row" id="detailNameRow"><h2 id="detailName">Valitse asiakas</h2></div>
+            <div class="subline" id="detailSub">Klikkaa listasta asiakasta.</div>
+          </div>
           <button class="btn mobile-back" id="btnBack" type="button" data-i18n="back">← Takaisin</button>
         </div>
         <div class="detail-body" id="detailBody"><div class="note-box"><div class="hint">Valitse asiakas vasemmalta.</div></div></div>
@@ -943,14 +948,14 @@ function renderDetail(){
   if(view==='weekly') return renderWeeklyDetail();
   const c=cs.find(x=>x.id===sel);
   if(!c){
-    $('detailName').textContent = t('selectCustomer');
+    $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('selectCustomer'))}</h2>`;
     $('detailSub').textContent = t('clickCustomerFromList');
     $('detailBody').innerHTML = `<div class="note-box"><div class="hint">${esc(t('selectCustomerLeft'))}</div></div>`;
     return;
   }
   const lastText=toFI(c.last_contact), nextText=toFI(c.next_date);
-  $('detailName').textContent=c.name||t('unnamed');
-  $('detailSub').innerHTML=`<span>${esc(t('lastContact'))}: <b>${esc(lastText)}</b></span><span>${esc(t('next'))}: <b>${esc(nextText)}</b></span>${c.priority?'<span class="pill priority">🟣 '+esc(t('priority'))+'</span>':''}`;
+  $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(c.name||t('unnamed'))}</h2><button class="btn priority compact ${c.priority?'active':''}" id="btnPriorityToggle" type="button">${c.priority?esc(t('priorityOn')):esc(t('priorityOff'))}</button>`;
+  $('detailSub').innerHTML=`<span>${esc(t('lastContact'))}: <b>${esc(lastText)}</b></span><span>${esc(t('next'))}: <b>${esc(nextText)}</b></span>`;
   const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
   const tel=c.phone?'tel:'+c.phone.replace(/\s/g,''):'', mail=c.email?'mailto:'+c.email:'';
   const contactTel=c.contact_phone?'tel:'+c.contact_phone.replace(/\s/g,''):'';
@@ -968,10 +973,6 @@ function renderDetail(){
         ${kv2Cell(t('next'), '<span class="'+(due.cls==='bad'?'due-overdue':due.cls==='ok'?'due-today':'')+'">'+esc(nextText)+'</span>')}
         ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')))}
         ${kv2Cell(t('salesYTD'), '€'+esc(fmtMoney(c.sales_ytd||0)))}
-      </div>
-      <div class="switchline">
-        <div><div style="font-weight:550">${esc(t('priority'))}</div><div class="hint">${esc(t('priorityHint'))}</div></div>
-        <button class="btn priority ${c.priority?'active':''}" id="btnPriorityToggle" type="button">${c.priority?esc(t('priorityOn')):esc(t('priorityOff'))}</button>
       </div>
       <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">${esc(t('showHistory'))}</button></div>
     </div>
@@ -1131,7 +1132,7 @@ async function togglePriority(c){
 }
 
 function renderSettingsDetail(){
-  $('detailName').textContent=t('settings');
+  $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('settings'))}</h2>`;
   $('detailSub').textContent='';
   const hasLogo=ws&&ws.logo_url;
   $('detailBody').innerHTML=`
@@ -1219,7 +1220,7 @@ function renderWeeklyDetail(){
     return head+tail+(body?`\n${body}`:'');
   }).join('\n\n');
   const header=t('weekLabel',{n:w.weekNum,year:w.year})+`\n${toFI(w.start)} – ${toFI(w.end)}\n\n`+t('entriesCount',{n:rows.length})+'\n\n';
-  $('detailName').textContent=t('weekly');
+  $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('weekly'))}</h2>`;
   $('detailSub').textContent=t('weekRangeSub',{n:w.weekNum,start:toFI(w.start),end:toFI(w.end)});
   $('detailBody').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('copyableReport'))}</div><div class="d">copy–paste</div></div><div class="field"><textarea id="weeklyText" style="min-height:300px">${esc(header+(lines||'–'))}</textarea></div><div class="actions"><button class="btn primary" id="btnCopyWeekly" type="button">${esc(t('copy'))}</button></div><div class="hint">${esc(t('weeklyHint'))}</div></div>`;
   $('btnCopyWeekly')?.addEventListener('click',async()=>{ const ta=$('weeklyText'); ta.select(); try{ await navigator.clipboard.writeText(ta.value); }catch(e){ document.execCommand('copy'); } toast(t('copied')); });
