@@ -110,6 +110,19 @@ textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placehol
 .kv2-value a{color:var(--text);text-decoration:none}
 .kv2-value a:hover{text-decoration:underline}
 @media (max-width:680px){.kv2-grid{grid-template-columns:1fr}}
+.sales-compare{display:flex;flex-direction:column;gap:5px}
+.sales-compare-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12.5px}
+.sales-compare-label{font-weight:500;color:var(--muted);min-width:30px}
+.sales-compare-amount{font-weight:600;color:var(--text)}
+.sales-compare-pct,.sales-compare-diff{font-weight:500;color:var(--muted)}
+.sales-compare-pct.up,.sales-compare-diff.up{color:var(--ok)}
+.sales-compare-pct.down,.sales-compare-diff.down{color:var(--danger)}
+.sales-compare-yoy{color:var(--muted);font-size:11px;font-weight:400}
+.legend-list{display:flex;flex-direction:column;gap:8px}
+.legend-row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.legend-term{font-weight:560;font-size:12.5px;min-width:52px;flex:0 0 auto;color:var(--text)}
+.legend-desc{font-size:12.5px;color:var(--muted);font-weight:400}
+.legend-dots{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:2px}
 .quick{display:flex;gap:10px;flex-wrap:wrap}
 .btn.subtle{font-size:12.5px;padding:6px 10px;font-weight:480;background:rgba(var(--tint),.02);border-color:rgba(var(--tint),.12);color:var(--muted)}
 .btn.subtle:hover{color:var(--text);background:rgba(var(--tint),.05)}
@@ -449,7 +462,17 @@ const TRANSLATIONS={
     logoSaveError:'Logon tallennus epäonnistui: {msg}', logoRemoveError:'Logon poisto epäonnistui: {msg}', logoNeedsSetup:'Yrityksen logo vaatii Supabase Storage -asetuksen (kysy ylläpitäjältä).',
     ownerName:'Yrittäjä', contactPhone:'Yhteyshenkilön numero', contactEmail:'Yhteyshenkilön sähköposti', ownerPhoneFieldsNeedSetup:'Yrittäjä, Yhteyshenkilön numero ja/tai Yhteyshenkilön sähköposti vaativat tietokantapäivityksen — muut tiedot tallennettiin.',
     noteAndNextAction:'Muistiinpano & seuraava toimenpide',
-    activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin'
+    activeFiltersHeading:'Aktiiviset suodattimet', removeFilter:'Poista suodatin',
+    metricYtdShort:'YTD', metric6moShort:'6 kk', metric1moShort:'1 kk', yoyBadge:'← 1 v',
+    legendTitle:'Selitteet',
+    legendYtdDesc:'Myynti vuoden alusta tähän päivään.',
+    legend6moDesc:'Viimeisten kuuden kuukauden myynti.',
+    legend1moDesc:'Viimeisen kuukauden myynti.',
+    legendYoyDesc:'Vertailu samaan ajanjaksoon vuotta aiemmin.',
+    legendPctDesc:'Myynnin prosentuaalinen muutos verrattuna samaan jaksoon vuotta aiemmin.',
+    legendEuroDesc:'Myynnin euromääräinen muutos verrattuna samaan jaksoon vuotta aiemmin.',
+    legendColorsTitle:'Viime kontaktista',
+    legendColor030:'0–30 pv', legendColor3160:'31–60 pv', legendColor6190:'61–90 pv', legendColor90plus:'yli 90 pv'
   },
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
@@ -515,7 +538,17 @@ const TRANSLATIONS={
     logoSaveError:'Could not save logo: {msg}', logoRemoveError:'Could not remove logo: {msg}', logoNeedsSetup:'Company logo needs a Supabase Storage setup (ask an admin).',
     ownerName:'Owner', contactPhone:'Contact phone', contactEmail:'Contact email', ownerPhoneFieldsNeedSetup:'Owner, Contact phone and/or Contact email need a database update — the rest was saved.',
     noteAndNextAction:'Note & next action',
-    activeFiltersHeading:'Active filters', removeFilter:'Remove filter'
+    activeFiltersHeading:'Active filters', removeFilter:'Remove filter',
+    metricYtdShort:'YTD', metric6moShort:'6 mo', metric1moShort:'1 mo', yoyBadge:'← 1 yr',
+    legendTitle:'Legend / Help',
+    legendYtdDesc:'Sales year to date.',
+    legend6moDesc:'Sales over the last 6 months.',
+    legend1moDesc:'Sales over the last month.',
+    legendYoyDesc:'Compared with the same period one year earlier.',
+    legendPctDesc:'Percentage change in sales compared with the same period one year earlier.',
+    legendEuroDesc:'Absolute change in sales (€) compared with the same period one year earlier.',
+    legendColorsTitle:'Since last contact',
+    legendColor030:'0–30 days', legendColor3160:'31–60 days', legendColor6190:'61–90 days', legendColor90plus:'over 90 days'
   }
 };
 function t(key,vars){
@@ -603,6 +636,35 @@ function previousRangeFor(r){
 function notesByCustomerMap(){ const m=new Map(); ns.forEach(n=>{ if(!m.has(n.customer_id)) m.set(n.customer_id,[]); m.get(n.customer_id).push(n); }); return m; }
 function sumSalesFor(list,start,end){ let s=0; list.forEach(n=>{ if(n.note_date>=start&&n.note_date<=end) s+=Number(n.sales||0); }); return s; }
 function sumSalesAll(list){ let s=0; list.forEach(n=>s+=Number(n.sales||0)); return s; }
+const addMonthsISO=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setMonth(d.getMonth()+n);return localISODate(d)};
+const addYearsISO=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setFullYear(d.getFullYear()+n);return localISODate(d)};
+// Nykytila-kortin YTD/6kk/1kk-vertailut: aina rullaava jakso tähän päivään asti,
+// verrattuna täsmälleen samaan jaksoon vuotta aiemmin (ei edellistä kalenterikuukautta/-jaksoa).
+function salesComparisonPeriods(){
+  const today=todayISO();
+  const ytdStart=today.slice(0,4)+'-01-01';
+  const sixStart=addDaysISO(addMonthsISO(today,-6),1);
+  const oneStart=addDaysISO(addMonthsISO(today,-1),1);
+  return [
+    {key:'ytd', label:t('metricYtdShort'), start:ytdStart, end:today},
+    {key:'six', label:t('metric6moShort'), start:sixStart, end:today},
+    {key:'one', label:t('metric1moShort'), start:oneStart, end:today}
+  ].map(p=>({...p, prevStart:addYearsISO(p.start,-1), prevEnd:addYearsISO(p.end,-1)}));
+}
+function renderSalesComparisons(list){
+  return salesComparisonPeriods().map(p=>{
+    const cur=sumSalesFor(list,p.start,p.end);
+    const prev=sumSalesFor(list,p.prevStart,p.prevEnd);
+    const diff=cur-prev;
+    let pctText,pctCls='';
+    if(prev>0){ const pct=Math.round((diff/prev)*100); pctText=(pct>0?'+':'')+pct+'%'; pctCls=pct>0?'up':pct<0?'down':''; }
+    else if(cur>0){ pctText='—'; }
+    else { pctText='0%'; }
+    const diffText=(diff>0?'+':diff<0?'-':'')+'€'+fmtMoney(Math.abs(diff));
+    const diffCls=diff>0?'up':diff<0?'down':'';
+    return `<div class="sales-compare-row"><span class="sales-compare-label">${esc(p.label)}</span><span class="sales-compare-amount">€${esc(fmtMoney(cur))}</span><span class="sales-compare-pct ${pctCls}">${esc(pctText)}</span><span class="sales-compare-diff ${diffCls}">${esc(diffText)}</span><span class="sales-compare-yoy">${esc(t('yoyBadge'))}</span></div>`;
+  }).join('');
+}
 function buildMetrics(range,prevRange){
   const byCust=notesByCustomerMap();
   const map=new Map();
@@ -971,9 +1033,9 @@ function renderDetail(){
       <div class="kv2-grid">
         ${kv2Cell(t('lastContact'), esc(lastText)+(c.last_contact?' ('+esc(status.text)+')<span class="status-dot sm '+esc(status.cls)+'"></span>':''))}
         ${kv2Cell(t('next'), '<span class="'+(due.cls==='bad'?'due-overdue':due.cls==='ok'?'due-today':'')+'">'+esc(nextText)+'</span>')}
-        ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')))}
-        ${kv2Cell(t('salesYTD'), '€'+esc(fmtMoney(c.sales_ytd||0)))}
+        ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')), true)}
       </div>
+      <div class="sales-compare">${renderSalesComparisons(notesForCustomer(c.id))}</div>
       <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">${esc(t('showHistory'))}</button></div>
     </div>
     <div class="note-box">
@@ -1155,6 +1217,24 @@ function renderSettingsDetail(){
       </div>
       <div class="hint">${esc(t('logoUploadHint'))}</div>
       <div class="hint err" id="logoStatus" style="display:none"></div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">${esc(t('legendTitle'))}</div></div>
+      <div class="legend-list">
+        <div class="legend-row"><span class="legend-term">${esc(t('metricYtdShort'))}</span><span class="legend-desc">${esc(t('legendYtdDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('metric6moShort'))}</span><span class="legend-desc">${esc(t('legend6moDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('metric1moShort'))}</span><span class="legend-desc">${esc(t('legend1moDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">${esc(t('yoyBadge'))}</span><span class="legend-desc">${esc(t('legendYoyDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">%</span><span class="legend-desc">${esc(t('legendPctDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">€</span><span class="legend-desc">${esc(t('legendEuroDesc'))}</span></div>
+        <div class="legend-row"><span class="legend-term">🟣 ${esc(t('priority'))}</span><span class="legend-desc">${esc(t('priorityHint'))}</span></div>
+      </div>
+      <div class="legend-dots">
+        <span>🟢 ${esc(t('legendColor030'))}</span>
+        <span>🟡 ${esc(t('legendColor3160'))}</span>
+        <span>🟠 ${esc(t('legendColor6190'))}</span>
+        <span>🔴 ${esc(t('legendColor90plus'))}</span>
+      </div>
     </div>
     <div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
   $('btnSignOutDetail')?.addEventListener('click',doSignOut);
