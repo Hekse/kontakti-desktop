@@ -65,6 +65,18 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .btn.primary{background:linear-gradient(180deg, rgba(45,107,255,.95), rgba(33,83,200,.95));border-color:rgba(45,107,255,.4);box-shadow:0 10px 18px rgba(45,107,255,.10);color:#fff;font-weight:560}
 .btn.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.10)} .btn.priority.active{background:linear-gradient(180deg, rgba(139,92,246,.95), rgba(109,40,217,.95));border-color:rgba(139,92,246,.55);box-shadow:0 10px 18px rgba(139,92,246,.16);color:#fff}
 .btn.compact{padding:6px 10px;font-size:12.5px;border-radius:10px}
+.btn.danger{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.09);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,77,77,.15)}
+.danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,77,77,.20);display:flex;flex-direction:column;gap:8px}
+.danger-zone-title{font-weight:560;font-size:13px;color:var(--danger)}
+.danger-zone-desc{font-size:12px;color:var(--muted);font-weight:400}
+.danger-zone-box{border-color:rgba(255,77,77,.26)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{width:min(440px, calc(100vw - 32px));background:var(--solid-panel);border:1px solid rgba(var(--tint),.16);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.4);padding:20px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 40px);overflow:auto}
+.modal-title{font-size:16px;font-weight:620}
+.modal-text{font-size:13px;color:var(--muted);line-height:1.5;font-weight:400}
+.modal-text b{color:var(--text);font-weight:600}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;flex-wrap:wrap}
 .hint{font-size:12px;color:var(--muted);line-height:1.4;font-weight:400}.footer{margin-top:2px;font-size:11px;color:var(--muted);font-weight:400;text-align:center;padding:6px 0 0;opacity:.75}
 .lang-switch{display:flex;align-items:center;gap:5px}
 .lang-opt{appearance:none;background:none;border:none;color:var(--text);cursor:pointer;padding:2px 3px;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.45;transition:.15s ease;border-radius:6px}
@@ -481,7 +493,19 @@ const TRANSLATIONS={
     legendUpDesc:'Myynti kasvanut.', legendDownDesc:'Myynti laskenut.', legendNeutralDesc:'Ei muutosta / neutraali arvo.',
     legendGreen:'Vihreä', legendRed:'Punainen', legendGray:'Harmaa',
     legendColorsTitle:'Viime kontaktista',
-    legendColor030:'0–30 pv', legendColor3160:'31–60 pv', legendColor6190:'61–90 pv', legendColor90plus:'yli 90 pv'
+    legendColor030:'0–30 pv', legendColor3160:'31–60 pv', legendColor6190:'61–90 pv', legendColor90plus:'yli 90 pv',
+    deleteCustomer:'Poista asiakas', deleteCustomerDesc:'Asiakas ja siihen liittyvä historia poistetaan pysyvästi.',
+    deleteCustomerModalTitle:'Poista asiakas?', deleteCustomerModalIntro:'Olet poistamassa asiakkaan:',
+    deleteCustomerModalWarning:'Myös asiakkaaseen liittyvät muistiinpanot, ostokset ja myyntihistoria poistetaan.',
+    cannotBeUndone:'Tätä toimintoa ei voi perua.', deleting:'Poistetaan…',
+    customerDeleted:'Asiakas poistettu.', deleteCustomerError:'Asiakkaan poistaminen epäonnistui. Yritä uudelleen.',
+    dangerZone:'Vaaravyöhyke', dangerZoneDesc:'Tämä poistaa nykyisen workspacen kaikki asiakkaat sekä heidän muistiinpanonsa, ostoksensa ja myyntihistoriansa.',
+    exportBackupFirst:'Vie varmuuskopio ensin', deleteAllCustomers:'Poista kaikki asiakkaat',
+    deleteAllModalTitle:'Poistetaanko kaikki asiakkaat?', deleteAllModalIntro:'Tämä poistaa KAIKKI nykyisen workspacen asiakkaat ja heidän historiansa.',
+    deleteAllModalBackupHint:'Suosittelemme tekemään JSON-viennin ennen poistamista.', continueToDelete:'Jatka poistamiseen',
+    deleteAllConfirmWord:'POISTA KAIKKI', deleteAllTypeToConfirm:'Kirjoita kenttään täsmälleen: {word}',
+    deleteAllPermanently:'Poista kaikki asiakkaat pysyvästi', allCustomersDeleted:'Kaikki asiakkaat poistettu.',
+    deleteAllError:'Kaikkien asiakkaiden poistaminen epäonnistui. Yritä uudelleen.'
   },
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
@@ -560,7 +584,19 @@ const TRANSLATIONS={
     legendUpDesc:'Sales increased.', legendDownDesc:'Sales decreased.', legendNeutralDesc:'No change / neutral value.',
     legendGreen:'Green', legendRed:'Red', legendGray:'Gray',
     legendColorsTitle:'Since last contact',
-    legendColor030:'0–30 days', legendColor3160:'31–60 days', legendColor6190:'61–90 days', legendColor90plus:'over 90 days'
+    legendColor030:'0–30 days', legendColor3160:'31–60 days', legendColor6190:'61–90 days', legendColor90plus:'over 90 days',
+    deleteCustomer:'Delete customer', deleteCustomerDesc:'The customer and their history will be permanently deleted.',
+    deleteCustomerModalTitle:'Delete customer?', deleteCustomerModalIntro:'You are about to delete the customer:',
+    deleteCustomerModalWarning:'The customer’s notes, purchases and sales history will also be deleted.',
+    cannotBeUndone:'This action cannot be undone.', deleting:'Deleting…',
+    customerDeleted:'Customer deleted.', deleteCustomerError:'Deleting the customer failed. Please try again.',
+    dangerZone:'Danger zone', dangerZoneDesc:'This deletes every customer in the current workspace, along with their notes, purchases and sales history.',
+    exportBackupFirst:'Export backup first', deleteAllCustomers:'Delete all customers',
+    deleteAllModalTitle:'Delete all customers?', deleteAllModalIntro:'This will delete ALL customers in the current workspace and their history.',
+    deleteAllModalBackupHint:'We recommend exporting a JSON backup before deleting.', continueToDelete:'Continue',
+    deleteAllConfirmWord:'DELETE ALL', deleteAllTypeToConfirm:'Type exactly: {word}',
+    deleteAllPermanently:'Permanently delete all customers', allCustomersDeleted:'All customers deleted.',
+    deleteAllError:'Deleting all customers failed. Please try again.'
   }
 };
 function t(key,vars){
@@ -1015,6 +1051,11 @@ function buildCustomerEditForm(c){
       <button class="btn primary saveflash" id="btnSaveCustomerEdit" type="button">${esc(t('saveChanges'))}</button>
       <button class="btn subtle" id="btnCancelCustomerEdit" type="button">${esc(t('cancelEdit'))}</button>
     </div>
+    <div class="danger-zone">
+      <div class="danger-zone-title">${esc(t('deleteCustomer'))}</div>
+      <div class="danger-zone-desc">${esc(t('deleteCustomerDesc'))}</div>
+      <div><button class="btn danger" id="btnDeleteCustomer" type="button">${esc(t('deleteCustomer'))}</button></div>
+    </div>
   `;
 }
 
@@ -1142,6 +1183,7 @@ function wireDetail(c,tel,mail,mapsUrl){
   $('btnEditCustomer')?.addEventListener('click',()=>{ editingCustomer=true; renderDetail(); });
   $('btnCancelCustomerEdit')?.addEventListener('click',()=>{ editingCustomer=false; renderDetail(); });
   $('btnSaveCustomerEdit')?.addEventListener('click',()=>saveCustomerEdit(c));
+  $('btnDeleteCustomer')?.addEventListener('click',()=>confirmDeleteCustomer(c));
 }
 
 async function saveCustomerEdit(c){
@@ -1180,6 +1222,111 @@ async function saveCustomerEdit(c){
     await load(); sel=c.id; renderAll();
     toast(partial ? t('ownerPhoneFieldsNeedSetup') : t('customerSaved'));
   }catch(e){ $('editCustomerError').className='hint err'; $('editCustomerError').textContent=t('saveError',{msg:e.message}); }
+}
+
+function closeModal(){ $('__modal')?.remove(); }
+function showModal(innerHtml){
+  closeModal();
+  const backdrop=document.createElement('div');
+  backdrop.id='__modal';
+  backdrop.className='modal-backdrop';
+  backdrop.innerHTML=`<div class="modal-box">${innerHtml}</div>`;
+  backdrop.addEventListener('click',e=>{ if(e.target===backdrop) closeModal(); });
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+function confirmDeleteCustomer(c){
+  showModal(`
+    <div class="modal-title">${esc(t('deleteCustomerModalTitle'))}</div>
+    <div class="modal-text">${esc(t('deleteCustomerModalIntro'))}</div>
+    <div class="modal-text"><b>${esc(c.name||t('unnamed'))}</b></div>
+    <div class="modal-text">${esc(t('deleteCustomerModalWarning'))}</div>
+    <div class="modal-text"><b>${esc(t('cannotBeUndone'))}</b></div>
+    <div class="hint err" id="deleteCustomerModalError" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn subtle" id="btnCancelDeleteCustomer" type="button">${esc(t('cancelEdit'))}</button>
+      <button class="btn danger" id="btnConfirmDeleteCustomer" type="button">${esc(t('deleteCustomer'))}</button>
+    </div>
+  `);
+  $('btnCancelDeleteCustomer').addEventListener('click',closeModal);
+  $('btnConfirmDeleteCustomer').addEventListener('click',()=>deleteCustomer(c));
+}
+// customer_id JA workspace_id rajaavat aina poiston - ei koskaan pelkkä nimi tai id ilman workspacea.
+async function deleteCustomer(c){
+  const btn=$('btnConfirmDeleteCustomer');
+  if(btn){ btn.disabled=true; btn.textContent=t('deleting'); }
+  try{
+    const w=await workspace();
+    let dr=await sb.from('kontakti_notes').delete().eq('customer_id',c.id).eq('workspace_id',w.id);
+    if(dr.error) throw dr.error;
+    dr=await sb.from('kontakti_customers').delete().eq('id',c.id).eq('workspace_id',w.id);
+    if(dr.error) throw dr.error;
+    cs=cs.filter(x=>x.id!==c.id);
+    ns=ns.filter(n=>n.customer_id!==c.id);
+    if(sel===c.id) sel=null;
+    editingCustomer=false;
+    closeModal();
+    renderAll();
+    toast(t('customerDeleted'));
+  }catch(e){
+    const errEl=$('deleteCustomerModalError');
+    if(errEl){ errEl.style.display='block'; errEl.textContent=t('deleteCustomerError'); }
+    if(btn){ btn.disabled=false; btn.textContent=t('deleteCustomer'); }
+  }
+}
+
+function confirmDeleteAllStep1(){
+  showModal(`
+    <div class="modal-title">${esc(t('deleteAllModalTitle'))}</div>
+    <div class="modal-text">${esc(t('deleteAllModalIntro'))}</div>
+    <div class="modal-text"><b>${esc(t('cannotBeUndone'))}</b></div>
+    <div class="modal-text">${esc(t('deleteAllModalBackupHint'))}</div>
+    <div class="modal-actions">
+      <button class="btn subtle" id="btnCancelDeleteAll1" type="button">${esc(t('cancelEdit'))}</button>
+      <button class="btn danger" id="btnContinueDeleteAll" type="button">${esc(t('continueToDelete'))}</button>
+    </div>
+  `);
+  $('btnCancelDeleteAll1').addEventListener('click',closeModal);
+  $('btnContinueDeleteAll').addEventListener('click',confirmDeleteAllStep2);
+}
+function confirmDeleteAllStep2(){
+  const requiredText=t('deleteAllConfirmWord');
+  showModal(`
+    <div class="modal-title">${esc(t('deleteAllModalTitle'))}</div>
+    <div class="modal-text">${esc(t('deleteAllTypeToConfirm',{word:requiredText}))}</div>
+    <div class="field"><input id="deleteAllConfirmInput" type="text" autocomplete="off" placeholder="${esc(requiredText)}"></div>
+    <div class="hint err" id="deleteAllModalError" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn subtle" id="btnCancelDeleteAll2" type="button">${esc(t('cancelEdit'))}</button>
+      <button class="btn danger" id="btnConfirmDeleteAll" type="button" disabled>${esc(t('deleteAllPermanently'))}</button>
+    </div>
+  `);
+  $('btnCancelDeleteAll2').addEventListener('click',closeModal);
+  const input=$('deleteAllConfirmInput'), confirmBtn=$('btnConfirmDeleteAll');
+  input.addEventListener('input',()=>{ confirmBtn.disabled = input.value!==requiredText; });
+  confirmBtn.addEventListener('click',deleteAllCustomers);
+  input.focus();
+}
+// Bulk delete rajautuu AINA nykyiseen workspace_id:hen - ei koskaan pelkkä DELETE FROM ilman rajausta.
+async function deleteAllCustomers(){
+  const btn=$('btnConfirmDeleteAll');
+  if(btn){ btn.disabled=true; btn.textContent=t('deleting'); }
+  try{
+    const w=await workspace();
+    let dr=await sb.from('kontakti_notes').delete().eq('workspace_id',w.id);
+    if(dr.error) throw dr.error;
+    dr=await sb.from('kontakti_customers').delete().eq('workspace_id',w.id);
+    if(dr.error) throw dr.error;
+    cs=[]; ns=[]; sel=null; editingCustomer=false;
+    closeModal();
+    renderAll();
+    toast(t('allCustomersDeleted'));
+  }catch(e){
+    const errEl=$('deleteAllModalError');
+    if(errEl){ errEl.style.display='block'; errEl.textContent=t('deleteAllError'); }
+    if(btn){ btn.disabled=false; btn.textContent=t('deleteAllPermanently'); }
+  }
 }
 
 async function saveNote(c){
@@ -1266,8 +1413,17 @@ function renderSettingsDetail(){
         <span>🔴 ${esc(t('legendColor90plus'))}</span>
       </div>
     </div>
+    <div class="note-box danger-zone-box">
+      <div class="note-top"><div class="t" style="color:var(--danger)">${esc(t('dangerZone'))}</div></div>
+      <div class="hint">${esc(t('dangerZoneDesc'))}</div>
+      <div class="actions">
+        <a class="btn subtle" href="data-tools.html">${esc(t('exportBackupFirst'))}</a>
+        <button class="btn danger" id="btnDeleteAllCustomers" type="button">${esc(t('deleteAllCustomers'))}</button>
+      </div>
+    </div>
     <div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
   $('btnSignOutDetail')?.addEventListener('click',doSignOut);
+  $('btnDeleteAllCustomers')?.addEventListener('click',confirmDeleteAllStep1);
   $('btnThemeDark')?.addEventListener('click',()=>setTheme('dark'));
   $('btnThemeLight')?.addEventListener('click',()=>setTheme('light'));
   $('btnLogoUpload')?.addEventListener('click',()=>$('logoFileInput').click());
