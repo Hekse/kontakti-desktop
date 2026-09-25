@@ -684,6 +684,11 @@ function previousRangeFor(r){
 function notesByCustomerMap(){ const m=new Map(); ns.forEach(n=>{ if(!m.has(n.customer_id)) m.set(n.customer_id,[]); m.get(n.customer_id).push(n); }); return m; }
 function sumSalesFor(list,start,end){ let s=0; list.forEach(n=>{ if(n.note_date>=start&&n.note_date<=end) s+=Number(n.sales||0); }); return s; }
 function sumSalesAll(list){ let s=0; list.forEach(n=>s+=Number(n.sales||0)); return s; }
+// Myynti YTD lasketaan AINA kontakti_notes.sales:sta (1.1.currentYear -> tänään), ei koskaan
+// customers.sales_ytd:sta - se on legacy-kenttä joka voi sisältää vanhaa/tuotua dataa ilman
+// vastaavia notes-rivejä, eikä sitä enää kasvateta tai lueta täällä.
+function ytdRange(){ const today=todayISO(); return {start:today.slice(0,4)+'-01-01', end:today}; }
+function ytdSalesFor(customerId){ const r=ytdRange(); return sumSalesFor(ns.filter(n=>n.customer_id===customerId), r.start, r.end); }
 const addMonthsISO=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setMonth(d.getMonth()+n);return localISODate(d)};
 const addYearsISO=(iso,n)=>{const d=new Date(iso+'T00:00:00');d.setFullYear(d.getFullYear()+n);return localISODate(d)};
 // Nykytila-kortin YTD/6kk/1kk-vertailut: aina rullaava jakso tähän päivään asti,
@@ -961,7 +966,7 @@ function renderList(){
     const cityText=[c.city,c.region].filter(Boolean).join(' • ')||'–';
     const row=document.createElement('div'); row.className='row'+(c.id===sel?' active':'');
     const quickHtml=showQuick?`<div class="quick-row"><button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
-    const salesTagHtml=view==='customers'?periodSalesTags(c):`<span class="tag">${esc(t('salesColon'))}: €${esc(fmtMoney(c.sales_ytd||0))}</span>`;
+    const salesTagHtml=view==='customers'?periodSalesTags(c):`<span class="tag">${esc(t('salesColon'))}: €${esc(fmtMoney(ytdSalesFor(c.id)))}</span>`;
     row.innerHTML=`<div class="row-main"><div class="row-left"><span class="status-dot ${status.cls}"></span><div style="min-width:0;flex:1"><div class="row-name">${esc(c.name||t('unnamed'))}</div><div class="row-meta">${esc(cityText)}${c.phone?`<br>${esc(t('phone'))}: ${esc(c.phone)}`:''}</div></div></div><div class="row-right">${c.priority?'<span class="tag priority">🟣 '+esc(t('priority'))+'</span>':''}</div></div><div class="tagline"><span class="tag ${due.cls}">${esc(t('next'))}: ${esc(toFI(c.next_date))} (${esc(due.text)})</span><span class="tag">${esc(t('lastContact'))}: ${esc(toFI(c.last_contact))} (${esc(status.text)})</span><span class="tag">${esc(actionLabel(c.next_action||'Soitto'))}</span>${salesTagHtml}</div>${quickHtml}`;
     row.onclick=(e)=>{ if(e.target.closest('[data-qa]')) return; sel=c.id; historyOpen=false; editingCustomer=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
     wrap.appendChild(row);
@@ -1351,8 +1356,9 @@ async function saveNote(c){
       }
     }
     if(nr.error) throw nr.error;
+    // sales_ytd ei enää päivity tässä - uusi myynti elää yksinomaan kontakti_notes.sales-rivillä
+    // oikealla note_date:lla, ja kaikki näkyvät myyntiluvut lasketaan siitä.
     const patch={last_contact:today,next_date:nextDateVal,next_action:actionType};
-    if(sales) patch.sales_ytd=Number(c.sales_ytd||0)+sales;
     const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
     if(ur.error) throw ur.error;
     buttonSaved($('btnSaveNote'),'✓ '+t('saveEntry'));
@@ -1511,7 +1517,8 @@ function setPills(){
   $('pillToday').textContent=String(cs.filter(c=>c.next_date&&c.next_date<=t0).length);
   $('pillCustomers').textContent=String(cs.length);
   $('pillWeek').textContent=t('weekAbbr')+' '+isoWeekNumber(new Date());
-  const total=cs.reduce((s,c)=>s+Number(c.sales_ytd||0),0);
+  const r=ytdRange();
+  const total=sumSalesFor(ns, r.start, r.end);
   $('salesTotal').textContent='€'+fmtMoney(total);
 }
 function setActiveNav(){ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view)); }
