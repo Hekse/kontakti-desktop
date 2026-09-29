@@ -102,7 +102,7 @@ table.rep th{color:var(--muted);font-weight:500;font-size:11.5px;text-transform:
       </div>
     </div>
     <div class="topbar-right">
-      <a class="btn subtle" href="cloud-ui-v8.html" data-i18n="backToApp">← Takaisin</a>
+      <a class="btn subtle" href="cloud-ui-v12.html" data-i18n="backToApp">← Takaisin</a>
     </div>
   </div>
 
@@ -285,6 +285,30 @@ function toast(msg,cls){let el=$('__toast');if(!el){el=document.createElement('d
 async function auth(){ try{ const r=await sb.auth.getUser(); user=r.data?.user||null; }catch(e){ user=null; } return user; }
 async function workspace(){ if(ws) return ws; if(!await auth()) throw Error(t('signInRequiredError')); let r=await sb.from('kontakti_workspaces').select('*').limit(1); if(r.error) throw r.error; if(!r.data?.length) throw Error(t('workspaceNotFound')); ws=r.data[0]; return ws; }
 
+// Sama periaate kuin cloud-ui-v12.html:n fetchAllRows: kiinteä .limit() ei riitä, koska Supabasen
+// palvelinpuolen max-rows voi katkaista vastauksen hiljaa (oletus 1000). Uusi query builder joka sivulle,
+// edetään palautuneiden rivien määrällä ja lopetetaan vasta tyhjään sivuun.
+async function fetchAllRows(buildQuery,pageSize=500){
+  const rows=[], seen=new Set();
+  let from=0, pages=0;
+  while(true){
+    const r=await buildQuery().range(from,from+pageSize-1);
+    if(r.error) throw r.error;
+    const batch=r.data||[];
+    if(!batch.length) break;
+    for(const row of batch){
+      const key=row.id;
+      if(key==null||!seen.has(key)){ rows.push(row); if(key!=null) seen.add(key); }
+    }
+    from+=batch.length;
+    if(++pages>10000) throw new Error('Pagination safety limit exceeded');
+  }
+  return rows;
+}
+// Järjestys id:n mukaan: uniikki ja muuttumaton, joten sivut pysyvät stabiileina vaikka dataa muokattaisiin haun aikana.
+const fetchWorkspaceCustomers=w=>fetchAllRows(()=>sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('id',{ascending:true}));
+const fetchWorkspaceNotes=w=>fetchAllRows(()=>sb.from('kontakti_notes').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('id',{ascending:true}));
+
 function downloadText(text,filename,mime){ const blob=new Blob([text],{type:mime||'application/json;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
 
 // ── Tabs ──────────────────────────────────────────────────────────────
@@ -377,9 +401,7 @@ let lastAnalysis=null, existingCustomersCache=null;
 async function loadExistingCustomers(){
   if(existingCustomersCache) return existingCustomersCache;
   const w=await workspace();
-  const r=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(5000);
-  if(r.error) throw r.error;
-  existingCustomersCache=r.data||[];
+  existingCustomersCache=await fetchWorkspaceCustomers(w);
   return existingCustomersCache;
 }
 function findExistingMatch(mc,existing){
@@ -565,11 +587,8 @@ async function runExport(){
   $('jeStatus').className='hint'; $('jeStatus').textContent=t('exporting');
   try{
     const w=await workspace();
-    const custRes=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(5000);
-    if(custRes.error) throw custRes.error;
-    const noteRes=await sb.from('kontakti_notes').select('*').eq('workspace_id',w.id).is('deleted_at',null).limit(20000);
-    if(noteRes.error) throw noteRes.error;
-    const payload={ format:'opero-kontakti-backup', format_version:1, exported_at:new Date().toISOString(), workspace:{id:w.id,name:w.name||''}, customers:custRes.data||[], notes:noteRes.data||[] };
+    const [customers,notes]=await Promise.all([fetchWorkspaceCustomers(w),fetchWorkspaceNotes(w)]);
+    const payload={ format:'opero-kontakti-backup', format_version:1, exported_at:new Date().toISOString(), workspace:{id:w.id,name:w.name||''}, customers, notes };
     const filename=`kontakti-backup-${todayISO()}.json`;
     downloadText(JSON.stringify(payload,null,2),filename);
     $('jeStatus').className='hint ok'; $('jeStatus').textContent=t('exportedOk',{c:payload.customers.length,n:payload.notes.length,file:filename});

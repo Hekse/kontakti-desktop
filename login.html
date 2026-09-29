@@ -173,7 +173,7 @@ function setStatus(msg,cls){
 (async()=>{
   try{
     const r=await sb.auth.getUser();
-    if(r.data?.user){ window.location.href='cloud-ui-v8.html'; }
+    if(r.data?.user){ window.location.href='cloud-ui-v12.html'; }
   }catch(e){ /* ei sessiota / ei verkkoa -> jätetään login-lomake näkyviin */ }
 })();
 
@@ -206,7 +206,7 @@ $('loginForm')?.addEventListener('submit', async(e)=>{
     const r=await sb.auth.signInWithPassword({email,password});
     if(r.error){ setStatus(isRateLimited(r.error)?t('rateLimited'):t('signInFailed')); restore(); return; }
     setStatus('');
-    window.location.href='cloud-ui-v8.html';
+    window.location.href='cloud-ui-v12.html';
   }catch(err){
     setStatus(isRateLimited(err)?t('rateLimited'):t('signInFailed')); restore();
   }
