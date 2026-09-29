@@ -166,6 +166,7 @@ table.rep th{color:var(--muted);font-weight:500;font-size:11.5px;text-transform:
         <div class="list" id="listNew"></div>
 
         <div class="section-title" data-i18n="jiDuplicates">Duplikaatit</div>
+        <div class="hint" data-i18n="dupSnapshotHint">Olemassa oleville asiakkaille päivitetään aina tiedoston Myynti YTD -arvo (ei lasketa yhteen) ja lisätään vain puuttuvat merkinnät.</div>
         <div class="list" id="listDup"></div>
 
         <div class="section-title" data-i18n="jiInvalid">Virheelliset</div>
@@ -227,10 +228,13 @@ const TRANSLATIONS={
     foundLine:'Löydetty: {customers} asiakasta, {notes} merkintää, {dups} mahdollista duplikaattia, {invalid} riviä ilman nimeä',
     formatDetected:'Tunnistettu formaatti', formatVersion:'format_version', exportedAtLbl:'exported_at',
     unmappedWarn:'Näiden kenttien arvoja löytyi, mutta niitä ei voitu mapata nykyiseen schemaan: {fields}',
-    noneFound:'Ei rivejä.', skip:'Ohita', update:'Päivitä olemassa oleva',
-    newCount:'Uusia: {n}', updateCount:'Päivitettäviä: {n}', skipCount:'Ohitettavia duplikaatteja: {n}', invalidCount:'Virheellisiä: {n}',
+    noneFound:'Ei rivejä.', skip:'Ohita perustiedot', update:'Päivitä myös perustiedot',
+    dupSnapshotHint:'Olemassa oleville asiakkaille päivitetään aina tiedoston Myynti YTD -arvo (ei lasketa yhteen) ja lisätään vain puuttuvat merkinnät.',
+    newCount:'Uusia: {n}', updateCount:'Perustiedot päivitetään: {n}', skipCount:'Perustiedot ennallaan: {n}', invalidCount:'Virheellisiä: {n}',
     notesCount:'Merkintöjä tuotavana: {n}', orphanCount:'Orpoja merkintöjä: {n}',
-    importDone:'Tuonti valmis.', createdLbl:'Luotu', updatedLbl:'Päivitetty', skippedLbl:'Ohitettu', notesLbl:'Merkintöjä', errorsLbl:'Virheitä',
+    importDone:'Tuonti valmis.', createdLbl:'Uudet asiakkaat', updatedLbl:'Päivitetyt asiakkaat', skippedLbl:'Muuttumattomat asiakkaat', notesLbl:'Merkintöjä', errorsLbl:'Virheitä',
+    notesAddedLbl:'Merkintöjä lisätty', notesSkippedLbl:'Merkintöjä ohitettu (jo tuotu)', notesFailedLbl:'Merkintöjä epäonnistui',
+    rerunSafe:'Tuonnin voi ajaa uudelleen samalla tiedostolla: jo tuodut asiakkaat ja merkinnät ohitetaan.',
     importing:'Tuodaan...', importErr:'Virhe tuonnissa: {msg}',
     jeTitle:'Vie nykyisen työtilan data', jeSub:'Vie kaikki nykyisen työtilan asiakkaat ja merkinnät yhtenä JSON-tiedostona. Tiedosto voidaan myöhemmin tuoda takaisin JSON-tuonnilla.',
     exportJson:'Vie JSON', exporting:'Kootaan vientiä...', exportedOk:'Vietiin {c} asiakasta ja {n} merkintää tiedostoon {file}', exportErr:'Virhe viennissä: {msg}',
@@ -254,10 +258,13 @@ const TRANSLATIONS={
     foundLine:'Found: {customers} customers, {notes} entries, {dups} possible duplicates, {invalid} rows with no name',
     formatDetected:'Detected format', formatVersion:'format_version', exportedAtLbl:'exported_at',
     unmappedWarn:'Values were found for these fields but they could not be mapped to the current schema: {fields}',
-    noneFound:'No rows.', skip:'Skip', update:'Update existing',
-    newCount:'New: {n}', updateCount:'To update: {n}', skipCount:'Duplicates to skip: {n}', invalidCount:'Invalid: {n}',
+    noneFound:'No rows.', skip:'Keep details', update:'Update details too',
+    dupSnapshotHint:'Existing customers always get the Sales YTD value from the file (not added together) and only missing entries are added.',
+    newCount:'New: {n}', updateCount:'Details updated: {n}', skipCount:'Details kept: {n}', invalidCount:'Invalid: {n}',
     notesCount:'Entries to import: {n}', orphanCount:'Orphan entries: {n}',
-    importDone:'Import completed.', createdLbl:'Created', updatedLbl:'Updated', skippedLbl:'Skipped', notesLbl:'Entries', errorsLbl:'Errors',
+    importDone:'Import completed.', createdLbl:'New customers', updatedLbl:'Updated customers', skippedLbl:'Unchanged customers', notesLbl:'Entries', errorsLbl:'Errors',
+    notesAddedLbl:'Entries added', notesSkippedLbl:'Entries skipped (already imported)', notesFailedLbl:'Entries failed',
+    rerunSafe:'The import can be re-run with the same file: already imported customers and entries are skipped.',
     importing:'Importing...', importErr:'Import error: {msg}',
     jeTitle:'Export current workspace data', jeSub:'Export all customers and entries in the current workspace as one JSON file. The file can be imported again later via JSON import.',
     exportJson:'Export JSON', exporting:'Building export...', exportedOk:'Exported {c} customers and {n} entries to {file}', exportErr:'Export error: {msg}',
@@ -367,7 +374,7 @@ function mapOldCustomer(oc,idx){
     contact_person:clean(oc.contactPerson),
     priority:!!oc.priority,
     last_contact:clean(oc.lastContactAt)||null, next_date:clean(oc.nextDate)||null, next_action:clean(oc.nextAction)||null,
-    sales_ytd:parseNum(oc.salesYTD),
+    sales_ytd:parseNum(oc.salesYTD), _salesYtdPresent:hasValue(oc.salesYTD),
     mobile_visible:oc.mobileVisible!==false,
     _notes:notes, _unmapped:unmapped
   };
@@ -375,7 +382,7 @@ function mapOldCustomer(oc,idx){
 function mapOldNote(n,unmappedOut){
   if(clean(n.meetingTime)&&!unmappedOut.includes('meetingTime')) unmappedOut.push('meetingTime');
   if(clean(n.meetingPlace)&&!unmappedOut.includes('meetingPlace')) unmappedOut.push('meetingPlace');
-  return { note_date:toLocalDateOnly(n.createdAt)||todayISO(), note_type:clean(n.action)||null, note_text:clean(n.noteText), purchases_text:clean(n.purchasesText), sales:parseNum(n.sales), next_date:clean(n.nextDate)||null };
+  return { _legacyId:clean(n.id)||null, note_date:toLocalDateOnly(n.createdAt)||todayISO(), note_type:clean(n.action)||null, note_text:clean(n.noteText), purchases_text:clean(n.purchasesText), sales:parseNum(n.sales), next_date:clean(n.nextDate)||null };
 }
 function mapNewCustomer(c,idx){
   return {
@@ -386,15 +393,45 @@ function mapNewCustomer(c,idx){
     contact_person:clean(c.contact_person),
     priority:!!c.priority,
     last_contact:c.last_contact||null, next_date:c.next_date||null, next_action:c.next_action||null,
-    sales_ytd:parseNum(c.sales_ytd),
+    sales_ytd:parseNum(c.sales_ytd), _salesYtdPresent:hasValue(c.sales_ytd),
     mobile_visible:c.mobile_visible!==false,
     meeting:!!c.meeting, done:!!c.done,
     _notes:[], _unmapped:[]
   };
 }
 function mapNewNote(n){
-  return { _customerOldId:n.customer_id, note_date:n.note_date||todayISO(), note_type:n.note_type||null, note_text:clean(n.note_text), purchases_text:clean(n.purchases_text), sales:parseNum(n.sales), next_date:n.next_date||null };
+  return { _legacyId:clean(n.id)||null, _customerOldId:n.customer_id, note_date:n.note_date||todayISO(), note_type:n.note_type||null, note_text:clean(n.note_text), purchases_text:clean(n.purchases_text), sales:parseNum(n.sales), next_date:n.next_date||null };
 }
+
+// ── JSON import: idempotenssi ─────────────────────────────────────────────
+// Muistiinpanon sormenjälki kannassa jo olevia rivejä vastaan. Legacy-id:tä ei ole tallennettu kantaan,
+// joten vertailu tehdään sisällöllä. Normalisointi: null ja '' ovat samat, tekstien reunavälit ja
+// rivinvaihtotyyli poistetaan, summa kahden desimaalin tarkkuudella, päivämäärät muotoon YYYY-MM-DD.
+const hasValue=v=>v!==undefined&&v!==null&&String(v).trim()!=='';
+const normText=v=>String(v??'').replace(/\r\n?/g,'\n').trim().normalize('NFC');
+const normDate=v=>{ const s=String(v??'').trim(); if(!s) return ''; return /^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(0,10):(toLocalDateOnly(s)||''); };
+const normMoney=v=>parseNum(v).toFixed(2);
+function noteFingerprint(customerId,n){
+  return [customerId,normDate(n.note_date),normText(n.note_type),normText(n.note_text),normText(n.purchases_text),normMoney(n.sales),normDate(n.next_date)].join('␟');
+}
+function sameValue(a,b){
+  if(typeof b==='number') return parseNum(a)===b;
+  if(typeof b==='boolean') return !!a===b;
+  const da=/^d{4}-d{2}-d{2}T/.test(String(a??''))&&Date.parse(a), db=/^d{4}-d{2}-d{2}T/.test(String(b??''))&&Date.parse(b);
+  if(da&&db) return da===db;
+  return String(a??'').trim()===String(b??'').trim();
+}
+// sales_ytd on legacy-exportin SNAPSHOT: korvataan tuodulla arvolla (ei summata, ei max),
+// mutta vain jos arvo on tiedostossa mukana. Muut kentät vain valinnalla "update" kuten ennenkin.
+function customerChanges(mc,existingRow){
+  const patch=mc._decision==='update'?buildCustomerPatch(mc,existingRow):{};
+  if(mc._salesYtdPresent) patch.sales_ytd=mc.sales_ytd;
+  const changed={};
+  for(const [k,v] of Object.entries(patch)){ if(!sameValue(existingRow[k],v)) changed[k]=v; }
+  return changed;
+}
+// Mukana myös poistetuiksi merkityt rivit, jotta uudelleentuonti ei palauta tarkoituksella poistettua merkintää.
+const fetchWorkspaceNotesForDedup=w=>fetchAllRows(()=>sb.from('kontakti_notes').select('id,customer_id,note_date,note_type,note_text,purchases_text,sales,next_date').eq('workspace_id',w.id).order('id',{ascending:true}));
 
 let lastAnalysis=null, existingCustomersCache=null;
 
@@ -509,7 +546,6 @@ function buildCustomerPatch(mc,existingRow){
   const patch={};
   const fields=['business_id','name','city','region','country','phone','email','address','contact_person','last_contact','next_date','next_action'];
   fields.forEach(f=>{ const v=mc[f]; if(v!==null&&v!==undefined&&v!==''){ patch[f]=v; } });
-  if(mc.sales_ytd>0) patch.sales_ytd=Math.max(parseNum(existingRow.sales_ytd),mc.sales_ytd);
   if(mc.priority) patch.priority=true;
   if(mc.mobile_visible) patch.mobile_visible=true;
   if(mc.meeting) patch.meeting=true;
@@ -521,51 +557,76 @@ let lastReport=null;
 async function runImport(){
   if(!lastAnalysis) return;
   const a=lastAnalysis;
+  // Sama analyysi ajetaan vain kerran (myös virhetilanteessa). Uusi ajo = valitse tiedosto uudelleen.
+  lastAnalysis=null; $('jsonPicker').value='';
   $('btnRunImport').disabled=true;
-  const report={started_at:new Date().toISOString(),file:a.fileName,created:0,updated:0,skipped:a.rows.dup.filter(d=>d._decision==='skip').length,invalid:a.rows.invalid.length,notes:0,errors:[]};
+  const report={started_at:new Date().toISOString(),file:a.fileName,created:0,updated:0,unchanged:0,invalid:a.rows.invalid.length,notesAdded:0,notesSkipped:0,notesFailed:0,errors:[]};
   try{
     const w=await workspace();
-    const idMap=new Map();
+    const targets=[];   // {mc, customerId}: muistiinpanot kohdistetaan aina tähän Supabase-id:hen
+    // Uudet rivit tarkistetaan vielä tuontihetkellä tuoretta dataa ja tässä ajossa luotuja vastaan:
+    // analyysin jälkeen lisätty asiakas tai sama asiakas kahdesti tiedostossa ei synny kahdesti.
+    const matchPool=await fetchWorkspaceCustomers(w);
+    const lateDups=[];
 
     for(const mc of a.rows.new){
+      const m=findExistingMatch(mc,matchPool);
+      if(m){ mc._match=m; mc._decision='skip'; lateDups.push(mc); continue; }
       try{
         const row={workspace_id:w.id,business_id:mc.business_id||null,name:mc.name,city:mc.city||null,region:mc.region||null,country:mc.country||'FI',phone:mc.phone||null,email:mc.email||null,address:mc.address||null,contact_person:mc.contact_person||null,priority:!!mc.priority,last_contact:mc.last_contact||null,next_date:mc.next_date||null,next_action:mc.next_action||null,sales_ytd:mc.sales_ytd||0,mobile_visible:mc.mobile_visible!==false,created_source:'json-import'};
         const r=await sb.from('kontakti_customers').insert(row).select().single();
         if(r.error) throw r.error;
-        idMap.set(String(mc._oldId),r.data.id);
+        targets.push({mc,customerId:r.data.id});
+        matchPool.push(r.data);
         report.created++;
-      }catch(e){ report.errors.push(`${mc.name}: ${e.message}`); }
-    }
-    for(const mc of a.rows.dup){
-      idMap.set(String(mc._oldId),mc._match.id);
-      if(mc._decision==='update'){
-        try{
-          const patch=buildCustomerPatch(mc,mc._match);
-          if(Object.keys(patch).length){ const r=await sb.from('kontakti_customers').update(patch).eq('id',mc._match.id); if(r.error) throw r.error; }
-          report.updated++;
-        }catch(e){ report.errors.push(`${mc.name}: ${e.message}`); }
+      }catch(e){
+        report.errors.push(`${mc.name}: ${e.message}`);
+        report.notesFailed+=(mc._notes||[]).length;
       }
     }
+    for(const mc of [...a.rows.dup,...lateDups]){
+      targets.push({mc,customerId:mc._match.id});
+      try{
+        const changes=customerChanges(mc,mc._match);
+        if(Object.keys(changes).length){
+          const r=await sb.from('kontakti_customers').update(changes).eq('id',mc._match.id).eq('workspace_id',w.id);
+          if(r.error) throw r.error;
+          Object.assign(mc._match,changes);
+          report.updated++;
+        } else report.unchanged++;
+      }catch(e){ report.errors.push(`${mc.name}: ${e.message}`); }
+    }
 
-    const noteRows=[];
-    [...a.rows.new,...a.rows.dup].forEach(mc=>{
-      const cid=idMap.get(String(mc._oldId));
-      if(!cid) return;
-      (mc._notes||[]).forEach(n=>noteRows.push({workspace_id:w.id,customer_id:cid,note_date:n.note_date,note_type:n.note_type,note_text:n.note_text||null,purchases_text:n.purchases_text||null,sales:n.sales||0,next_date:n.next_date||null,created_source:'json-import'}));
-    });
-    if(noteRows.length){
-      const r=await sb.from('kontakti_notes').insert(noteRows);
-      if(r.error) report.errors.push('notes: '+r.error.message); else report.notes=noteRows.length;
+    // Muistiinpanot: lisätään vain ne, joita kannassa ei vielä ole. Vertailu on monijoukko: jokainen
+    // tiedoston merkintä "kuluttaa" yhden saman sormenjäljen kopion kannasta, joten kaksi oikeasti
+    // samanlaista merkintää säilyy ensimmäisessä tuonnissa, mutta uudelleentuonti ei lisää mitään.
+    const have=new Map();
+    for(const n of await fetchWorkspaceNotesForDedup(w)){ const k=noteFingerprint(n.customer_id,n); have.set(k,(have.get(k)||0)+1); }
+    const seenLegacyIds=new Set();
+    const toInsert=[];
+    for(const {mc,customerId} of targets){
+      for(const n of (mc._notes||[])){
+        if(n._legacyId){ if(seenLegacyIds.has(n._legacyId)){ report.notesSkipped++; continue; } seenLegacyIds.add(n._legacyId); }
+        const k=noteFingerprint(customerId,n), left=have.get(k)||0;
+        if(left>0){ have.set(k,left-1); report.notesSkipped++; continue; }
+        toInsert.push({workspace_id:w.id,customer_id:customerId,note_date:n.note_date,note_type:n.note_type,note_text:n.note_text||null,purchases_text:n.purchases_text||null,sales:n.sales||0,next_date:n.next_date||null,created_source:'json-import'});
+      }
+    }
+    for(let i=0;i<toInsert.length;i+=200){
+      const batch=toInsert.slice(i,i+200);
+      const r=await sb.from('kontakti_notes').insert(batch);
+      if(r.error){ report.notesFailed+=batch.length; report.errors.push('notes: '+r.error.message); }
+      else report.notesAdded+=batch.length;
     }
 
     report.finished_at=new Date().toISOString();
     lastReport=report;
     renderReport(report);
-    existingCustomersCache=null;
     toast(t('importDone'));
   }catch(e){
     $('jiStatus').className='hint err'; $('jiStatus').textContent=t('importErr',{msg:e.message});
   }finally{
+    existingCustomersCache=null;
     $('btnRunImport').disabled=false;
   }
 }
@@ -575,10 +636,13 @@ function renderReport(report){
   $('jiResultTable').innerHTML=`
     <tr><th>${esc(t('createdLbl'))}</th><td>${report.created}</td></tr>
     <tr><th>${esc(t('updatedLbl'))}</th><td>${report.updated}</td></tr>
-    <tr><th>${esc(t('skippedLbl'))}</th><td>${report.skipped}</td></tr>
+    <tr><th>${esc(t('skippedLbl'))}</th><td>${report.unchanged}</td></tr>
     <tr><th>${esc(t('invalidRow'))}</th><td>${report.invalid}</td></tr>
-    <tr><th>${esc(t('notesLbl'))}</th><td>${report.notes}</td></tr>
+    <tr><th>${esc(t('notesAddedLbl'))}</th><td>${report.notesAdded}</td></tr>
+    <tr><th>${esc(t('notesSkippedLbl'))}</th><td>${report.notesSkipped}</td></tr>
+    ${report.notesFailed?`<tr><th>${esc(t('notesFailedLbl'))}</th><td>${report.notesFailed}</td></tr>`:''}
     <tr><th>${esc(t('errorsLbl'))}</th><td>${report.errors.length}${report.errors.length?': '+esc(report.errors.slice(0,5).join(' | ')):''}</td></tr>
+    ${report.errors.length?`<tr><td colspan="2" class="hint">${esc(t('rerunSafe'))}</td></tr>`:''}
   `;
 }
 
