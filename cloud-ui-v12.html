@@ -849,14 +849,60 @@ async function auth(){
   return user}
 async function workspace(){if(ws)return ws;if(!await auth())throw Error(t('signInRequiredError'));let r=await sb.from('kontakti_workspaces').select('*').limit(1);if(r.error)throw r.error;if(!r.data?.length)throw Error(t('workspaceNotFound'));ws=r.data[0];return ws}
 
+async function fetchAllRows(buildQuery,pageSize=500){
+  const rows=[];
+  const seen=new Set();
+  let from=0;
+  let pages=0;
+  while(true){
+    // Uusi query builder jokaiselle sivulle. Etenemme palautuneiden rivien määrällä,
+    // jotta myös palvelimen oma page-size/max-rows -raja ei jätä välejä.
+    const r=await buildQuery().range(from,from+pageSize-1);
+    if(r.error) throw r.error;
+    const batch=r.data||[];
+    if(!batch.length) break;
+    for(const row of batch){
+      const key=row.id;
+      if(key==null||!seen.has(key)){
+        rows.push(row);
+        if(key!=null) seen.add(key);
+      }
+    }
+    from+=batch.length;
+    pages++;
+    if(pages>10000) throw new Error('Pagination safety limit exceeded');
+  }
+  return rows;
+}
+
 async function load(){
   try{
     setListStatus(t('fetching'));
     const w=await workspace();
-    const a=await sb.from('kontakti_customers').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('priority',{ascending:false}).order('next_date',{ascending:true,nullsFirst:false}).limit(1000);
-    if(a.error)throw a.error; cs=a.data||[];
-    const b=await sb.from('kontakti_notes').select('*').eq('workspace_id',w.id).is('deleted_at',null).order('note_date',{ascending:false}).order('created_at',{ascending:false}).limit(3000);
-    if(b.error)throw b.error; ns=b.data||[];
+    const [customers,notes]=await Promise.all([
+      fetchAllRows(
+        ()=>sb.from('kontakti_customers')
+          .select('*')
+          .eq('workspace_id',w.id)
+          .is('deleted_at',null)
+          .order('priority',{ascending:false})
+          .order('next_date',{ascending:true,nullsFirst:false})
+          .order('id',{ascending:true}),
+        500
+      ),
+      fetchAllRows(
+        ()=>sb.from('kontakti_notes')
+          .select('*')
+          .eq('workspace_id',w.id)
+          .is('deleted_at',null)
+          .order('note_date',{ascending:false})
+          .order('created_at',{ascending:false})
+          .order('id',{ascending:true}),
+        500
+      )
+    ]);
+    cs=customers;
+    ns=notes;
     if(sel&&!cs.some(c=>c.id===sel)) sel=null;
     if(!sel&&cs[0]) sel=cs[0].id;
     populateAreaDropdowns();
