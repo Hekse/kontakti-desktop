@@ -441,10 +441,33 @@ async function loadExistingCustomers(){
   existingCustomersCache=await fetchWorkspaceCustomers(w);
   return existingCustomersCache;
 }
-function findExistingMatch(mc,existing){
-  if(mc.business_id){ const bid=normalize(mc.business_id); const m=existing.find(e=>e.business_id&&normalize(e.business_id)===bid); if(m) return m; }
-  if(mc.name&&mc.city){ const n=normalize(mc.name),c=normalize(mc.city); const m=existing.find(e=>normalize(e.name)===n&&normalize(e.city||'')===c); if(m) return m; }
-  if(mc.name){ const n=normalize(mc.name); const m=existing.find(e=>normalize(e.name)===n); if(m) return m; }
+// Sama Y-tunnus voi kuulua usealle toimipaikalle (esim. saman kauppiaan eri myymälät), joten pelkkä
+// Y-tunnus ei riitä tunnistukseen, ellei se ole yksiselitteinen sekä kannassa että tuotavassa tiedostossa.
+function buildFileIndex(mappedCustomers){
+  const bidCount=new Map();
+  mappedCustomers.forEach(mc=>{ if(!mc.name||!mc.business_id) return; const b=normalize(mc.business_id); bidCount.set(b,(bidCount.get(b)||0)+1); });
+  return {bidCount};
+}
+function findExistingMatch(mc,existing,fileIndex){
+  const n=normalize(mc.name), c=normalize(mc.city), b=normalize(mc.business_id);
+  // 1. Sama tunniste (appin oma vienti: id on Supabase-id; legacy-id:t eivät ole kannassa)
+  if(mc._oldId){ const m=existing.find(e=>String(e.id)===String(mc._oldId)); if(m) return m; }
+  // 2. Y-tunnus + nimi
+  if(b&&n){ const m=existing.find(e=>normalize(e.business_id)===b&&normalize(e.name)===n); if(m) return m; }
+  // 3. Nimi + kaupunki
+  if(n&&c){ const m=existing.find(e=>normalize(e.name)===n&&normalize(e.city)===c); if(m) return m; }
+  // 4. Nimi, jos Y-tunnus tai kaupunki ei ole ristiriidassa (molemmilla arvo ja eri arvo)
+  if(n){
+    const m=existing.find(e=>normalize(e.name)===n
+      &&!(b&&normalize(e.business_id)&&normalize(e.business_id)!==b)
+      &&!(c&&normalize(e.city)&&normalize(e.city)!==c));
+    if(m) return m;
+  }
+  // 5. Pelkkä Y-tunnus vain, jos sillä on täsmälleen yksi asiakas kannassa JA täsmälleen yksi tiedostossa
+  if(b&&fileIndex&&fileIndex.bidCount.get(b)===1){
+    const ms=existing.filter(e=>normalize(e.business_id)===b);
+    if(ms.length===1) return ms[0];
+  }
   return null;
 }
 
@@ -486,11 +509,12 @@ async function analyzeFile(file){
   try{ existing=await loadExistingCustomers(); }catch(e){ $('jiStatus').className='hint err'; $('jiStatus').textContent=t('importErr',{msg:e.message}); return; }
 
   const unmappedSet=new Set();
+  const fileIndex=buildFileIndex(mappedCustomers);
   const rows={new:[],dup:[],invalid:[]};
   mappedCustomers.forEach(mc=>{
     mc._unmapped.forEach(f=>unmappedSet.add(f));
     if(!mc.name){ rows.invalid.push(mc); return; }
-    const match=findExistingMatch(mc,existing);
+    const match=findExistingMatch(mc,existing,fileIndex);
     if(match){ mc._match=match; mc._decision='skip'; rows.dup.push(mc); }
     else { rows.new.push(mc); }
   });
@@ -498,7 +522,7 @@ async function analyzeFile(file){
   const notesTotal=mappedCustomers.filter(c=>c.name).reduce((s,c)=>s+(c._notes?c._notes.length:0),0);
   const orphanFromInvalid=rows.invalid.reduce((s,c)=>s+(c._notes?c._notes.length:0),0);
 
-  lastAnalysis={ kind, exportedAt, formatVersion, rows, unmapped:[...unmappedSet], notesTotal, orphanNotes:orphanNotes+orphanFromInvalid, fileName:file.name };
+  lastAnalysis={ kind, exportedAt, formatVersion, rows, fileIndex, unmapped:[...unmappedSet], notesTotal, orphanNotes:orphanNotes+orphanFromInvalid, fileName:file.name };
   renderAnalysis();
 }
 
@@ -570,7 +594,7 @@ async function runImport(){
     const lateDups=[];
 
     for(const mc of a.rows.new){
-      const m=findExistingMatch(mc,matchPool);
+      const m=findExistingMatch(mc,matchPool,a.fileIndex);
       if(m){ mc._match=m; mc._decision='skip'; lateDups.push(mc); continue; }
       try{
         const row={workspace_id:w.id,business_id:mc.business_id||null,name:mc.name,city:mc.city||null,region:mc.region||null,country:mc.country||'FI',phone:mc.phone||null,email:mc.email||null,address:mc.address||null,contact_person:mc.contact_person||null,priority:!!mc.priority,last_contact:mc.last_contact||null,next_date:mc.next_date||null,next_action:mc.next_action||null,sales_ytd:mc.sales_ytd||0,mobile_visible:mc.mobile_visible!==false,created_source:'json-import'};
