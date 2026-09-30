@@ -214,9 +214,64 @@ select:disabled{opacity:.5;cursor:not-allowed}
 .logo-preview{width:56px;height:56px;border-radius:14px;object-fit:contain;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.14);flex:0 0 56px}
 .logo-preview-fallback{width:56px;height:56px;border-radius:14px;background:rgba(45,107,255,.12);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 56px}
 .logo-actions{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:180px}
+
+/* Käynnistyksen latausnäkymä: peittää sovelluksen kunnes data on haettu ja ensimmäinen render tehty */
+body.booting>*:not(#splash){visibility:hidden}
+.splash{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
+  color:rgba(255,255,255,.96);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(900px 620px at 16% 18%, rgba(45,107,255,.24), transparent 60%),
+    radial-gradient(760px 580px at 88% 84%, rgba(130,92,246,.14), transparent 62%),
+    radial-gradient(620px 420px at 82% 6%, rgba(45,210,220,.08), transparent 60%),
+    linear-gradient(180deg,#050b1a,#0a1830);
+  opacity:1;transition:opacity .22s ease}
+.splash[hidden]{display:none}
+.splash.hide{opacity:0;pointer-events:none}
+.splash-inner{width:min(340px,100%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.splash-logo{width:64px;height:64px;display:block;object-fit:contain}
+.splash-title{font-size:30px;font-weight:720;line-height:1.05;letter-spacing:-.01em}
+.splash-sub{font-size:12px;color:rgba(255,255,255,.62);margin-top:4px}
+.splash-spinner{width:26px;height:26px;margin-top:10px;border-radius:50%;border:3px solid rgba(45,107,255,.22);border-top-color:#3d7bff;animation:splash-spin .9s linear infinite}
+@keyframes splash-spin{to{transform:rotate(360deg)}}
+.splash-status{font-size:13px;color:rgba(255,255,255,.68);min-height:18px}
+.splash-error{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:6px}
+.splash.is-error .splash-spinner,.splash.is-error .splash-status{display:none}
+.splash.is-error .splash-error{display:flex}
+.splash-err-title{font-size:16px;font-weight:620}
+.splash-err-msg{font-size:13.5px;line-height:1.45;color:rgba(255,255,255,.8);overflow-wrap:anywhere}
+.splash-err-detail{font-size:11.5px;line-height:1.4;color:rgba(255,255,255,.5);overflow-wrap:anywhere}
+.splash-err-detail:empty{display:none}
+.splash-retry{appearance:none;min-height:44px;padding:0 22px;border-radius:13px;border:1px solid rgba(45,107,255,.5);background:linear-gradient(180deg,rgba(51,112,255,.98),rgba(31,79,214,.98));color:#fff;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;margin-top:4px}
+.splash-retry:disabled{opacity:.6;cursor:default}
+.splash-err-hint{font-size:12px;color:rgba(255,255,255,.55)}
+@media (prefers-reduced-motion:reduce){.splash-spinner{animation-duration:2.4s}.splash{transition:none}}
+.history-actions{display:flex;justify-content:flex-end;margin-top:-2px}
+.note-del{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;font-weight:450;padding:4px 8px;border-radius:8px;cursor:pointer}
+.note-del:hover,.note-del:focus-visible{color:var(--danger);background:rgba(255,77,77,.08)}
 </style>
 </head>
-<body>
+<body class="booting">
+<div class="splash" id="splash" role="status" aria-live="polite">
+  <div class="splash-inner">
+    <img class="splash-logo" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+    <div><div class="splash-title">Kontakti</div><div class="splash-sub">by Opero</div></div>
+    <div class="splash-spinner" aria-hidden="true"></div>
+    <div class="splash-status" id="splashStatus">Ladataan Kontaktia…</div>
+    <div class="splash-error" id="splashError" role="alert">
+      <div class="splash-err-title" id="splashErrTitle"></div>
+      <div class="splash-err-msg" id="splashErrMsg"></div>
+      <div class="splash-err-detail" id="splashErrDetail"></div>
+      <button type="button" class="splash-retry" id="splashRetry"></button>
+      <div class="splash-err-hint" id="splashErrHint"></div>
+    </div>
+  </div>
+</div>
+<script>
+// Splash näkyy heti HTML:n jäsennyksessä, ennen moduuliskriptiä. Minimiaika mitataan tästä hetkestä.
+window.__splashT0=performance.now();
+try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById('splashStatus').textContent='Loading Kontakti…'; }catch(e){}
+</script>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
@@ -419,6 +474,10 @@ const TRANSLATIONS={
   fi:{
     today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', settings:'Asetukset',
     searchPlaceholder:'Hae asiakasta...', refresh:'↻ Päivitä',
+    splashLoading:'Ladataan Kontaktia…', splashErrorTitle:'Kontakti ei latautunut', splashRetry:'Yritä uudelleen', splashErrorHint:'Jos ongelma jatkuu, päivitä sivu hetken päästä.',
+    splashErrNetwork:'Yhteyttä palvelimeen ei saatu. Tarkista verkkoyhteys.', splashErrGeneric:'Tietojen lataaminen epäonnistui.',
+    deleteNote:'Poista merkintä', deleteNoteTitle:'Poistetaanko tämä merkintä?', deleteNoteSales:'Merkintään liittyy {amount} myyntiä.', deleteNoteSalesEffect:'Poistaminen poistaa summan myös myyntiluvuista.',
+    noteDeleted:'Merkintä poistettu', noteDeleteFailed:'Poisto epäonnistui: {msg}', noteDeleteNotApplied:'Merkintä ei poistunut. Tarkista käyttöoikeudet.',
     byOperoCloud:'by Opero', salesYTD:'Myynti YTD', tools:'Työkalut', import:'Tuonti / Vienti', report:'Raportti',
     listSubToday:'Erääntyneet + tänään', weeklyReportView:'Nykyinen viikko', toolsView:'', listDefault:'Lista',
     sortNewest:'Tuorein kontakti ensin', sortOldest:'Vanhin kontakti ensin', sortNewestTitle:'Listan alkuun / tuorein ensin', sortOldestTitle:'Listan loppuun / vanhin ensin',
@@ -510,6 +569,10 @@ const TRANSLATIONS={
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
     searchPlaceholder:'Search customers...', refresh:'↻ Refresh',
+    splashLoading:'Loading Kontakti…', splashErrorTitle:'Kontakti could not be loaded', splashRetry:'Try again', splashErrorHint:'If the problem continues, refresh the page in a moment.',
+    splashErrNetwork:'Could not reach the server. Check your connection.', splashErrGeneric:'Loading data failed.',
+    deleteNote:'Delete entry', deleteNoteTitle:'Delete this entry?', deleteNoteSales:'This entry includes {amount} in sales.', deleteNoteSalesEffect:'Deleting it will also remove the amount from sales totals.',
+    noteDeleted:'Entry deleted', noteDeleteFailed:'Delete failed: {msg}', noteDeleteNotApplied:'The entry was not deleted. Check permissions.',
     byOperoCloud:'by Opero', salesYTD:'Sales YTD', tools:'Tools', import:'Import / Export', report:'Report',
     listSubToday:'Overdue + today', weeklyReportView:'Current week', toolsView:'', listDefault:'List',
     sortNewest:'Most recent contact first', sortOldest:'Oldest contact first', sortNewestTitle:'To top of list / most recent first', sortOldestTitle:'To bottom of list / oldest first',
@@ -875,9 +938,7 @@ async function fetchAllRows(buildQuery,pageSize=500){
   return rows;
 }
 
-async function load(){
-  try{
-    setListStatus(t('fetching'));
+async function fetchData(){
     const w=await workspace();
     const [customers,notes]=await Promise.all([
       fetchAllRows(
@@ -907,6 +968,11 @@ async function load(){
     if(!sel&&cs[0]) sel=cs[0].id;
     populateAreaDropdowns();
     renderAll();
+}
+async function load(){
+  try{
+    setListStatus(t('fetching'));
+    await fetchData();
     setListStatus(t('fetchedCount',{n:cs.length}),'ok');
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); }
 }
@@ -1215,7 +1281,7 @@ function renderHistoryPopover(c){
   const items=ns.filter(n=>n.customer_id===c.id).slice().sort((a,b)=>(b.note_date||'').localeCompare(a.note_date||'')||(b.created_at||'').localeCompare(a.created_at||''));
   const body=items.length?items.map(n=>{
     const hasNote=Boolean((n.note_text||'').trim()), hasPurch=Boolean((n.purchases_text||'').trim());
-    return `<div class="history-item"><div class="history-meta"><div class="history-date">${esc(toFI(n.note_date))}</div><div class="history-badges">${n.note_type?`<span class="tag">${esc(actionLabel(n.note_type))}</span>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}${n.next_date?`<span class="tag">${esc(t('nextBadge'))} ${esc(toFI(n.next_date))}</span>`:''}</div></div>${hasNote?`<div class="history-text"><b>${esc(t('note'))}</b>\n${esc(n.note_text)}</div>`:''}${hasPurch?`<div class="history-text"><b>${esc(t('purchases'))}</b>\n${esc(n.purchases_text)}</div>`:''}</div>`;
+    return `<div class="history-item"><div class="history-meta"><div class="history-date">${esc(toFI(n.note_date))}</div><div class="history-badges">${n.note_type?`<span class="tag">${esc(actionLabel(n.note_type))}</span>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}${n.next_date?`<span class="tag">${esc(t('nextBadge'))} ${esc(toFI(n.next_date))}</span>`:''}</div></div>${hasNote?`<div class="history-text"><b>${esc(t('note'))}</b>\n${esc(n.note_text)}</div>`:''}${hasPurch?`<div class="history-text"><b>${esc(t('purchases'))}</b>\n${esc(n.purchases_text)}</div>`:''}${canDeleteNote(n)?`<div class="history-actions"><button class="note-del" type="button" data-note-del="${esc(n.id)}">${esc(t('deleteNote'))}</button></div>`:''}</div>`;
   }).join(''):`<div class="note-box"><div class="hint">${esc(t('noHistoryYet'))}</div></div>`;
   return `<div class="history-popover" id="historyPopover" ${historyOpen?'':'hidden'}><div class="history-head"><div><div class="history-title">${esc(t('history'))}</div><div class="history-sub">${esc(t('entriesFor',{name:c.name||''}))}</div></div><button class="btn" id="btnCloseHistory" type="button">${esc(t('close'))}</button></div><div class="history-body">${body}</div></div>`;
 }
@@ -1235,6 +1301,7 @@ function wireDetail(c,tel,mail,mapsUrl){
   $('btnCancelCustomerEdit')?.addEventListener('click',()=>{ editingCustomer=false; renderDetail(); });
   $('btnSaveCustomerEdit')?.addEventListener('click',()=>saveCustomerEdit(c));
   $('btnDeleteCustomer')?.addEventListener('click',()=>confirmDeleteCustomer(c));
+  document.querySelectorAll('[data-note-del]').forEach(b=>b.addEventListener('click',()=>confirmDeleteNote(ns.find(n=>n.id===b.dataset.noteDel))));
 }
 
 async function saveCustomerEdit(c){
@@ -1303,6 +1370,58 @@ function confirmDeleteCustomer(c){
   $('btnCancelDeleteCustomer').addEventListener('click',closeModal);
   $('btnConfirmDeleteCustomer').addEventListener('click',()=>deleteCustomer(c));
 }
+
+// ── Yksittäisen merkinnän poisto (soft delete) ─────────────────────────
+// Vain deleted_at asetetaan; rivi säilyy kannassa. Kaikki myyntiluvut lasketaan aktiivisista noteista,
+// joten poistettu summa poistuu niistä automaattisesti. customers.sales_ytd:hen ei kosketa.
+// Legacy-myynnin migraatiorivejä ei voi poistaa käyttöliittymästä.
+const LEGACY_MIGRATION_SOURCE='legacy_sales_migration_2026';
+const canDeleteNote=n=>!!n&&n.created_source!==LEGACY_MIGRATION_SOURCE;
+function fmtAmount(v){
+  const n=parseNum(v), o={minimumFractionDigits:2,maximumFractionDigits:2};
+  return LANG==='en'?'€'+n.toLocaleString('en-GB',o):n.toLocaleString('fi-FI',o)+' €';
+}
+async function softDeleteNote(n){
+  if(!canDeleteNote(n)) throw new Error(t('noteDeleteNotApplied'));
+  const w=await workspace();
+  const ur=await sb.from('kontakti_notes').update({deleted_at:new Date().toISOString()}).eq('id',n.id).eq('workspace_id',w.id);
+  if(ur.error) throw ur.error;
+  // RLS voi ohittaa päivityksen hiljaa (0 riviä ilman virhettä) -> varmistetaan ettei merkintä ole enää aktiivinen.
+  const chk=await sb.from('kontakti_notes').select('id').eq('id',n.id).eq('workspace_id',w.id).is('deleted_at',null);
+  if(chk.error) throw chk.error;
+  if(chk.data&&chk.data.length) throw new Error(t('noteDeleteNotApplied'));
+}
+function confirmDeleteNote(n){
+  if(!canDeleteNote(n)) return;
+  const sales=parseNum(n.sales);
+  showModal(`
+    <div class="modal-title">${esc(t('deleteNoteTitle'))}</div>
+    ${sales>0?`<div class="modal-text">${esc(t('deleteNoteSales',{amount:fmtAmount(sales)}))}<br>${esc(t('deleteNoteSalesEffect'))}</div>`:''}
+    <div class="hint err" id="deleteNoteError" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="btn subtle" id="btnCancelDeleteNote" type="button">${esc(t('cancelEdit'))}</button>
+      <button class="btn danger" id="btnConfirmDeleteNote" type="button">${esc(t('deleteNote'))}</button>
+    </div>
+  `);
+  $('btnCancelDeleteNote').addEventListener('click',closeModal);
+  $('btnConfirmDeleteNote').addEventListener('click',()=>deleteNote(n));
+  $('btnCancelDeleteNote').focus();
+}
+async function deleteNote(n){
+  const btn=$('btnConfirmDeleteNote'), errEl=$('deleteNoteError');
+  if(btn){ btn.disabled=true; btn.textContent=t('deleting'); }
+  try{
+    await softDeleteNote(n);
+    ns=ns.filter(x=>x.id!==n.id);
+    closeModal();
+    renderAll();
+    toast(t('noteDeleted'));
+  }catch(e){
+    if(errEl){ errEl.style.display=''; errEl.textContent=t('noteDeleteFailed',{msg:e.message}); }
+    if(btn){ btn.disabled=false; btn.textContent=t('deleteNote'); }
+  }
+}
+
 // customer_id JA workspace_id rajaavat aina poiston - ei koskaan pelkkä nimi tai id ilman workspacea.
 async function deleteCustomer(c){
   const btn=$('btnConfirmDeleteCustomer');
@@ -1702,13 +1821,73 @@ function wire(){
   document.querySelectorAll('.lang-opt').forEach(btn=>btn.addEventListener('click',()=>setLang(btn.dataset.lang)));
 }
 
+
+// ── Käynnistys ──────────────────────────────────────────────────────────
+// Splash peittää sovelluksen, kunnes auth on tarkistettu, workspace + asiakkaat + kaikki merkinnät on haettu
+// (fetchAllRows), indeksit rakennettu ja ensimmäinen render tehty. Virheessä splash vaihtuu virhetilaan
+// eikä keskeneräistä sovellusta näytetä. Ei automaattista uudelleenyritystä.
+const SPLASH_MIN_MS=350;
+const splashT0=typeof window.__splashT0==='number'?window.__splashT0:performance.now();
+let bootRunning=false;
+function splashShowLoading(){
+  const s=$('splash'); if(!s) return;
+  s.hidden=false; s.classList.remove('is-error','hide');
+  $('splashStatus').textContent=t('splashLoading');
+}
+function splashShowError(e){
+  console.error('[Kontakti] käynnistys epäonnistui',e);
+  const s=$('splash'); if(!s) return;
+  const msg=String((e&&e.message)||e||'');
+  const network=(e&&e.name==='AuthRetryableFetchError')||/failed to fetch|networkerror|load failed|network request failed/i.test(msg);
+  $('splashErrTitle').textContent=t('splashErrorTitle');
+  $('splashErrMsg').textContent=network?t('splashErrNetwork'):t('splashErrGeneric');
+  $('splashErrDetail').textContent=network?'':msg.split('\n')[0].slice(0,160);
+  $('splashRetry').textContent=t('splashRetry');
+  $('splashErrHint').textContent=t('splashErrorHint');
+  document.body.classList.add('booting');
+  s.hidden=false; s.classList.remove('hide'); s.classList.add('is-error');
+  $('splashRetry').disabled=false; $('splashRetry').focus();
+}
+async function hideSplash(){
+  const wait=SPLASH_MIN_MS-(performance.now()-splashT0);
+  if(wait>0) await new Promise(r=>setTimeout(r,wait));
+  const s=$('splash');
+  document.body.classList.remove('booting');
+  if(!s) return;
+  s.classList.add('hide');
+  setTimeout(()=>{ if(s.classList.contains('hide')){ s.hidden=true; s.classList.remove('hide'); } },260);
+}
+// Ei istuntoa -> login. Verkko-/palvelinvirhe -> virhetila (ei turhaa ohjausta loginiin).
+async function bootAuth(){
+  const r=await sb.auth.getUser();
+  const err=r&&r.error;
+  if(err&&(err.name==='AuthRetryableFetchError'||err.status===0||(err.status||0)>=500)) throw err;
+  user=(r&&r.data&&r.data.user)||null;
+  return user;
+}
+async function boot(){
+  if(bootRunning) return;
+  bootRunning=true; $('splashRetry').disabled=true;
+  splashShowLoading();
+  try{
+    await bootAuth();
+    if(!user){ window.location.href='login.html'; return; }   // splash pysyy näkyvissä ohjaukseen asti
+
+    await fetchData();
+    setListStatus(t('fetchedCount',{n:cs.length}),'ok');
+    await hideSplash();
+  }catch(e){ splashShowError(e); }
+  finally{ bootRunning=false; $('splashRetry').disabled=false; }
+}
+
 async function init(){
-  applyTheme();
-  applyStaticI18n(); updateLangSwitcherUI();
-  wire();
-  await auth();
-  if(!user){ window.location.href='login.html'; return; }
-  await load();
+  try{
+    applyTheme();
+    applyStaticI18n(); updateLangSwitcherUI();
+    wire();
+    $('splashRetry').addEventListener('click',boot);
+  }catch(e){ splashShowError(e); return; }
+  await boot();
 }
 init();
 </script>
