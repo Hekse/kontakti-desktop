@@ -453,7 +453,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
 </div>
 
 <script type="module">
-import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
 const $=id=>document.getElementById(id);
 let user=null,ws=null,cs=[],ns=[],sel=null,view='today',search='',colorPriority='',customerSort='newest',historyOpen=false,editingCustomer=false;
@@ -1099,7 +1099,7 @@ function renderList(){
     wrap.appendChild(row);
   });
   host.appendChild(wrap);
-  if(showQuick) host.querySelectorAll('[data-qa]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();quickAction(btn.dataset.qa,btn.dataset.qt)}));
+  if(showQuick) host.querySelectorAll('[data-qa]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();quickAction(btn.dataset.qa,btn.dataset.qt,btn)}));
 }
 
 function renderSettingsList(){
@@ -1112,8 +1112,14 @@ function renderWeeklyList(){
   $('list').innerHTML=`<div class="empty">${esc(t('entriesCount',{n:rows.length}))}</div>`;
 }
 
-async function quickAction(id,type){
+// Pikatoiminnot: yksi klikkaus = yksi merkintä/päivitys. Saman asiakkaan toiminto ei käynnisty uudelleen
+// ennen kuin edellinen on valmis, ja rivin pikanapit ovat lukittuina tallennuksen ajan.
+const quickInFlight=new Set();
+async function quickAction(id,type,btn){
   const c=cs.find(x=>x.id===id); if(!c) return;
+  if(quickInFlight.has(id)) return;
+  quickInFlight.add(id);
+  const group=btn?.closest('.quick-row'); group?.querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
     const w=await workspace(); const today=todayISO();
     if(type==='answered'){
@@ -1138,6 +1144,10 @@ async function quickAction(id,type){
     }
     await load();
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); toast(t('genericError',{msg:e.message})); }
+  finally{
+    quickInFlight.delete(id);
+    group?.querySelectorAll('button').forEach(b=>b.disabled=false);
+  }
 }
 
 function kv2Cell(label,valueHtml,full){
