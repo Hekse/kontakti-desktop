@@ -214,6 +214,42 @@ textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placehol
 @media (max-width:980px){body{overflow:auto}.app{grid-template-columns:1fr;overflow:auto}.content{grid-template-columns:1fr}}
 @media (max-width:680px){.content{position:relative}.card.detail{position:fixed;inset:12px;z-index:50;display:none}.card.detail.show{display:flex}.mobile-back{display:inline-flex!important}.grid2{grid-template-columns:1fr}.row-main{flex-direction:column}.row-right{justify-content:flex-start}.history-popover{left:12px;right:12px;bottom:12px;width:auto;max-height:68vh}}
 .mobile-back{display:none}
+/* ── Puhelinnäkymä (≤680 px): kompakti yläpalkki + ☰-valikko (sidebar avautuu valikkona), peittävät taustat ── */
+.mobile-bar,.mobile-menu-backdrop{display:none}
+.btn.qa-call{display:none}
+.table-scroll{max-height:372px;overflow-y:auto;overscroll-behavior:contain}
+.table-scroll .mini-table thead th{position:sticky;top:0;z-index:1;background:var(--solid-panel)}
+@media (max-width:680px){
+  .app{padding:0 10px 12px;gap:10px;grid-template-rows:auto minmax(0,1fr)}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:60;align-items:center;justify-content:space-between;gap:10px;margin:0 -10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:var(--solid-panel);border-bottom:1px solid var(--stroke)}
+  .mobile-bar-brand{display:flex;align-items:center;gap:8px;min-width:0}
+  .mobile-bar-logo{width:28px;height:28px;flex:0 0 28px;display:block}
+  .mobile-bar-title{font-weight:650;font-size:16px}
+  .mobile-bar-view{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .mobile-bar-view::before{content:"·";margin-right:6px}
+  .mobile-menu-btn{appearance:none;width:44px;height:44px;flex:0 0 44px;border-radius:12px;border:1px solid var(--stroke);background:rgba(var(--tint),.05);color:var(--text);font-size:20px;line-height:1;cursor:pointer}
+  .sidebar{display:none}
+  body.menu-open .sidebar{display:flex;position:fixed;top:calc(64px + env(safe-area-inset-top));left:10px;right:10px;z-index:70;max-height:calc(100dvh - 80px - env(safe-area-inset-top));overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  body.menu-open .mobile-menu-backdrop{display:block;position:fixed;inset:0;z-index:65;background:rgba(0,0,0,.5)}
+  .sidebar,.card,.topbar{background:var(--solid-panel);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .history-popover,.filter-panel,.modal-box,.ac-list{background:var(--solid-panel);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .modal-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .card.detail{inset:0;border-radius:0;z-index:80;padding-top:env(safe-area-inset-top)}
+  /* Viikkoraportti ja Asetukset: sisältö näytetään suoraan (ei asiakaslistaa eikä Takaisin-nappia) */
+  body[data-view=weekly] .content>.card:not(.detail),body[data-view=settings] .content>.card:not(.detail){display:none}
+  body[data-view=weekly] .card.detail,body[data-view=settings] .card.detail{display:flex;position:relative;inset:auto;z-index:auto;border-radius:var(--r22);padding-top:0}
+  body[data-view=weekly] .mobile-back,body[data-view=settings] .mobile-back{display:none!important}
+  header.list-topbar{padding:10px 12px 8px}
+  header.list-topbar .page-title{display:none}
+  header.list-topbar .search{height:46px;padding:0 12px;border-radius:12px;min-width:0;max-width:none;flex:1 1 220px}
+  header.list-topbar .right .btn{padding:7px 10px;font-size:13px}
+  input,textarea,select{font-size:16px}
+  #listStatus{font-size:12px;color:var(--muted);font-weight:400}
+  .btn.qa-call{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-color:rgba(45,107,255,.45);background:rgba(45,107,255,.14);color:var(--text)}
+  .btn.qa-call:disabled{opacity:.45;cursor:default}
+  .quick-row .btn.qa{flex:1 1 0;min-height:42px;justify-content:center;padding:6px 8px}
+  .quick-row .btn.qa-snooze{flex-basis:100%;min-height:36px}
+}
 .status-dot.sm{width:8px;height:8px;flex:0 0 8px;margin-top:0;display:inline-block;vertical-align:middle;margin-left:6px;box-shadow:none}
 .due-overdue{color:var(--danger);font-weight:600}
 .due-today{color:var(--ok);font-weight:600}
@@ -303,7 +339,12 @@ window.__splashT0=performance.now();
 try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById('splashStatus').textContent='Loading Kontakti…'; }catch(e){}
 </script>
 <div class="app">
-  <aside class="sidebar">
+  <div class="mobile-bar" id="mobileBar">
+    <div class="mobile-bar-brand"><img class="mobile-bar-logo" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+"><span class="mobile-bar-title">Kontakti</span><span class="mobile-bar-view" id="mobileViewName"></span></div>
+    <button type="button" class="mobile-menu-btn" id="btnMobileMenu" aria-expanded="false" aria-controls="mainSidebar" aria-label="Valikko">☰</button>
+  </div>
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+  <aside class="sidebar" id="mainSidebar">
     <div class="brand">
       <div class="opero-logo-mini"><img class="opero-logo-img" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
       </div>
@@ -447,7 +488,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
         <header class="topbar list-topbar">
           <div class="left">
             <div class="page-title" id="pageTitle">Soita tänään</div>
-            <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta..."></div>
+            <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta…"></div>
           </div>
           <div class="right">
             <button class="btn subtle" id="btnNewCustomer" type="button" style="font-weight:500" data-i18n="newCustomerBtn">＋ Lisää asiakas</button>
@@ -506,7 +547,7 @@ let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
 const TRANSLATIONS={
   fi:{
     today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', settings:'Asetukset',
-    searchPlaceholder:'Hae asiakasta...', refresh:'↻ Päivitä',
+    searchPlaceholder:'Hae asiakasta…', refresh:'↻ Päivitä',
     splashLoading:'Ladataan Kontaktia…', splashErrorTitle:'Kontakti ei latautunut', splashRetry:'Yritä uudelleen', splashErrorHint:'Jos ongelma jatkuu, päivitä sivu hetken päästä.',
     splashErrNetwork:'Yhteyttä palvelimeen ei saatu. Tarkista verkkoyhteys.', splashErrGeneric:'Tietojen lataaminen epäonnistui.',
     deleteNote:'Poista merkintä', deleteNoteTitle:'Poistetaanko tämä merkintä?', deleteNoteSales:'Merkintään liittyy {amount} myyntiä.', deleteNoteSalesEffect:'Poistaminen poistaa summan myös myyntiluvuista.',
@@ -580,6 +621,7 @@ const TRANSLATIONS={
     noCitiesFound:'Kaupunkeja ei löytynyt', noRegionsFound:'Maakuntia ei löytynyt',
     sortDefaultShort:'Priority + erääntyminen', noActiveFiltersCaption:'Ei aktiivisia suodattimia', activeFiltersCountCaption:'{n} suodatinta aktiivisena',
     theme:'Teema', themeDark:'Tumma', themeLight:'Vaalea',
+    menu:'Valikko', noPhoneNumber:'Ei puhelinnumeroa', postalCode:'Postinumero', postalCodeNeedsSetup:'Postinumero ei tallentunut: tietokannasta puuttuu kenttä postal_code. Muut tiedot tallennettiin.',
     logoSize:'Logon koko', logoSize_small:'Pieni', logoSize_normal:'Normaali', logoSize_large:'Suuri',
     logoSizeLocalOnly:'Koko tallennettiin vain tähän selaimeen: tietokannasta puuttuu kenttä logo_size.', logoSizeSaveError:'Logon koon tallennus epäonnistui: {msg}',
     companyLogo:'Yrityksen logo', uploadLogo:'Lataa logo', changeLogo:'Vaihda logo', removeLogo:'Poista logo', logoUploadHint:'PNG, JPG tai WebP, enintään 2 Mt',
@@ -616,7 +658,7 @@ const TRANSLATIONS={
   },
   en:{
     today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
-    searchPlaceholder:'Search customers...', refresh:'↻ Refresh',
+    searchPlaceholder:'Search customers…', refresh:'↻ Refresh',
     splashLoading:'Loading Kontakti…', splashErrorTitle:'Kontakti could not be loaded', splashRetry:'Try again', splashErrorHint:'If the problem continues, refresh the page in a moment.',
     splashErrNetwork:'Could not reach the server. Check your connection.', splashErrGeneric:'Loading data failed.',
     deleteNote:'Delete entry', deleteNoteTitle:'Delete this entry?', deleteNoteSales:'This entry includes {amount} in sales.', deleteNoteSalesEffect:'Deleting it will also remove the amount from sales totals.',
@@ -690,6 +732,7 @@ const TRANSLATIONS={
     noCitiesFound:'No cities found', noRegionsFound:'No regions found',
     sortDefaultShort:'Priority + overdue', noActiveFiltersCaption:'No active filters', activeFiltersCountCaption:'{n} filters active',
     theme:'Theme', themeDark:'Dark', themeLight:'Light',
+    menu:'Menu', noPhoneNumber:'No phone number', postalCode:'Postal code', postalCodeNeedsSetup:'The postal code was not saved: the postal_code field is missing from the database. Other details were saved.',
     logoSize:'Logo size', logoSize_small:'Small', logoSize_normal:'Normal', logoSize_large:'Large',
     logoSizeLocalOnly:'The size was saved in this browser only: the logo_size field is missing from the database.', logoSizeSaveError:'Saving the logo size failed: {msg}',
     companyLogo:'Company logo', uploadLogo:'Upload logo', changeLogo:'Change logo', removeLogo:'Remove logo', logoUploadHint:'PNG, JPG or WebP, max 2 MB',
@@ -1149,10 +1192,12 @@ function renderList(){
     const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
     const cityText=[c.city,c.region].filter(Boolean).join(' • ')||'–';
     const row=document.createElement('div'); row.className='row'+(c.id===sel?' active':'');
-    const quickHtml=showQuick?`<div class="quick-row"><button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
+    const callNum=c.contact_phone||c.phone||'', callHref=callNum?'tel:'+String(callNum).replace(/[^\d+]/g,''):'';
+    const callBtn=callHref?`<a class="btn qa qa-call" href="${esc(callHref)}">📞 ${esc(t('call'))}</a>`:`<button class="btn qa qa-call" type="button" disabled title="${esc(t('noPhoneNumber'))}">📞 ${esc(t('call'))}</button>`;
+    const quickHtml=showQuick?`<div class="quick-row">${callBtn}<button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
     const salesTagHtml=view==='customers'?periodSalesTags(c):`<span class="tag">${esc(t('salesColon'))}: €${esc(fmtMoney(ytdSalesFor(c.id)))}</span>`;
     row.innerHTML=`<div class="row-main"><div class="row-left"><span class="status-dot ${status.cls}"></span><div style="min-width:0;flex:1"><div class="row-name">${esc(c.name||t('unnamed'))}</div><div class="row-meta">${esc(cityText)}${c.phone?`<br>${esc(t('phone'))}: ${esc(c.phone)}`:''}</div></div></div><div class="row-right">${c.priority?'<span class="tag priority">🟣 '+esc(t('priority'))+'</span>':''}</div></div><div class="tagline"><span class="tag ${due.cls}">${esc(t('next'))}: ${esc(toFI(c.next_date))} (${esc(due.text)})</span><span class="tag">${esc(t('lastContact'))}: ${esc(toFI(c.last_contact))} (${esc(status.text)})</span><span class="tag">${esc(actionLabel(c.next_action||'Soitto'))}</span>${salesTagHtml}</div>${quickHtml}`;
-    row.onclick=(e)=>{ if(e.target.closest('[data-qa]')) return; sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
+    row.onclick=(e)=>{ if(e.target.closest('[data-qa],.qa-call')) return; sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
     wrap.appendChild(row);
   });
   host.appendChild(wrap);
@@ -1218,11 +1263,12 @@ function buildCustomerDetailsGrid(c,tel,mail,mapsUrl,contactTel,contactMail){
   const emailVal=c.email?`<a href="${esc(mail)}">${esc(c.email)}</a>`:d;
   const contactEmailVal=c.contact_email?`<a href="${esc(contactMail)}">${esc(c.contact_email)}</a>`:d;
   const addressVal=c.address?`<a href="${esc(mapsUrl)}" target="_blank" rel="noopener">${esc(c.address)}</a>`:d;
+  const postalVal=esc(c.postal_code)||d;
   return kv2Cell(t('customerName'),esc(c.name)||d)+kv2Cell(t('businessId'),esc(c.business_id)||d)
     +kv2Cell(t('ownerName'),esc(c.owner_name)||d)+kv2Cell(t('contactPerson'),esc(c.contact_person)||d)
     +kv2Cell(t('phone'),phoneVal)+kv2Cell(t('contactPhone'),contactPhoneVal)
     +kv2Cell(t('email'),emailVal)+kv2Cell(t('contactEmail'),contactEmailVal)
-    +kv2Cell(t('address'),addressVal)+kv2Cell(t('cityFieldLabel'),esc(c.city)||d)
+    +kv2Cell(t('address'),addressVal)+kv2Cell(t('postalCode'),postalVal)+kv2Cell(t('cityFieldLabel'),esc(c.city)||d)
     +kv2Cell(t('regionFieldLabel'),esc(c.region)||d)+kv2Cell(t('countryFieldLabel'),esc(c.country)||d);
 }
 function editField(id,label,val,type){
@@ -1240,6 +1286,7 @@ function buildCustomerEditForm(c){
       ${editField('editEmail',t('email'),c.email,'email')}
       ${editField('editContactEmail',t('contactEmail'),c.contact_email,'email')}
       ${editField('editAddress',t('address'),c.address)}
+      ${editField('editPostalCode',t('postalCode'),c.postal_code)}
       ${editField('editCity',t('cityFieldLabel'),c.city)}
       ${editField('editRegion',t('regionFieldLabel'),c.region)}
       ${editField('editCountry',t('countryFieldLabel'),c.country)}
@@ -1291,7 +1338,7 @@ function renderDetail(){
   const contactMail=c.contact_email?'mailto:'+c.contact_email:'';
   const callTel=contactTel||tel; // Soita-pikanappi: contact_phone jos olemassa, muuten phone
   const emailBtnMail=contactMail||mail; // Sähköposti-pikanappi: contact_email jos olemassa, muuten email
-  const mapsParts=[c.address,c.city,c.region,c.country].filter(Boolean);
+  const mapsParts=[c.address,[c.postal_code,c.city].filter(Boolean).join(' '),c.region,c.country].filter(Boolean);
   const mapsUrl=mapsParts.length?'https://www.google.com/maps?q='+encodeURIComponent(mapsParts.join(', ')):'';
   const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${(c.next_action||'Soitto')===x?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
   $('detailBody').innerHTML=`
@@ -1421,8 +1468,11 @@ async function saveCustomerEdit(c){
     contact_email:($('editContactEmail').value||'').trim()||null
   };
   try{
-    let ur=await sb.from('kontakti_customers').update(extendedPatch).eq('id',c.id);
-    let partial=false;
+    // postal_code tallennetaan, jos kenttä on kannassa; muuten muut tiedot tallennetaan ja kerrotaan syy.
+    const postal=($('editPostalCode')?.value||'').trim()||null;
+    let ur=await sb.from('kontakti_customers').update({...extendedPatch,postal_code:postal}).eq('id',c.id);
+    let partial=false, postalMissing=false;
+    if(ur.error&&/postal_code/i.test(ur.error.message||'')){ postalMissing=true; ur=await sb.from('kontakti_customers').update(extendedPatch).eq('id',c.id); }
     if(ur.error){
       // owner_name/contact_phone/contact_email eivät (vielä) ole nykyisessä schemassa - tallenna loput kentät silti
       const msg=(ur.error.message||'').toLowerCase();
@@ -1435,7 +1485,7 @@ async function saveCustomerEdit(c){
     buttonSaved($('btnSaveCustomerEdit'),'✓ '+t('saveChanges'));
     editingCustomer=false;
     await load(); sel=c.id; renderAll();
-    toast(partial ? t('ownerPhoneFieldsNeedSetup') : t('customerSaved'));
+    toast(partial ? t('ownerPhoneFieldsNeedSetup') : postalMissing ? t('postalCodeNeedsSetup') : t('customerSaved'));
   }catch(e){ $('editCustomerError').className='hint err'; $('editCustomerError').textContent=t('saveError',{msg:e.message}); }
 }
 
@@ -1785,7 +1835,7 @@ function renderNewCustomerDetail(){
       <div class="grid2">${editField('ncPhone',t('phone'),'','tel')}${editField('ncEmail',t('email'),'','email')}</div>
       <div class="grid2">${editField('ncContactPerson',t('contactPerson'),'')}${editField('ncOwnerName',t('ownerName'),'')}</div>
       <div class="grid2">${editField('ncContactPhone',t('contactPhone'),'','tel')}${editField('ncContactEmail',t('contactEmail'),'','email')}</div>
-      ${editField('ncAddress',t('address'),'')}
+      <div class="grid2">${editField('ncAddress',t('address'),'')}${editField('ncPostalCode',t('postalCode'),'')}</div>
       <div class="grid2">
         <div class="field"><div class="label">${esc(t('nextAction'))}</div><select id="ncNextAction">${optHtml}</select></div>
         <div class="field"><div class="label">${esc(t('nextDate'))}</div><input id="ncNextDate" type="date"></div>
@@ -1825,7 +1875,10 @@ async function saveNewCustomer(force){
     // Uusi asiakas vain omaan workspaceen; sales_ytd jätetään kannan oletukseen (myynti tulee noteista).
     const row={...base,workspace_id:w.id,priority:false,mobile_visible:true,created_source:'cloud-ui-v12'};
     const ext={...row,owner_name:val('ncOwnerName')||null,contact_phone:val('ncContactPhone')||null,contact_email:val('ncContactEmail')||null};
-    let r=await sb.from('kontakti_customers').insert(ext).select().single();
+    const postal=val('ncPostalCode')||null;
+    let r=await sb.from('kontakti_customers').insert({...ext,postal_code:postal}).select().single();
+    let postalMissing=false;
+    if(r.error&&/postal_code/i.test(r.error.message||'')){ postalMissing=true; r=await sb.from('kontakti_customers').insert(ext).select().single(); }
     if(r.error&&/owner_name|contact_phone|contact_email|column|schema cache/i.test(r.error.message||'')) r=await sb.from('kontakti_customers').insert(row).select().single();
     if(r.error) throw r.error;
     if(!r.data||!r.data.id) throw new Error(t('customerNotSaved'));
@@ -1833,7 +1886,7 @@ async function saveNewCustomer(force){
     creatingCustomer=false; sel=r.data.id; view='customers'; search=''; if($('search')) $('search').value='';
     populateAreaDropdowns(); renderAll();
     document.querySelector('#list .row.active')?.scrollIntoView({block:'nearest'});
-    toast(t('customerAdded'));
+    toast(postalMissing?t('postalCodeNeedsSetup'):t('customerAdded'));
   }catch(e){ showFormError('ncError',t('saveError',{msg:e.message})); }
   finally{ newCustSaving=false; btns.forEach(b=>b.disabled=false); }
 }
@@ -2024,7 +2077,7 @@ function renderWeeklyDetail(){
     </div>
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('salesByCustomer'))}</div></div>
-      ${custRows?`<table class="mini-table" id="weekCustomerTable"><thead><tr><th>${esc(t('colCustomer'))}</th><th class="num">${esc(t('colEntries'))}</th><th class="num">${esc(t('colSales'))}</th></tr></thead><tbody>${custRows}</tbody></table>`:`<div class="hint">${esc(t('noEntriesThisWeek'))}</div>`}
+      ${custRows?`<div class="table-scroll" id="weekCustomerScroll"><table class="mini-table" id="weekCustomerTable"><thead><tr><th>${esc(t('colCustomer'))}</th><th class="num">${esc(t('colEntries'))}</th><th class="num">${esc(t('colSales'))}</th></tr></thead><tbody>${custRows}</tbody></table></div>`:`<div class="hint">${esc(t('noEntriesThisWeek'))}</div>`}
     </div>
     <div class="note-box"><div class="note-top"><div class="t">${esc(t('copyableReport'))}</div><div class="d">copy–paste</div></div><div class="field"><textarea id="weeklyText" style="min-height:260px">${esc(header+(lines||'–'))}</textarea></div><div class="actions"><button class="btn primary" id="btnCopyWeekly" type="button">${esc(t('copy'))}</button></div><div class="hint">${esc(t('weeklyHint'))}</div></div>`;
   $('btnCopyWeekly')?.addEventListener('click',async()=>{ const ta=$('weeklyText'); ta.select(); try{ await navigator.clipboard.writeText(ta.value); }catch(e){ document.execCommand('copy'); } toast(t('copied')); });
@@ -2043,6 +2096,8 @@ function setHeaders(){
   else if(view==='customers'){ pageTitle.textContent=t('customers'); searchWrap.style.display='flex'; listToolbar.hidden=false; }
   else if(view==='weekly'){ pageTitle.textContent=t('weekly'); searchWrap.style.display='none'; listToolbar.hidden=true; }
   else { pageTitle.textContent=t('settings'); searchWrap.style.display='none'; listToolbar.hidden=true; }
+  if($('mobileViewName')) $('mobileViewName').textContent=pageTitle.textContent;
+  $('btnMobileMenu')?.setAttribute('aria-label',t('menu'));
   if(!toolBtnsVisible){
     if(filterPanelOpen){ filterPanelOpen=false; $('filterPanel').hidden=true; }
     if(sortPanelOpen){ sortPanelOpen=false; $('sortPanel').hidden=true; }
@@ -2134,12 +2189,17 @@ function updateCompanyLogoCard(){
 }
 
 function renderAll(){
+  document.body.dataset.view=view;
   setHeaders(); setPills(); setActiveNav();
   document.querySelectorAll('.filter-dot').forEach(x=>x.classList.toggle('active',x.dataset.color===colorPriority));
   renderList(); renderDetail();
   updateSidebarToolCaptions(); updateCompanyLogoCard(); renderActiveFilterChips();
 }
 
+function setMobileMenu(open){
+  document.body.classList.toggle('menu-open',!!open);
+  $('btnMobileMenu')?.setAttribute('aria-expanded',String(!!open));
+}
 function positionPanel(btnId,panelId){
   const btn=$(btnId), panel=$(panelId);
   if(!btn||!panel) return;
@@ -2159,6 +2219,11 @@ function wire(){
   document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; $('detailCard')?.classList.remove('show'); if(filterPanelOpen){ syncFilterPanelInputs(); } if(sortPanelOpen){ syncSortPanelInputs(); } renderAll(); }));
   $('search')?.addEventListener('input',e=>{ search=e.target.value||''; renderList(); });
   $('btnRefresh')?.addEventListener('click',load);
+  // Puhelinnäkymän ☰-valikko: sidebar avautuu valikkona; näkymän vaihto, taustan napautus tai Esc sulkee sen.
+  $('btnMobileMenu')?.addEventListener('click',()=>setMobileMenu(!document.body.classList.contains('menu-open')));
+  $('mobileMenuBackdrop')?.addEventListener('click',()=>setMobileMenu(false));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>setMobileMenu(false)));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&document.body.classList.contains('menu-open')) setMobileMenu(false); });
   $('btnNewCustomer')?.addEventListener('click',openNewCustomer);
   document.querySelectorAll('.filter-dot').forEach(btn=>btn.addEventListener('click',()=>{ const c=btn.dataset.color||''; colorPriority=colorPriority===c?'':c; renderAll(); }));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
