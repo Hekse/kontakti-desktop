@@ -72,10 +72,10 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .company-logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);flex:0 0 34px}
 .company-logo-fallback{width:34px;height:34px;border-radius:10px;background:rgba(45,107,255,.13);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 34px}
 .company-logo-name{font-size:12px;font-weight:460;color:var(--muted);line-height:1.3;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Ladattu yrityslogo on kortin pääelementti: koko kortin levyinen 76 px korkea alue, kuvasuhde säilyy (contain), ei rajausta */
+/* Ladattu yrityslogo istuu suoraan sidebarin pinnalla ilman korttia: koko sisäleveys, 100 px korkea alue, kuvasuhde säilyy (contain), ei rajausta */
 .company-logo-fallback[hidden]{display:none}
-.company-logo-card.has-logo{justify-content:center;padding:10px 12px}
-.company-logo-card.has-logo .company-logo-img{display:block;width:100%;height:76px;flex:1 1 auto;object-fit:contain;object-position:center;background:none;border:0;border-radius:6px}
+.company-logo-card.has-logo{justify-content:center;margin:12px 6px 0;padding:0;border:0;background:none;border-radius:0}
+.company-logo-card.has-logo .company-logo-img{display:block;width:100%;height:100px;flex:1 1 auto;object-fit:contain;object-position:center;background:none;border:0;border-radius:0}
 .company-logo-card.has-logo .company-logo-name{display:none}
 .side-tools{margin-top:auto;padding:6px;display:flex;flex-direction:column;gap:8px}
 .tools-block{margin-top:6px;padding-top:10px;border-top:1px solid rgba(var(--tint),.10);display:flex;flex-direction:column;gap:6px}
