@@ -1,1 +1,254 @@
-<!doctype html><html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kontakti raportti</title><style>body{margin:0;background:#07111f;color:#eef4ff;font:15px system-ui;padding:18px}main{max-width:980px;margin:auto}.card{border:1px solid rgba(160,190,230,.18);background:#0f2137;border-radius:22px;padding:16px;margin:10px 0}.btn,input{font:inherit}.btn{border:1px solid rgba(78,158,255,.35);background:rgba(78,158,255,.16);color:#eef4ff;border-radius:14px;padding:10px 12px;font-weight:850;cursor:pointer;text-decoration:none;display:inline-block}input{border:1px solid rgba(190,215,255,.24);background:#071426;color:#fff;border-radius:14px;padding:10px;margin:6px 0 10px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.muted{color:#9fb1cb}.ok{color:#b9f6d4}.err{color:#ffc0c0}pre{white-space:pre-wrap;background:#071426;border:1px solid rgba(160,190,230,.18);border-radius:18px;padding:14px;min-height:260px}@media(max-width:700px){.grid{grid-template-columns:1fr}body{padding:12px}}</style></head><body><main><div class="card"><h1>Kontakti viikkoraportti</h1><p class="muted">Hae pilvestä merkinnät ja kopioi raportti Wordiin.</p></div><div class="card"><b>Kirjautuminen</b><div class="grid"><input id="email" placeholder="sähköposti"><input id="password" type="password" placeholder="salasana"></div><button class="btn" id="signin">Kirjaudu</button> <button class="btn" id="signout">Ulos</button> <a class="btn" href="cloud-ui-v12.html">Takaisin desktopiin</a><p id="auth" class="muted">Tarkistetaan...</p></div><div class="card"><b>Raportin päivät</b><div class="grid"><input id="start" type="date"><input id="end" type="date"></div><button class="btn" id="load">Luo raportti</button> <button class="btn" id="copy">Kopioi raportti</button><p id="status" class="muted">Valmis.</p></div><div class="card"><pre id="report">Raportti tulee tähän.</pre></div></main><script type="module">import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');let user=null,workspace=null;const $=id=>document.getElementById(id);function msg(id,t,c='muted'){$(id).className=c;$(id).textContent=t}function d(s){return new Date(s).toLocaleDateString('fi-FI')}function iso(x){return x.toISOString().slice(0,10)}function week(){let now=new Date();let day=(now.getDay()+6)%7;let mon=new Date(now);mon.setDate(now.getDate()-day);let sun=new Date(mon);sun.setDate(mon.getDate()+6);$('start').value=iso(mon);$('end').value=iso(sun)}async function auth(){const{data}=await sb.auth.getUser();user=data?.user||null;msg('auth',user?'Kirjautunut: '+user.email:'Ei kirjautunut',user?'ok':'muted');return user}async function ws(){if(workspace)return workspace;if(!await auth())throw Error('Kirjaudu ensin');let r=await sb.from('kontakti_workspaces').select('*').limit(1);if(r.error)throw r.error;if(!r.data?.length)throw Error('Työtilaa ei löytynyt');workspace=r.data[0];return workspace}async function make(){try{msg('status','Haetaan merkintöjä...');let w=await ws();let a=$('start').value,b=$('end').value;if(!a||!b)throw Error('Valitse päivät');let n=await sb.from('kontakti_notes').select('note_date,note_type,note_text,next_date,customer_id').eq('workspace_id',w.id).is('deleted_at',null).gte('note_date',a).lte('note_date',b).order('note_date',{ascending:true});if(n.error)throw n.error;let ids=[...new Set((n.data||[]).map(x=>x.customer_id).filter(Boolean))];let names={};if(ids.length){let c=await sb.from('kontakti_customers').select('id,name').in('id',ids);if(c.error)throw c.error;(c.data||[]).forEach(x=>names[x.id]=x.name)}let rows=n.data||[];let out='VIIKKORAPORTTI '+d(a)+' - '+d(b)+'\n\n';out+='Merkintöjä yhteensä: '+rows.length+'\n\n';if(!rows.length)out+='Ei merkintöjä valitulla ajalla.\n';for(const r of rows){out+='- '+d(r.note_date)+' | '+(names[r.customer_id]||'Asiakas')+' | '+(r.note_type||'Merkintä')+'\n';if(r.note_text)out+='  '+r.note_text+'\n';if(r.next_date)out+='  Seuraava: '+d(r.next_date)+'\n';out+='\n'}$('report').textContent=out;msg('status','Raportti valmis','ok')}catch(x){msg('status','Virhe: '+x.message,'err')}}$('signin').onclick=async()=>{let r=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)return msg('auth','Virhe: '+r.error.message,'err');workspace=null;await auth()};$('signout').onclick=async()=>{await sb.auth.signOut();workspace=null;await auth()};$('load').onclick=make;$('copy').onclick=async()=>{await navigator.clipboard.writeText($('report').textContent);msg('status','Kopioitu leikepöydälle','ok')};week();await auth();</script></body></html>
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071226">
+<title>Kontakti – Raportti</title>
+<style>
+:root{
+  --bg0:#071226;--bg1:#091a35;--panel:rgba(255,255,255,.05);--stroke:rgba(255,255,255,.15);
+  --text:rgba(255,255,255,.96);--muted:rgba(255,255,255,.66);--tint:255,255,255;--solid:#0d1a33;
+  --brand:#2d6bff;--ok:#26d07c;--warn:#ffcc66;
+  --shadow:0 14px 40px rgba(0,0,0,.35);--sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg0:#eef2fa;--bg1:#e3eaf6;--panel:rgba(24,46,90,.045);--stroke:rgba(24,46,90,.15);
+  --text:rgba(16,26,46,.94);--muted:rgba(30,46,76,.62);--tint:24,46,90;--solid:#ffffff;
+  --shadow:0 14px 40px rgba(30,50,90,.12);color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;font-family:var(--sans);color:var(--text);
+  background:radial-gradient(1100px 650px at 15% 0%, rgba(45,107,255,.16), transparent 62%),radial-gradient(900px 520px at 92% 8%, rgba(130,92,246,.10), transparent 60%),linear-gradient(180deg,var(--bg0),var(--bg1));
+  padding:18px calc(18px + env(safe-area-inset-right)) 28px calc(18px + env(safe-area-inset-left))}
+main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--stroke);border-radius:20px;box-shadow:var(--shadow);padding:16px;backdrop-filter:blur(6px);min-width:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{width:42px;height:42px;display:block}
+.brand-title{font-size:22px;font-weight:700;line-height:1.05;letter-spacing:-.01em}
+.brand-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.page-h{font-size:20px;font-weight:620;margin:0}
+.muted{color:var(--muted)}
+.btn{appearance:none;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.05);color:var(--text);border-radius:12px;padding:9px 13px;font:inherit;font-size:14px;font-weight:520;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:rgba(var(--tint),.09)}
+.btn.primary{background:linear-gradient(180deg,rgba(51,112,255,.98),rgba(31,79,214,.98));border-color:rgba(45,107,255,.5);color:#fff}
+.btn:disabled{opacity:.55;cursor:default}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.label{font-size:12px;color:var(--muted)}
+select,input{background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.16);color:var(--text);border-radius:12px;padding:9px 11px;font:inherit;font-size:14px;min-height:40px}
+select option{background:var(--solid);color:var(--text)}
+.range-label{font-size:13.5px;color:var(--muted);margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:12px 14px;min-width:0}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:24px;font-weight:650;margin-top:6px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 10px}
+.sec-h h2{font-size:15px;font-weight:620;margin:0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-size:11.5px;font-weight:500;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid rgba(var(--tint),.14);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid rgba(var(--tint),.07);vertical-align:top;overflow-wrap:anywhere}
+.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:11px;border:1px solid rgba(var(--tint),.18);border-radius:999px;padding:1px 7px;color:var(--muted);margin-left:6px}
+.pre{white-space:pre-wrap}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.status{font-size:13.5px;color:var(--muted)}
+.status.err{color:#ff8a8a}
+@media (max-width:700px){
+  body{padding:12px calc(12px + env(safe-area-inset-right)) 20px calc(12px + env(safe-area-inset-left))}
+  .stat .v{font-size:20px}
+  table.stack thead{display:none}
+  table.stack tr{display:block;border-bottom:1px solid rgba(var(--tint),.12);padding:8px 0}
+  table.stack td{display:flex;justify-content:space-between;gap:12px;border:0;padding:3px 0;text-align:right}
+  table.stack td::before{content:attr(data-l);color:var(--muted);font-size:12px;text-align:left;flex:0 0 auto}
+  table.stack td.wide{display:block;text-align:left}
+  table.stack td.wide::before{display:block;margin-bottom:2px}
+}
+@media print{
+  :root,:root[data-theme="light"]{--text:#111;--muted:#555;--stroke:#ccc;--panel:#fff;--tint:0,0,0;color-scheme:light}
+  body{background:#fff;padding:0}
+  .no-print{display:none!important}
+  .card,.stat{box-shadow:none;backdrop-filter:none;break-inside:avoid}
+  tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="card top">
+    <div class="brand">
+      <img alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+      <div><div class="brand-title">Kontakti</div><div class="brand-sub">by Opero</div></div>
+    </div>
+    <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn" href="cloud-ui-v12.html" data-i="back">← Takaisin</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h1 class="page-h" data-i="title">Raportti</h1>
+    <div class="range-label" id="rangeLabel"></div>
+    <div class="controls no-print" style="margin-top:12px">
+      <div class="field"><label class="label" for="preset" data-i="period">Aikaväli</label>
+        <select id="preset">
+          <option value="thisWeek" data-i="thisWeek">Tämä viikko</option>
+          <option value="lastWeek" data-i="lastWeek">Edellinen viikko</option>
+          <option value="thisMonth" data-i="thisMonth">Tämä kuukausi</option>
+          <option value="lastMonth" data-i="lastMonth">Edellinen kuukausi</option>
+          <option value="ytd" data-i="ytd">Vuoden alusta</option>
+          <option value="custom" data-i="custom">Oma aikaväli</option>
+        </select></div>
+      <div class="field" id="customWrap" hidden><label class="label" for="start" data-i="start">Alku</label><input id="start" type="date"></div>
+      <div class="field" id="customWrap2" hidden><label class="label" for="end" data-i="end">Loppu</label><input id="end" type="date"></div>
+      <button class="btn" id="btnCopy" type="button" data-i="copy">Kopioi tekstinä</button>
+      <button class="btn" id="btnPrint" type="button" data-i="print">Tulosta / PDF</button>
+    </div>
+    <div class="status" id="status" style="margin-top:10px"></div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <div class="sec-h"><h2 data-i="byCustomer">Myynti asiakkaittain</h2><span class="muted" id="custCount"></span></div>
+    <div id="custTable"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-h"><h2 data-i="entries">Merkinnät</h2><span class="muted" id="entryCount"></span></div>
+    <div id="entryTable"></div>
+  </div>
+</main>
+
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
+const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
+const $=id=>document.getElementById(id);
+const LEGACY_MIGRATION_SOURCE='legacy_sales_migration_2026';
+let LANG='fi'; try{ LANG=localStorage.getItem('kontakti_v5_lang')==='en'?'en':'fi'; }catch(e){}
+try{ document.documentElement.setAttribute('data-theme',localStorage.getItem('kontakti_theme')==='light'?'light':'dark'); }catch(e){}
+document.documentElement.lang=LANG;
+const TR={
+  fi:{back:'← Takaisin',title:'Raportti',period:'Aikaväli',thisWeek:'Tämä viikko',lastWeek:'Edellinen viikko',thisMonth:'Tämä kuukausi',lastMonth:'Edellinen kuukausi',ytd:'Vuoden alusta',custom:'Oma aikaväli',start:'Alku',end:'Loppu',copy:'Kopioi tekstinä',print:'Tulosta / PDF',
+    byCustomer:'Myynti asiakkaittain',entries:'Merkinnät',loading:'Ladataan…',error:'Raportin lataus epäonnistui: {msg}',copied:'Kopioitu leikepöydälle.',
+    salesTotal:'Myynti yhteensä',salesEntries:'Myyntikirjaukset',entryCount:'Merkinnät',customers:'Asiakkaat',avgSale:'Keskiostos',
+    colDate:'Päivä',colCustomer:'Asiakas',colNote:'Merkintä',colPurchases:'Ostokset',colSales:'Myynti €',colEntries:'Merkinnät',
+    noEntries:'Ei merkintöjä valitulla aikavälillä.',customerFallback:'Asiakas',legacy:'legacy-siirto',week:'viikko',
+    rangeText:'{start} – {end}',countText:'{n} kpl',reportTitle:'Kontakti-raportti',invalidRange:'Valitse alku- ja loppupäivä (alku ennen loppua).'},
+  en:{back:'← Back',title:'Report',period:'Period',thisWeek:'This week',lastWeek:'Last week',thisMonth:'This month',lastMonth:'Last month',ytd:'Year to date',custom:'Custom range',start:'Start',end:'End',copy:'Copy as text',print:'Print / PDF',
+    byCustomer:'Sales by customer',entries:'Entries',loading:'Loading…',error:'Loading the report failed: {msg}',copied:'Copied to clipboard.',
+    salesTotal:'Total sales',salesEntries:'Sales entries',entryCount:'Entries',customers:'Customers',avgSale:'Average sale',
+    colDate:'Date',colCustomer:'Customer',colNote:'Entry',colPurchases:'Purchases',colSales:'Sales €',colEntries:'Entries',
+    noEntries:'No entries in the selected period.',customerFallback:'Customer',legacy:'legacy transfer',week:'week',
+    rangeText:'{start} – {end}',countText:'{n}',reportTitle:'Kontakti report',invalidRange:'Choose a start and end date (start before end).'}
+};
+const t=(k,v)=>{ let s=(TR[LANG]&&TR[LANG][k])??TR.fi[k]??k; if(v) for(const [a,b] of Object.entries(v)) s=s.split('{'+a+'}').join(b); return s; };
+document.querySelectorAll('[data-i]').forEach(el=>{ el.textContent=t(el.dataset.i); });
+document.title='Kontakti – '+t('title');
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const parseNum=v=>{if(v===null||v===undefined||v==='')return 0;const n=Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+const fmtAmount=v=>{ const n=parseNum(v),o={minimumFractionDigits:2,maximumFractionDigits:2}; return LANG==='en'?'€'+n.toLocaleString('en-GB',o):n.toLocaleString('fi-FI',o)+' €'; };
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const toFI=s=>{ if(!s) return '–'; const [y,m,d]=String(s).slice(0,10).split('-'); return `${Number(d)}.${Number(m)}.${y}`; };
+function isoWeek(d){const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-n);const y0=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y0)/86400000)+1)/7);}
+// Viikko ma–su paikallisessa ajassa (sama kuin Kontakti v12:n viikkoraportissa)
+function weekRange(offset){ const now=new Date(); const dow=now.getDay()||7; const mon=new Date(now.getFullYear(),now.getMonth(),now.getDate()-dow+1+7*offset); const sun=new Date(mon.getFullYear(),mon.getMonth(),mon.getDate()+6); return {start:iso(mon),end:iso(sun),week:isoWeek(mon)}; }
+function rangeFor(p){
+  const now=new Date();
+  if(p==='thisWeek') return weekRange(0);
+  if(p==='lastWeek') return weekRange(-1);
+  if(p==='thisMonth') return {start:iso(new Date(now.getFullYear(),now.getMonth(),1)),end:iso(new Date(now.getFullYear(),now.getMonth()+1,0))};
+  if(p==='lastMonth') return {start:iso(new Date(now.getFullYear(),now.getMonth()-1,1)),end:iso(new Date(now.getFullYear(),now.getMonth(),0))};
+  if(p==='ytd') return {start:`${now.getFullYear()}-01-01`,end:iso(now)};
+  return {start:$('start').value,end:$('end').value};
+}
+
+// Kaikki sivut haetaan (palvelimen max-rows voi olla pienempi kuin pyydetty sivu); uusi kysely joka sivulle.
+async function fetchAllRows(build,pageSize=500){
+  const rows=[],seen=new Set(); let from=0,pages=0;
+  for(;;){
+    const r=await build().range(from,from+pageSize-1);
+    if(r.error) throw r.error;
+    const b=r.data||[]; if(!b.length) break;
+    for(const row of b){ if(row.id==null||!seen.has(row.id)){ rows.push(row); if(row.id!=null) seen.add(row.id); } }
+    from+=b.length; if(++pages>10000) throw new Error('Pagination safety limit exceeded');
+  }
+  return rows;
+}
+let ws=null, customerNames=null, lastData=null, loadSeq=0;
+async function boot(){
+  const r=await sb.auth.getUser();
+  if(!r?.data?.user){ location.href='login.html'; return false; }
+  const w=await sb.from('kontakti_workspaces').select('*').limit(1);
+  if(w.error) throw w.error; if(!w.data?.length) throw new Error('workspace');
+  ws=w.data[0];
+  const cs=await fetchAllRows(()=>sb.from('kontakti_customers').select('id,name,city').eq('workspace_id',ws.id).order('id',{ascending:true}));
+  customerNames=new Map(cs.map(c=>[c.id,c]));
+  return true;
+}
+async function load(){
+  const seq=++loadSeq;
+  const p=$('preset').value, r=rangeFor(p);
+  $('customWrap').hidden=$('customWrap2').hidden=p!=='custom';
+  if(p==='custom'){ if(!$('start').value) $('start').value=weekRange(0).start; if(!$('end').value) $('end').value=weekRange(0).end; Object.assign(r,rangeFor('custom')); }
+  if(!r.start||!r.end||r.start>r.end){ $('status').className='status err'; $('status').textContent=t('invalidRange'); return; }
+  $('rangeLabel').textContent=t('rangeText',{start:toFI(r.start),end:toFI(r.end)})+(r.week?` · ${t('week')} ${r.week}`:'');
+  $('status').className='status'; $('status').textContent=t('loading');
+  try{
+    // Myynnin ainoa lähde: kontakti_notes.sales (poistetut pois). customers.sales_ytd:tä ei käytetä.
+    const notes=await fetchAllRows(()=>sb.from('kontakti_notes').select('id,customer_id,note_date,note_type,note_text,purchases_text,sales,created_source,created_at')
+      .eq('workspace_id',ws.id).is('deleted_at',null).gte('note_date',r.start).lte('note_date',r.end)
+      .order('note_date',{ascending:true}).order('created_at',{ascending:true}).order('id',{ascending:true}));
+    if(seq!==loadSeq) return;
+    lastData={range:r,notes};
+    render();
+    $('status').textContent='';
+  }catch(e){ if(seq!==loadSeq) return; console.error(e); $('status').className='status err'; $('status').textContent=t('error',{msg:e.message||e}); }
+}
+function summary(notes){
+  const sales=notes.filter(n=>parseNum(n.sales)>0);
+  const total=sales.reduce((s,n)=>s+parseNum(n.sales),0);
+  const by=new Map();
+  notes.forEach(n=>{ const e=by.get(n.customer_id)||{id:n.customer_id,entries:0,sales:0}; e.entries++; e.sales+=parseNum(n.sales); by.set(n.customer_id,e); });
+  return {sales,total,customers:[...by.values()].sort((a,b)=>b.sales-a.sales||b.entries-a.entries)};
+}
+const nameOf=id=>customerNames.get(id)?.name||t('customerFallback');
+function render(){
+  const {notes}=lastData, s=summary(notes);
+  const stat=(k,v,id)=>`<div class="stat"><div class="k">${esc(t(k))}</div><div class="v" ${id?`id="${id}"`:''}>${esc(v)}</div></div>`;
+  $('stats').innerHTML=stat('salesTotal',fmtAmount(s.total),'statSalesTotal')+stat('salesEntries',String(s.sales.length),'statSalesEntries')
+    +stat('entryCount',String(notes.length),'statEntries')+stat('customers',String(s.customers.length),'statCustomers')
+    +stat('avgSale',s.sales.length?fmtAmount(s.total/s.sales.length):'–','statAvg');
+  $('custCount').textContent=t('countText',{n:s.customers.length});
+  $('custTable').innerHTML=s.customers.length?`<table class="stack" id="tblCustomers"><thead><tr><th>${esc(t('colCustomer'))}</th><th class="num">${esc(t('colEntries'))}</th><th class="num">${esc(t('colSales'))}</th></tr></thead><tbody>${
+    s.customers.map(e=>`<tr><td class="wide" data-l="${esc(t('colCustomer'))}">${esc(nameOf(e.id))}${customerNames.get(e.id)?.city?` <span class="muted">· ${esc(customerNames.get(e.id).city)}</span>`:''}</td><td class="num" data-l="${esc(t('colEntries'))}">${e.entries}</td><td class="num" data-l="${esc(t('colSales'))}">${esc(fmtAmount(e.sales))}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">${esc(t('noEntries'))}</div>`;
+  $('entryCount').textContent=t('countText',{n:notes.length});
+  $('entryTable').innerHTML=notes.length?`<table class="stack" id="tblEntries"><thead><tr><th>${esc(t('colDate'))}</th><th>${esc(t('colCustomer'))}</th><th>${esc(t('colNote'))}</th><th>${esc(t('colPurchases'))}</th><th class="num">${esc(t('colSales'))}</th></tr></thead><tbody>${
+    notes.map(n=>`<tr><td data-l="${esc(t('colDate'))}">${esc(toFI(n.note_date))}</td><td data-l="${esc(t('colCustomer'))}">${esc(nameOf(n.customer_id))}${n.created_source===LEGACY_MIGRATION_SOURCE?`<span class="tag">${esc(t('legacy'))}</span>`:''}</td><td class="wide pre" data-l="${esc(t('colNote'))}">${esc(n.note_text||'–')}</td><td class="wide pre" data-l="${esc(t('colPurchases'))}">${esc(n.purchases_text||'–')}</td><td class="num" data-l="${esc(t('colSales'))}">${parseNum(n.sales)>0?esc(fmtAmount(n.sales)):'–'}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">${esc(t('noEntries'))}</div>`;
+}
+function asText(){
+  if(!lastData) return '';
+  const {range,notes}=lastData, s=summary(notes);
+  const lines=[t('reportTitle'),t('rangeText',{start:toFI(range.start),end:toFI(range.end)}),'',
+    `${t('salesTotal')}: ${fmtAmount(s.total)}`,`${t('salesEntries')}: ${s.sales.length}`,`${t('entryCount')}: ${notes.length}`,`${t('customers')}: ${s.customers.length}`,'',
+    t('byCustomer')+':',...s.customers.map(e=>`- ${nameOf(e.id)}: ${fmtAmount(e.sales)} (${e.entries})`),'',t('entries')+':'];
+  notes.forEach(n=>{ lines.push(`- ${toFI(n.note_date)} | ${nameOf(n.customer_id)}${parseNum(n.sales)>0?' | '+fmtAmount(n.sales):''}`); if(n.note_text) lines.push('  '+n.note_text); if(n.purchases_text) lines.push('  '+t('colPurchases')+': '+n.purchases_text); });
+  return lines.join('\n');
+}
+$('preset').addEventListener('change',load);
+$('start').addEventListener('change',load);
+$('end').addEventListener('change',load);
+$('btnPrint').addEventListener('click',()=>window.print());
+$('btnCopy').addEventListener('click',async()=>{ const txt=asText(); try{ await navigator.clipboard.writeText(txt); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } $('status').className='status'; $('status').textContent=t('copied'); });
+(async()=>{
+  $('status').textContent=t('loading');
+  try{ if(await boot()) await load(); }
+  catch(e){ console.error(e); $('status').className='status err'; $('status').textContent=t('error',{msg:e.message||e}); }
+})();
+</script>
+</body>
+</html>

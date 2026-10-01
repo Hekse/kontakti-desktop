@@ -42,6 +42,19 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .pill{font-size:11.5px;font-weight:560;color:var(--text);background:rgba(var(--tint),.07);border:1px solid rgba(var(--tint),.14);padding:2px 8px;border-radius:999px;flex:0 0 auto}
 .pill.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.16);font-weight:600}
 .nav-btn .pill{background:none;border:0;padding:0 2px;font-size:12px;font-weight:450;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+/* Natiivit kontrollit (select-listat, päivämäärävalitsin) teeman mukaisiksi */
+:root{color-scheme:dark} :root[data-theme="light"]{color-scheme:light}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat-card{border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:14px;padding:10px 12px;min-width:0}
+.stat-card .k{font-size:11.5px;color:var(--muted)}
+.stat-card .v{font-size:19px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-table{width:100%;border-collapse:collapse;font-size:13px}
+.mini-table th{font-size:11px;font-weight:460;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid rgba(var(--tint),.12)}
+.mini-table td{padding:7px 8px;border-bottom:1px solid rgba(var(--tint),.07);vertical-align:top;overflow-wrap:anywhere}
+.mini-table .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.week-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dup-warn[hidden]{display:none}
+.dup-warn{border:1px solid rgba(255,204,102,.45);background:rgba(255,204,102,.08);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:8px}
 .edit-banner{font-size:12px;color:var(--muted);border:1px dashed rgba(45,107,255,.45);background:rgba(45,107,255,.07);border-radius:10px;padding:7px 10px;margin-bottom:8px}
 .note-edit{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;font-weight:450;padding:4px 8px;margin:4px 0 0 -8px;border-radius:8px;cursor:pointer}
 .note-edit:hover,.note-edit:focus-visible{color:var(--text);background:rgba(var(--tint),.06)}
@@ -424,6 +437,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
             <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta..."></div>
           </div>
           <div class="right">
+            <button class="btn subtle" id="btnNewCustomer" type="button" style="font-weight:500" data-i18n="newCustomerBtn">＋ Lisää asiakas</button>
             <button class="btn subtle" id="btnRefresh" type="button" style="font-weight:500">↻ Päivitä</button>
           </div>
         </header>
@@ -458,6 +472,7 @@ const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable
 const $=id=>document.getElementById(id);
 let user=null,ws=null,cs=[],ns=[],sel=null,view='today',search='',colorPriority='',customerSort='newest',historyOpen=false,editingCustomer=false;
 let editingNoteId=null, formStash=null, saveInFlight=false;
+let editingPurchaseId=null, purchStash=null, creatingCustomer=false, newCustSaving=false, weekOffset=0;
 let filterPanelOpen=false;
 let sortPanelOpen=false;
 const LS_THEME='kontakti_theme';
@@ -521,6 +536,14 @@ const TRANSLATIONS={
     weeklyHint:'Näyttää nykyisen viikon (ma 00:00 – su 23:59), ei kuluvaa kuukautta.',
     weekLabel:'Viikko {n} / {year}', entriesCount:'Merkintöjä: {n}', weekRangeSub:'Viikko {n}: {start} – {end} (ma–su)', customerFallback:'Asiakas',
     footerLine1:'© 2026 Opero', footerLine2:'Kaikki oikeudet pidätetään.',
+    newCustomerBtn:'＋ Lisää asiakas', newCustomerTitle:'Uusi asiakas', newCustomerSub:'Vain nimi on pakollinen. Muut tiedot voi täydentää myöhemmin.',
+    saveCustomerBtn:'Tallenna asiakas', customerAdded:'Asiakas lisätty', customerNotSaved:'Asiakasta ei tallennettu. Tarkista käyttöoikeudet.',
+    dupWarn:'Samanniminen asiakas on jo olemassa: {name}. Lisätäänkö silti uusi asiakas?', saveAnyway:'Tallenna silti', openExisting:'Avaa olemassa oleva',
+    editPurchase:'Muokkaa edellistä ostosta', editingPurchase:'Muokkaat ostosta päivältä {date}', purchaseUpdated:'Ostos päivitetty',
+    purchaseEditEmpty:'Kirjoita ostokset tai summa. Koko merkinnän voi poistaa historiasta (Poista merkintä).', invalidAmount:'Tarkista summa (esim. 48 tai 48,50).',
+    weekPrev:'‹ Edellinen viikko', weekCurrent:'Tämä viikko', weekNext:'Seuraava viikko ›', weekSalesTotal:'Myynti yhteensä', weekSalesEntries:'Myyntikirjaukset',
+    weekEntries:'Merkinnät', weekCustomers:'Asiakkaat', salesByCustomer:'Myynti asiakkaittain', colCustomer:'Asiakas', colEntries:'Merkinnät', colSales:'Myynti €',
+    noEntriesThisWeek:'Ei merkintöjä tällä viikolla.', weekTotalLine:'Myynti yhteensä: {amount} ({n} myyntikirjausta)', weeklyListSummary:'Myynti {amount} · merkintöjä {n}',
     noteOrActionRequired:'Kirjoita muistiinpano tai muuta seuraavaa toimenpidettä tai päivää.', purchasesRequired:'Kirjoita ostokset tai myyntisumma.',
     savePurchases:'Tallenna ostokset', purchasesSaved:'Ostokset tallennettu', nextActionSaved:'Seuraava toimenpide päivitetty',
     editLatest:'Muokkaa viimeisintä', editingNote:'Muokataan merkintää {date}', noteEmpty:'Muistiinpano ei voi olla tyhjä.',
@@ -621,6 +644,14 @@ const TRANSLATIONS={
     weeklyHint:'Shows the current week (Mon 00:00 – Sun 23:59), not the current month.',
     weekLabel:'Week {n} / {year}', entriesCount:'Entries: {n}', weekRangeSub:'Week {n}: {start} – {end} (Mon–Sun)', customerFallback:'Customer',
     footerLine1:'© 2026 Opero', footerLine2:'All rights reserved.',
+    newCustomerBtn:'＋ Add customer', newCustomerTitle:'New customer', newCustomerSub:'Only the name is required. Other details can be added later.',
+    saveCustomerBtn:'Save customer', customerAdded:'Customer added', customerNotSaved:'The customer was not saved. Check permissions.',
+    dupWarn:'A customer with this name already exists: {name}. Add a new customer anyway?', saveAnyway:'Save anyway', openExisting:'Open existing',
+    editPurchase:'Edit previous purchase', editingPurchase:'Editing purchase from {date}', purchaseUpdated:'Purchase updated',
+    purchaseEditEmpty:'Enter purchases or an amount. The whole entry can be deleted from the history (Delete entry).', invalidAmount:'Check the amount (e.g. 48 or 48.50).',
+    weekPrev:'‹ Previous week', weekCurrent:'This week', weekNext:'Next week ›', weekSalesTotal:'Total sales', weekSalesEntries:'Sales entries',
+    weekEntries:'Entries', weekCustomers:'Customers', salesByCustomer:'Sales by customer', colCustomer:'Customer', colEntries:'Entries', colSales:'Sales €',
+    noEntriesThisWeek:'No entries this week.', weekTotalLine:'Total sales: {amount} ({n} sales entries)', weeklyListSummary:'Sales {amount} · entries {n}',
     noteOrActionRequired:'Write a note or change the next action or date.', purchasesRequired:'Enter purchases or a sales amount.',
     savePurchases:'Save purchases', purchasesSaved:'Purchases saved', nextActionSaved:'Next action updated',
     editLatest:'Edit latest', editingNote:'Editing entry from {date}', noteEmpty:'The note cannot be empty.',
@@ -726,7 +757,16 @@ const fmtMoney=n=>parseNum(n).toLocaleString(LANG==='en'?'en-GB':'fi-FI',{maximu
 function contactStatus(lastContact){if(!lastContact)return{cls:'gray',text:t('noContact')};const d=daysBetween(lastContact,todayISO());if(d===null)return{cls:'gray',text:t('noContact')};if(d<=30)return{cls:'green',text:d+' '+t('daysSuffix')};if(d<=60)return{cls:'yellow',text:d+' '+t('daysSuffix')};if(d<=90)return{cls:'orange',text:d+' '+t('daysSuffix')};return{cls:'red',text:d+' '+t('daysSuffix')}}
 function dueTag(nextDate){if(!nextDate)return{text:t('noDate'),cls:''};const t0=todayISO();if(nextDate<t0)return{text:t('overdueStatus'),cls:'bad'};if(nextDate===t0)return{text:t('dueToday'),cls:'ok'};return{text:t('upcoming'),cls:''}}
 function isoWeekNumber(d){const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dayNum=date.getUTCDay()||7;date.setUTCDate(date.getUTCDate()+4-dayNum);const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil((((date-yearStart)/86400000)+1)/7)}
-function weekBounds(){const now=new Date();const dow=now.getDay()||7;const mon=new Date(now);mon.setDate(now.getDate()-dow+1);mon.setHours(0,0,0,0);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return{start:localISODate(mon),end:localISODate(sun),weekNum:isoWeekNumber(mon),year:mon.getFullYear()}}
+function weekBounds(offset=0){const now=new Date();const dow=now.getDay()||7;const mon=new Date(now);mon.setDate(now.getDate()-dow+1+7*offset);mon.setHours(0,0,0,0);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return{start:localISODate(mon),end:localISODate(sun),weekNum:isoWeekNumber(mon),year:mon.getFullYear()}}
+// Viikon luvut lasketaan aktiivisista noteista (ns: deleted_at suodatettu, kaikki sivut haettu). Myynti vain kontakti_notes.sales.
+function weekSummary(w){
+  const rows=ns.filter(n=>n.note_date>=w.start&&n.note_date<=w.end).sort((a,b)=>(a.note_date||'').localeCompare(b.note_date||'')||(a.created_at||'').localeCompare(b.created_at||''));
+  const salesRows=rows.filter(n=>parseNum(n.sales)>0);
+  const total=salesRows.reduce((s,n)=>s+parseNum(n.sales),0);
+  const by=new Map();
+  rows.forEach(n=>{ const e=by.get(n.customer_id)||{id:n.customer_id,entries:0,sales:0}; e.entries++; e.sales+=parseNum(n.sales); by.set(n.customer_id,e); });
+  return {rows,salesRows,total,customers:[...by.values()].sort((a,b)=>b.sales-a.sales||b.entries-a.entries)};
+}
 
 // ── Suodata / Järjestä: paikallinen (ei UTC) päivämäärälogiikka ──────────
 const MONTH_NAMES_FI=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
@@ -1095,7 +1135,7 @@ function renderList(){
     const quickHtml=showQuick?`<div class="quick-row"><button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
     const salesTagHtml=view==='customers'?periodSalesTags(c):`<span class="tag">${esc(t('salesColon'))}: €${esc(fmtMoney(ytdSalesFor(c.id)))}</span>`;
     row.innerHTML=`<div class="row-main"><div class="row-left"><span class="status-dot ${status.cls}"></span><div style="min-width:0;flex:1"><div class="row-name">${esc(c.name||t('unnamed'))}</div><div class="row-meta">${esc(cityText)}${c.phone?`<br>${esc(t('phone'))}: ${esc(c.phone)}`:''}</div></div></div><div class="row-right">${c.priority?'<span class="tag priority">🟣 '+esc(t('priority'))+'</span>':''}</div></div><div class="tagline"><span class="tag ${due.cls}">${esc(t('next'))}: ${esc(toFI(c.next_date))} (${esc(due.text)})</span><span class="tag">${esc(t('lastContact'))}: ${esc(toFI(c.last_contact))} (${esc(status.text)})</span><span class="tag">${esc(actionLabel(c.next_action||'Soitto'))}</span>${salesTagHtml}</div>${quickHtml}`;
-    row.onclick=(e)=>{ if(e.target.closest('[data-qa]')) return; sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
+    row.onclick=(e)=>{ if(e.target.closest('[data-qa]')) return; sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };
     wrap.appendChild(row);
   });
   host.appendChild(wrap);
@@ -1107,9 +1147,8 @@ function renderSettingsList(){
   $('btnSignOutList')?.addEventListener('click',doSignOut);
 }
 function renderWeeklyList(){
-  const {start,end}=weekBounds();
-  const rows=ns.filter(n=>n.note_date>=start&&n.note_date<=end);
-  $('list').innerHTML=`<div class="empty">${esc(t('entriesCount',{n:rows.length}))}</div>`;
+  const s=weekSummary(weekBounds(weekOffset));
+  $('list').innerHTML=`<div class="empty">${esc(t('weeklyListSummary',{amount:fmtAmount(s.total),n:s.rows.length}))}</div>`;
 }
 
 // Pikatoiminnot: yksi klikkaus = yksi merkintä/päivitys. Saman asiakkaan toiminto ei käynnisty uudelleen
@@ -1218,6 +1257,7 @@ const nextActionOptions=['Soitto','Tapaaminen','Tarjous','Seuranta','Sähköpost
 function renderDetail(){
   if(view==='settings') return renderSettingsDetail();
   if(view==='weekly') return renderWeeklyDetail();
+  if(creatingCustomer) return renderNewCustomerDetail();
   const c=cs.find(x=>x.id===sel);
   if(!c){
     $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('selectCustomer'))}</h2>`;
@@ -1283,17 +1323,12 @@ function renderDetail(){
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('purchases'))}</div></div>
       <div class="split2">
-        <div class="split-col">
-          <div class="split-col-label">${esc(t('newPurchase'))}</div>
-          <div class="field"><textarea id="purchasesText" placeholder="${esc(t('purchasesPlaceholder'))}"></textarea></div>
-          <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
-          <div class="hint err" id="purchaseSaveError" hidden></div>
-          <div class="actions"><button class="btn primary saveflash" id="btnSavePurchases" type="button">${esc(t('savePurchases'))}</button></div>
-        </div>
+        ${purchaseLeftCol(c)}
         <div class="split-col divider">
           <div class="split-col-label">${esc(t('previousPurchases'))}</div>
           ${(()=>{ const rp=recentPurchasesFor(c.id,5); return rp.length ? rp.map(n=>`<div class="prev-entry"><div class="prev-date">${esc(toFI(n.note_date))}</div>${n.purchases_text?`<div class="prev-text">${esc(n.purchases_text)}</div>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}</div>`).join('') : `<div class="hint">${esc(t('noEntriesYet'))}</div>`; })()}
           <div class="total-sales">${esc(t('customerTotalSales'))}: €${esc(fmtMoney(totalSalesFor(c.id)))}</div>
+          ${!editingPurchaseId&&latestPurchaseNote(c.id)?`<button class="note-edit" id="btnEditPurchase" type="button">${esc(t('editPurchase'))}</button>`:''}
         </div>
       </div>
     </div>
@@ -1338,6 +1373,9 @@ function wireDetail(c,tel,mail,mapsUrl){
   $('btnEditLatest')?.addEventListener('click',()=>startEditLatest(c));
   $('btnCancelEditNote')?.addEventListener('click',cancelEditNote);
   $('btnSaveEditNote')?.addEventListener('click',()=>saveEditedNote(c));
+  $('btnEditPurchase')?.addEventListener('click',()=>startEditPurchase(c));
+  $('btnCancelEditPurchase')?.addEventListener('click',endEditPurchase);
+  $('btnSaveEditPurchase')?.addEventListener('click',()=>saveEditedPurchase(c));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
   $('btnEditCustomer')?.addEventListener('click',()=>{ editingCustomer=true; renderDetail(); });
   $('btnCancelCustomerEdit')?.addEventListener('click',()=>{ editingCustomer=false; renderDetail(); });
@@ -1545,7 +1583,8 @@ async function deleteAllCustomers(){
 // Toimenpide-nappi tallentaa muistiinpanon ja/tai seuraavan toimenpiteen; ostokset tallennetaan omana
 // rivinään eivätkä muuta asiakkaan seuraavaa toimenpidettä. Myynti elää vain kontakti_notes.sales-riveillä.
 // saveInFlight estää tuplaklikkauksen: sama kirjaus ei voi lähteä kahdesti.
-const FORM_IDS=['noteText','nextActionSelect','nextDateInput','purchasesText','salesInput'];
+const FORM_IDS=['noteText','nextActionSelect','nextDateInput','purchasesText','salesInput','editNoteText','editPurchasesText','editSalesInput'];
+const omitKeys=(o,keys)=>Object.fromEntries(Object.entries(o||{}).filter(([k])=>!keys.includes(k)));
 function captureForm(ids=FORM_IDS){ const d={}; ids.forEach(id=>{ const el=$(id); if(el) d[id]=el.value; }); return d; }
 function restoreForm(d){ if(d) Object.entries(d).forEach(([id,v])=>{ const el=$(id); if(el) el.value=v; }); }
 function showFormError(id,msg){ const el=$(id); if(el){ el.textContent=msg; el.hidden=false; } }
@@ -1579,8 +1618,8 @@ async function saveNote(c){
     const patch=noteText?{last_contact:today,next_date:nextDateVal,next_action:actionType}:{next_date:nextDateVal,next_action:actionType};
     const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
     if(ur.error) throw ur.error;
-    const keep=captureForm(['purchasesText','salesInput']);
-    await load(); sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; renderAll();
+    const keep=captureForm(['purchasesText','salesInput','editPurchasesText','editSalesInput']);
+    await load(); sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll();
     restoreForm(keep);
     buttonSaved($('btnSaveNote'),'✓ '+t('saveEntry'));
     if(!noteText) toast(t('nextActionSaved'));
@@ -1597,7 +1636,7 @@ async function savePurchases(c){
     const w=await workspace(); const today=todayISO();
     // Ostosrivi ei kirjoita muistiinpanoa eikä muuta asiakkaan next_action/next_date/sales_ytd-kenttiä.
     await insertNoteRow({workspace_id:w.id,customer_id:c.id,note_type:null,note_text:null,purchases_text:purchasesText||null,sales:sales||0,note_date:today,next_date:null,created_source:'cloud-ui-v12'});
-    const keep=captureForm(['noteText','nextActionSelect','nextDateInput']);
+    const keep=captureForm(['noteText','nextActionSelect','nextDateInput','editNoteText']);
     await load(); sel=c.id; renderAll();
     restoreForm(keep);
     buttonSaved($('btnSavePurchases'),'✓ '+t('savePurchases'));
@@ -1608,11 +1647,11 @@ async function savePurchases(c){
 function startEditLatest(c){
   const n=latestTextNote(c.id); if(!n) return;
   formStash=captureForm(); editingNoteId=n.id;
-  renderDetail(); restoreForm({purchasesText:formStash.purchasesText,salesInput:formStash.salesInput});
+  renderDetail(); restoreForm(omitKeys(formStash,['editNoteText']));
   const ta=$('editNoteText'); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); }
 }
 function endEditNote(){
-  const keep=captureForm(['purchasesText','salesInput']);
+  const keep=omitKeys(captureForm(),['editNoteText']);
   editingNoteId=null; renderAll();
   restoreForm({...(formStash||{}),...keep}); formStash=null;
 }
@@ -1640,6 +1679,148 @@ async function saveEditedNote(c){
   }catch(e){ showFormError('editNoteError',t('saveError',{msg:e.message})); }
   finally{ saveInFlight=false; const b=$('btnSaveEditNote'); if(b) b.disabled=false; }
 }
+// ── Edellisen ostoksen muokkaus ─────────────────────────────────────────
+// Muokattava: uusin aktiivinen rivi, jossa on ostosteksti tai myyntiä, ei legacy-migraatioriviä.
+// Sama rivi päivitetään (purchases_text + sales); myyntiluvut lasketaan noteista, sales_ytd ei muutu.
+function canEditPurchase(n){ return !!n&&n.created_source!==LEGACY_MIGRATION_SOURCE&&(!!(n.purchases_text||'').trim()||parseNum(n.sales)>0); }
+function latestPurchaseNote(customerId){ return notesForCustomer(customerId).find(canEditPurchase)||null; }
+function purchaseLeftCol(c){
+  const ep=editingPurchaseId?ns.find(n=>n.id===editingPurchaseId&&n.customer_id===c.id&&canEditPurchase(n)):null;
+  if(ep) return `<div class="split-col">
+          <div class="edit-banner">${esc(t('editingPurchase',{date:toFI(ep.note_date)}))}</div>
+          <div class="field"><textarea id="editPurchasesText" placeholder="${esc(t('purchasesPlaceholder'))}">${esc(ep.purchases_text||'')}</textarea></div>
+          <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="editSalesInput" inputmode="decimal" placeholder="0" value="${esc(parseNum(ep.sales)?String(parseNum(ep.sales)).replace('.',','):'')}"></div>
+          <div class="hint err" id="editPurchaseError" hidden></div>
+          <div class="actions"><button class="btn subtle" id="btnCancelEditPurchase" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveEditPurchase" type="button">${esc(t('saveChanges'))}</button></div>
+        </div>`;
+  return `<div class="split-col">
+          <div class="split-col-label">${esc(t('newPurchase'))}</div>
+          <div class="field"><textarea id="purchasesText" placeholder="${esc(t('purchasesPlaceholder'))}"></textarea></div>
+          <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
+          <div class="hint err" id="purchaseSaveError" hidden></div>
+          <div class="actions"><button class="btn primary saveflash" id="btnSavePurchases" type="button">${esc(t('savePurchases'))}</button></div>
+        </div>`;
+}
+const validAmount=v=>{ const s=String(v||'').replace(/\s/g,''); return !s||/^\d+([.,]\d{1,2})?$/.test(s); };
+function startEditPurchase(c){
+  const n=latestPurchaseNote(c.id); if(!n) return;
+  purchStash=captureForm(); editingPurchaseId=n.id;
+  renderDetail(); restoreForm(omitKeys(purchStash,['editPurchasesText','editSalesInput']));
+  const ta=$('editPurchasesText'); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); }
+}
+function endEditPurchase(){
+  const keep=omitKeys(captureForm(),['editPurchasesText','editSalesInput']);
+  editingPurchaseId=null; renderAll();
+  restoreForm({...omitKeys(purchStash,['editPurchasesText','editSalesInput']),...keep}); purchStash=null;
+}
+async function saveEditedPurchase(c){
+  if(saveInFlight) return;
+  const n=ns.find(x=>x.id===editingPurchaseId);
+  if(!n||n.customer_id!==c.id||!canEditPurchase(n)){ endEditPurchase(); return; }
+  const text=($('editPurchasesText').value||'').trim(), salesRaw=($('editSalesInput').value||'').trim();
+  if(!validAmount(salesRaw)){ showFormError('editPurchaseError',t('invalidAmount')); return; }
+  const sales=parseNum(salesRaw);
+  if(!text&&!(sales>0)){ showFormError('editPurchaseError',t('purchaseEditEmpty')); return; }
+  if(text===(n.purchases_text||'').trim()&&sales===parseNum(n.sales)){ endEditPurchase(); return; }
+  saveInFlight=true; const btn=$('btnSaveEditPurchase'); if(btn) btn.disabled=true;
+  try{
+    const w=await workspace();
+    const ur=await sb.from('kontakti_notes').update({purchases_text:text||null,sales}).eq('id',n.id).eq('workspace_id',w.id);
+    if(ur.error) throw ur.error;
+    // RLS voi ohittaa päivityksen hiljaa -> varmistetaan että arvot todella muuttuivat.
+    const chk=await sb.from('kontakti_notes').select('id,purchases_text,sales').eq('id',n.id).eq('workspace_id',w.id);
+    if(chk.error) throw chk.error;
+    const got=chk.data&&chk.data[0];
+    if(!got||(got.purchases_text||'')!==text||parseNum(got.sales)!==sales) throw new Error(t('noteUpdateNotApplied'));
+    n.purchases_text=text||null; n.sales=sales;
+    endEditPurchase();
+    toast(t('purchaseUpdated'));
+  }catch(e){ showFormError('editPurchaseError',t('saveError',{msg:e.message})); }
+  finally{ saveInFlight=false; const b=$('btnSaveEditPurchase'); if(b) b.disabled=false; }
+}
+
+// ── Uusi asiakas ───────────────────────────────────────────────────────
+// Vain nimi on pakollinen. Samanniminen asiakas (sama Y-tunnus + nimi, nimi + kaupunki tai pelkkä nimi
+// ilman ristiriitaista kaupunkia / Y-tunnusta) antaa varoituksen; jaettu Y-tunnus eri nimellä on sallittu.
+const normKey=s=>String(s??'').trim().toLowerCase().replace(/\s+/g,' ');
+function findCustomerDup(b){
+  const n=normKey(b.name), c=normKey(b.city), bid=normKey(b.business_id);
+  if(bid){ const m=cs.find(e=>normKey(e.business_id)===bid&&normKey(e.name)===n); if(m) return m; }
+  if(c){ const m=cs.find(e=>normKey(e.name)===n&&normKey(e.city)===c); if(m) return m; }
+  return cs.find(e=>normKey(e.name)===n&&!(bid&&normKey(e.business_id)&&normKey(e.business_id)!==bid)&&!(c&&normKey(e.city)&&normKey(e.city)!==c))||null;
+}
+function openNewCustomer(){
+  creatingCustomer=true; editingCustomer=false; historyOpen=false; editingNoteId=null; editingPurchaseId=null;
+  if(view!=='today'&&view!=='customers') view='customers';
+  renderAll();
+  if(window.matchMedia('(max-width:680px)').matches) $('detailCard')?.classList.add('show');
+  $('ncName')?.focus();
+}
+function renderNewCustomerDetail(){
+  $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('newCustomerTitle'))}</h2>`;
+  $('detailSub').textContent=t('newCustomerSub');
+  const optHtml=nextActionOptions.map(x=>`<option value="${esc(x)}" ${x==='Soitto'?'selected':''}>${esc(actionLabel(x))}</option>`).join('');
+  $('detailBody').innerHTML=`
+    <div class="note-box">
+      ${editField('ncName',t('customerName')+' *','')}
+      <div class="grid2">${editField('ncBusinessId',t('businessId'),'')}${editField('ncCity',t('cityFieldLabel'),'')}</div>
+      <div class="grid2">${editField('ncRegion',t('regionFieldLabel'),'')}${editField('ncCountry',t('countryFieldLabel'),'FI')}</div>
+      <div class="grid2">${editField('ncPhone',t('phone'),'','tel')}${editField('ncEmail',t('email'),'','email')}</div>
+      <div class="grid2">${editField('ncContactPerson',t('contactPerson'),'')}${editField('ncOwnerName',t('ownerName'),'')}</div>
+      <div class="grid2">${editField('ncContactPhone',t('contactPhone'),'','tel')}${editField('ncContactEmail',t('contactEmail'),'','email')}</div>
+      ${editField('ncAddress',t('address'),'')}
+      <div class="grid2">
+        <div class="field"><div class="label">${esc(t('nextAction'))}</div><select id="ncNextAction">${optHtml}</select></div>
+        <div class="field"><div class="label">${esc(t('nextDate'))}</div><input id="ncNextDate" type="date"></div>
+      </div>
+      <div class="dup-warn" id="ncDup" hidden></div>
+      <div class="hint err" id="ncError" hidden></div>
+      <div class="actions"><button class="btn subtle" id="btnCancelNewCustomer" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveNewCustomer" type="button">${esc(t('saveCustomerBtn'))}</button></div>
+    </div>`;
+  $('btnCancelNewCustomer').addEventListener('click',()=>{ creatingCustomer=false; renderAll(); });
+  $('btnSaveNewCustomer').addEventListener('click',()=>saveNewCustomer(false));
+  $('ncName').addEventListener('keydown',e=>{ if(e.key==='Enter') saveNewCustomer(false); });
+}
+async function saveNewCustomer(force){
+  if(newCustSaving) return;
+  const val=id=>(($(id)||{}).value||'').trim();
+  $('ncError').hidden=true;
+  const name=val('ncName');
+  if(!name){ showFormError('ncError',t('nameRequiredError')); $('ncName').focus(); return; }
+  const base={name,business_id:val('ncBusinessId')||null,city:val('ncCity')||null,region:val('ncRegion')||null,country:val('ncCountry')||'FI',
+    phone:val('ncPhone')||null,email:val('ncEmail')||null,contact_person:val('ncContactPerson')||null,address:val('ncAddress')||null,
+    next_action:$('ncNextAction').value||'Soitto',next_date:val('ncNextDate')||null};
+  if(!force){
+    const d=findCustomerDup(base);
+    if(d){
+      const box=$('ncDup');
+      box.innerHTML=`<div>${esc(t('dupWarn',{name:[d.name,d.city].filter(Boolean).join(', ')}))}</div><div class="actions"><button class="btn subtle" id="btnOpenExisting" type="button">${esc(t('openExisting'))}</button><button class="btn primary" id="btnSaveAnyway" type="button">${esc(t('saveAnyway'))}</button></div>`;
+      box.hidden=false;
+      $('btnOpenExisting').addEventListener('click',()=>{ creatingCustomer=false; sel=d.id; view='customers'; renderAll(); });
+      $('btnSaveAnyway').addEventListener('click',()=>saveNewCustomer(true));
+      return;
+    }
+  }
+  newCustSaving=true;
+  const btns=['btnSaveNewCustomer','btnSaveAnyway'].map(id=>$(id)).filter(Boolean); btns.forEach(b=>b.disabled=true);
+  try{
+    const w=await workspace();
+    // Uusi asiakas vain omaan workspaceen; sales_ytd jätetään kannan oletukseen (myynti tulee noteista).
+    const row={...base,workspace_id:w.id,priority:false,mobile_visible:true,created_source:'cloud-ui-v12'};
+    const ext={...row,owner_name:val('ncOwnerName')||null,contact_phone:val('ncContactPhone')||null,contact_email:val('ncContactEmail')||null};
+    let r=await sb.from('kontakti_customers').insert(ext).select().single();
+    if(r.error&&/owner_name|contact_phone|contact_email|column|schema cache/i.test(r.error.message||'')) r=await sb.from('kontakti_customers').insert(row).select().single();
+    if(r.error) throw r.error;
+    if(!r.data||!r.data.id) throw new Error(t('customerNotSaved'));
+    cs.push(r.data);
+    creatingCustomer=false; sel=r.data.id; view='customers'; search=''; if($('search')) $('search').value='';
+    populateAreaDropdowns(); renderAll();
+    document.querySelector('#list .row.active')?.scrollIntoView({block:'nearest'});
+    toast(t('customerAdded'));
+  }catch(e){ showFormError('ncError',t('saveError',{msg:e.message})); }
+  finally{ newCustSaving=false; btns.forEach(b=>b.disabled=false); }
+}
+
 async function togglePriority(c){
   try{
     const ur=await sb.from('kontakti_customers').update({priority:!c.priority}).eq('id',c.id);
@@ -1757,20 +1938,42 @@ async function doSignOut(){
   window.location.href='login.html';
 }
 function renderWeeklyDetail(){
-  const w=weekBounds();
-  const rows=ns.filter(n=>n.note_date>=w.start&&n.note_date<=w.end);
+  const w=weekBounds(weekOffset), s=weekSummary(w);
   const names=Object.fromEntries(cs.map(c=>[c.id,c.name]));
-  const lines=rows.slice().sort((a,b)=>(a.note_date||'').localeCompare(b.note_date||'')).map(n=>{
+  const lines=s.rows.map(n=>{
     const head=`${toFI(n.note_date)} — ${names[n.customer_id]||t('customerFallback')} — ${actionLabel(n.note_type||'')}`;
     const body=[n.note_text,n.purchases_text].filter(Boolean).join('\n');
-    const tail=n.sales?` — €${fmtMoney(n.sales)}`:'';
+    const tail=parseNum(n.sales)>0?` — ${fmtAmount(n.sales)}`:'';
     return head+tail+(body?`\n${body}`:'');
   }).join('\n\n');
-  const header=t('weekLabel',{n:w.weekNum,year:w.year})+`\n${toFI(w.start)} – ${toFI(w.end)}\n\n`+t('entriesCount',{n:rows.length})+'\n\n';
+  const header=t('weekLabel',{n:w.weekNum,year:w.year})+`\n${toFI(w.start)} – ${toFI(w.end)}\n\n`
+    +t('weekTotalLine',{amount:fmtAmount(s.total),n:s.salesRows.length})+'\n'+t('entriesCount',{n:s.rows.length})+'\n\n';
+  const custRows=s.customers.map(e=>`<tr><td>${esc(names[e.id]||t('customerFallback'))}</td><td class="num">${e.entries}</td><td class="num">${esc(fmtAmount(e.sales))}</td></tr>`).join('');
   $('detailNameRow').innerHTML=`<h2 id="detailName">${esc(t('weekly'))}</h2>`;
   $('detailSub').textContent=t('weekRangeSub',{n:w.weekNum,start:toFI(w.start),end:toFI(w.end)});
-  $('detailBody').innerHTML=`<div class="note-box"><div class="note-top"><div class="t">${esc(t('copyableReport'))}</div><div class="d">copy–paste</div></div><div class="field"><textarea id="weeklyText" style="min-height:300px">${esc(header+(lines||'–'))}</textarea></div><div class="actions"><button class="btn primary" id="btnCopyWeekly" type="button">${esc(t('copy'))}</button></div><div class="hint">${esc(t('weeklyHint'))}</div></div>`;
+  $('detailBody').innerHTML=`
+    <div class="note-box">
+      <div class="week-nav">
+        <button class="btn subtle" id="btnWeekPrev" type="button">${esc(t('weekPrev'))}</button>
+        <button class="btn subtle" id="btnWeekNow" type="button" ${weekOffset===0?'disabled':''}>${esc(t('weekCurrent'))}</button>
+        <button class="btn subtle" id="btnWeekNext" type="button" ${weekOffset>=0?'disabled':''}>${esc(t('weekNext'))}</button>
+      </div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="k">${esc(t('weekSalesTotal'))}</div><div class="v" id="weekSalesTotal">${esc(fmtAmount(s.total))}</div></div>
+        <div class="stat-card"><div class="k">${esc(t('weekSalesEntries'))}</div><div class="v">${s.salesRows.length}</div></div>
+        <div class="stat-card"><div class="k">${esc(t('weekEntries'))}</div><div class="v">${s.rows.length}</div></div>
+        <div class="stat-card"><div class="k">${esc(t('weekCustomers'))}</div><div class="v">${s.customers.length}</div></div>
+      </div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">${esc(t('salesByCustomer'))}</div></div>
+      ${custRows?`<table class="mini-table" id="weekCustomerTable"><thead><tr><th>${esc(t('colCustomer'))}</th><th class="num">${esc(t('colEntries'))}</th><th class="num">${esc(t('colSales'))}</th></tr></thead><tbody>${custRows}</tbody></table>`:`<div class="hint">${esc(t('noEntriesThisWeek'))}</div>`}
+    </div>
+    <div class="note-box"><div class="note-top"><div class="t">${esc(t('copyableReport'))}</div><div class="d">copy–paste</div></div><div class="field"><textarea id="weeklyText" style="min-height:260px">${esc(header+(lines||'–'))}</textarea></div><div class="actions"><button class="btn primary" id="btnCopyWeekly" type="button">${esc(t('copy'))}</button></div><div class="hint">${esc(t('weeklyHint'))}</div></div>`;
   $('btnCopyWeekly')?.addEventListener('click',async()=>{ const ta=$('weeklyText'); ta.select(); try{ await navigator.clipboard.writeText(ta.value); }catch(e){ document.execCommand('copy'); } toast(t('copied')); });
+  $('btnWeekPrev')?.addEventListener('click',()=>{ weekOffset--; renderAll(); });
+  $('btnWeekNow')?.addEventListener('click',()=>{ weekOffset=0; renderAll(); });
+  $('btnWeekNext')?.addEventListener('click',()=>{ if(weekOffset<0){ weekOffset++; renderAll(); } });
 }
 
 function setHeaders(){
@@ -1778,6 +1981,7 @@ function setHeaders(){
   const toolBtnsVisible = (view==='today'||view==='customers');
   if($('btnFilter')) $('btnFilter').style.display = toolBtnsVisible ? '' : 'none';
   if($('btnSort')) $('btnSort').style.display = toolBtnsVisible ? '' : 'none';
+  if($('btnNewCustomer')) $('btnNewCustomer').style.display = toolBtnsVisible ? '' : 'none';
   if(view==='today'){ pageTitle.textContent=t('today'); searchWrap.style.display='none'; listToolbar.hidden=true; }
   else if(view==='customers'){ pageTitle.textContent=t('customers'); searchWrap.style.display='flex'; listToolbar.hidden=false; }
   else if(view==='weekly'){ pageTitle.textContent=t('weekly'); searchWrap.style.display='none'; listToolbar.hidden=true; }
@@ -1879,16 +2083,23 @@ function renderAll(){
 function positionPanel(btnId,panelId){
   const btn=$(btnId), panel=$(panelId);
   if(!btn||!panel) return;
-  const r=btn.getBoundingClientRect();
-  const top=Math.min(r.bottom+8, window.innerHeight-60);
+  const r=btn.getBoundingClientRect(), vh=window.innerHeight, margin=12;
+  panel.style.maxHeight='';
+  const h=panel.offsetHeight;
+  // Paneeli avautuu napin kohdalle; jos se ei mahdu alas, sitä nostetaan niin että koko paneeli näkyy.
+  // Jos ikkuna on paneelia matalampi, sisältö vierittyy paneelin sisällä.
+  let top=Math.min(r.bottom+8, vh-60);
+  if(top+h>vh-margin) top=Math.max(margin, vh-margin-h);
   const left=Math.max(12, Math.min(r.right+10, window.innerWidth-panel.offsetWidth-12));
   panel.style.top=top+'px'; panel.style.left=left+'px'; panel.style.right='auto';
+  panel.style.maxHeight=(vh-top-margin)+'px';
 }
 
 function wire(){
-  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; editingCustomer=false; editingNoteId=null; $('detailCard')?.classList.remove('show'); if(filterPanelOpen){ syncFilterPanelInputs(); } if(sortPanelOpen){ syncSortPanelInputs(); } renderAll(); }));
+  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; $('detailCard')?.classList.remove('show'); if(filterPanelOpen){ syncFilterPanelInputs(); } if(sortPanelOpen){ syncSortPanelInputs(); } renderAll(); }));
   $('search')?.addEventListener('input',e=>{ search=e.target.value||''; renderList(); });
   $('btnRefresh')?.addEventListener('click',load);
+  $('btnNewCustomer')?.addEventListener('click',openNewCustomer);
   document.querySelectorAll('.filter-dot').forEach(btn=>btn.addEventListener('click',()=>{ const c=btn.dataset.color||''; colorPriority=colorPriority===c?'':c; renderAll(); }));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
 
