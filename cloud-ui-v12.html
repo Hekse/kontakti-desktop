@@ -111,6 +111,11 @@ body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradie
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:var(--r22);box-shadow:var(--shadow);padding:12px 14px}
 .topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:15.5px;font-weight:600;white-space:nowrap}
 header.list-topbar{background:none;border:none;box-shadow:none;backdrop-filter:none;border-radius:0;padding:14px 14px 10px;border-bottom:1px solid rgba(var(--tint),.12);flex:0 0 auto}
+/* Kapealla listapalstalla (läppärit) painikkeet rivittyvät omalle rivilleen hakukentän alle, eivät mene sen päälle */
+header.list-topbar{flex-wrap:wrap;row-gap:10px}
+header.list-topbar .left{flex:1 1 auto}
+header.list-topbar .search{min-width:150px}
+header.list-topbar .right{display:flex;gap:8px;flex:0 0 auto;margin-left:auto}
 .search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;background:rgba(var(--tint),.04);border:1px solid rgba(var(--tint),.16);border-radius:999px;padding:10px 12px;max-width:520px}
 .search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-weight:400}.search input::placeholder{color:var(--muted)}
 .content{flex:1;min-height:0;display:grid;grid-template-columns:40% 60%;gap:14px}
