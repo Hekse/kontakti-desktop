@@ -190,12 +190,18 @@ async function boot(){
   customerNames=new Map(cs.map(c=>[c.id,c]));
   return true;
 }
+// Tyhjentää edellisen raportin tulokset, jotta virhetilassa ei näy vanhan aikavälin dataa.
+function clearResults(){
+  lastData=null;
+  $('rangeLabel').textContent='';
+  $('stats').innerHTML=''; $('custTable').innerHTML=''; $('entryTable').innerHTML='';
+  $('custCount').textContent=''; $('entryCount').textContent='';
+}
 async function load(){
-  const seq=++loadSeq;
+  const seq=++loadSeq;   // keskeyttää myös mahdollisen kesken olevan aiemman haun
   const p=$('preset').value, r=rangeFor(p);
   $('customWrap').hidden=$('customWrap2').hidden=p!=='custom';
-  if(p==='custom'){ if(!$('start').value) $('start').value=weekRange(0).start; if(!$('end').value) $('end').value=weekRange(0).end; Object.assign(r,rangeFor('custom')); }
-  if(!r.start||!r.end||r.start>r.end){ $('status').className='status err'; $('status').textContent=t('invalidRange'); return; }
+  if(!r.start||!r.end||r.start>r.end){ clearResults(); $('status').className='status err'; $('status').textContent=t('invalidRange'); return; }
   $('rangeLabel').textContent=t('rangeText',{start:toFI(r.start),end:toFI(r.end)})+(r.week?` · ${t('week')} ${r.week}`:'');
   $('status').className='status'; $('status').textContent=t('loading');
   try{
@@ -207,7 +213,7 @@ async function load(){
     lastData={range:r,notes};
     render();
     $('status').textContent='';
-  }catch(e){ if(seq!==loadSeq) return; console.error(e); $('status').className='status err'; $('status').textContent=t('error',{msg:e.message||e}); }
+  }catch(e){ if(seq!==loadSeq) return; console.error(e); clearResults(); $('status').className='status err'; $('status').textContent=t('error',{msg:e.message||e}); }
 }
 function summary(notes){
   const sales=notes.filter(n=>parseNum(n.sales)>0);
@@ -239,11 +245,15 @@ function asText(){
   notes.forEach(n=>{ lines.push(`- ${toFI(n.note_date)} | ${nameOf(n.customer_id)}${parseNum(n.sales)>0?' | '+fmtAmount(n.sales):''}`); if(n.note_text) lines.push('  '+n.note_text); if(n.purchases_text) lines.push('  '+t('colPurchases')+': '+n.purchases_text); });
   return lines.join('\n');
 }
-$('preset').addEventListener('change',load);
+// Omaan aikaväliin siirryttäessä tyhjät kentät esitäytetään kuluvalla viikolla; käyttäjän tyhjentämää kenttää ei täytetä.
+$('preset').addEventListener('change',()=>{
+  if($('preset').value==='custom'){ const w=weekRange(0); if(!$('start').value) $('start').value=w.start; if(!$('end').value) $('end').value=w.end; }
+  load();
+});
 $('start').addEventListener('change',load);
 $('end').addEventListener('change',load);
 $('btnPrint').addEventListener('click',()=>window.print());
-$('btnCopy').addEventListener('click',async()=>{ const txt=asText(); try{ await navigator.clipboard.writeText(txt); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } $('status').className='status'; $('status').textContent=t('copied'); });
+$('btnCopy').addEventListener('click',async()=>{ if(!lastData) return; const txt=asText(); try{ await navigator.clipboard.writeText(txt); }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } $('status').className='status'; $('status').textContent=t('copied'); });
 (async()=>{
   $('status').textContent=t('loading');
   try{ if(await boot()) await load(); }
