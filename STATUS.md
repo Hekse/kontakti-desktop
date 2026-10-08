@@ -14,3 +14,5 @@ Tuotantoosoite on GitHub Pagesin asetuksista varmennettu https://hekse.github.io
 8.10.2026: Valikon nimeksi Ajot & Kulut; nuoli korvattu skaalautuvalla, teeman tekstiväriä käyttävällä moottoritie-SVG:llä. Muutos myös integroidussa esikatselussa. Ei tuotantojulkaisua.
 
 8.10.2026: Tiekuvake selkeytetty siniseksi tien pinnaksi, vaaleiksi reunoiksi ja valkoiseksi katkoviivaksi; poikkiviivat poistettu. Paikallinen esikatselu, ei tuotantojulkaisua.
+
+8.10.2026 käyttäjän jatko-ohje: säilytä yrityksen logolle paikka sivuvalikossa Myynti YTD -kohdan alapuolella ja Työkalut-osion yläpuolella. Käyttäjän tuotantokuvassa Isokallan Panimon logo on tällä paikalla; integroidusta esikatselusta se puuttuu. Ajot & Kulut -valikkokohta ei saa syrjäyttää logopaikkaa. Varmista logo ja tilan riittävyys oikeassa käyttöliittymässä ennen julkaisua. Logoassetia ei kopioitu kuvakaappauksesta.
