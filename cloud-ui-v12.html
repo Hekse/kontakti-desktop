@@ -365,7 +365,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
       <button type="button" class="nav-btn active" data-view="today"><span class="nav-btn-left"><span class="nav-icon">📞</span><span class="nav-label" data-i18n="today">Soita tänään</span></span><span class="pill" id="pillToday">0</span></button>
       <button type="button" class="nav-btn" data-view="customers"><span class="nav-btn-left"><span class="nav-icon">👥</span><span class="nav-label" data-i18n="customers">Asiakkaat</span></span><span class="pill" id="pillCustomers">0</span></button>
       <button type="button" class="nav-btn" data-view="weekly"><span class="nav-btn-left"><span class="nav-icon">📊</span><span class="nav-label" data-i18n="weekly">Viikkoraportti</span></span><span class="pill" id="pillWeek">vko</span></button>
-      <button type="button" class="nav-btn" data-view="ajo"><span class="nav-btn-left"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-label" data-i18n="travel">Ajo ja kulut</span></span></button>
+      <button type="button" class="nav-btn" data-view="ajo"><span class="nav-btn-left"><svg class="nav-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 3 21M16 3l5 18M12 3v3M12 10v3M12 17v4M5.8 11h12.4M7 7h10"/></svg><span class="nav-label" data-i18n="travel">Ajot &amp; Kulut</span></span></button>
       <button type="button" class="nav-btn settings" data-view="settings"><span class="nav-btn-left"><span class="nav-icon">⚙</span><span class="nav-label" data-i18n="settings">Asetukset</span></span></button>
     </nav>
     <div class="list-tools">
@@ -487,7 +487,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
       </div>
     </div>
     <section class="content">
-      <section id="ajoApp" class="ajo-app" hidden aria-label="Ajo ja kulut"></section>
+      <section id="ajoApp" class="ajo-app" hidden aria-label="Ajot & Kulut"></section>
       <div class="card">
         <header class="topbar list-topbar">
           <div class="left">
@@ -552,7 +552,7 @@ const LS_LANG='kontakti_v5_lang';
 let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
 const TRANSLATIONS={
   fi:{
-    today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', travel:'Ajo ja kulut', settings:'Asetukset',
+    today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', travel:'Ajot & Kulut', settings:'Asetukset',
     searchPlaceholder:'Hae asiakasta…', refresh:'↻ Päivitä',
     splashLoading:'Ladataan Kontaktia…', splashErrorTitle:'Kontakti ei latautunut', splashRetry:'Yritä uudelleen', splashErrorHint:'Jos ongelma jatkuu, päivitä sivu hetken päästä.',
     splashErrNetwork:'Yhteyttä palvelimeen ei saatu. Tarkista verkkoyhteys.', splashErrGeneric:'Tietojen lataaminen epäonnistui.',

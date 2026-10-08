@@ -10,3 +10,5 @@ Varmennus: 8 paikallista logiikkatestiä läpäisi; integroidun moduulin JavaScr
 
 Esikatselu: http://127.0.0.1:3012/tests/integration-preview.html
 Tuotantoosoite on GitHub Pagesin asetuksista varmennettu https://hekse.github.io/kontakti-desktop/ ; tämän haaran muutoksia ei ole julkaistu siihen.
+
+8.10.2026: Valikon nimeksi Ajot & Kulut; nuoli korvattu skaalautuvalla, teeman tekstiväriä käyttävällä moottoritie-SVG:llä. Muutos myös integroidussa esikatselussa. Ei tuotantojulkaisua.
