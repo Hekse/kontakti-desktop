@@ -12,3 +12,5 @@ Esikatselu: http://127.0.0.1:3012/tests/integration-preview.html
 Tuotantoosoite on GitHub Pagesin asetuksista varmennettu https://hekse.github.io/kontakti-desktop/ ; tämän haaran muutoksia ei ole julkaistu siihen.
 
 8.10.2026: Valikon nimeksi Ajot & Kulut; nuoli korvattu skaalautuvalla, teeman tekstiväriä käyttävällä moottoritie-SVG:llä. Muutos myös integroidussa esikatselussa. Ei tuotantojulkaisua.
+
+8.10.2026: Tiekuvake selkeytetty siniseksi tien pinnaksi, vaaleiksi reunoiksi ja valkoiseksi katkoviivaksi; poikkiviivat poistettu. Paikallinen esikatselu, ei tuotantojulkaisua.
