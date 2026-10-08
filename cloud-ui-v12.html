@@ -316,6 +316,8 @@ body.booting>*:not(#splash){visibility:hidden}
 .note-del{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;font-weight:450;padding:4px 8px;border-radius:8px;cursor:pointer}
 .note-del:hover,.note-del:focus-visible{color:var(--danger);background:rgba(255,77,77,.08)}
 </style>
+<link rel="stylesheet" href="./ajo-kulut.css">
+<style>body[data-view=ajo] .content{display:block}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px}#ajoApp[hidden]{display:none!important}</style>
 </head>
 <body class="booting">
 <div class="splash" id="splash" role="status" aria-live="polite">
@@ -363,6 +365,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
       <button type="button" class="nav-btn active" data-view="today"><span class="nav-btn-left"><span class="nav-icon">📞</span><span class="nav-label" data-i18n="today">Soita tänään</span></span><span class="pill" id="pillToday">0</span></button>
       <button type="button" class="nav-btn" data-view="customers"><span class="nav-btn-left"><span class="nav-icon">👥</span><span class="nav-label" data-i18n="customers">Asiakkaat</span></span><span class="pill" id="pillCustomers">0</span></button>
       <button type="button" class="nav-btn" data-view="weekly"><span class="nav-btn-left"><span class="nav-icon">📊</span><span class="nav-label" data-i18n="weekly">Viikkoraportti</span></span><span class="pill" id="pillWeek">vko</span></button>
+      <button type="button" class="nav-btn" data-view="ajo"><span class="nav-btn-left"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-label" data-i18n="travel">Ajo ja kulut</span></span></button>
       <button type="button" class="nav-btn settings" data-view="settings"><span class="nav-btn-left"><span class="nav-icon">⚙</span><span class="nav-label" data-i18n="settings">Asetukset</span></span></button>
     </nav>
     <div class="list-tools">
@@ -484,6 +487,7 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
       </div>
     </div>
     <section class="content">
+      <section id="ajoApp" class="ajo-app" hidden aria-label="Ajo ja kulut"></section>
       <div class="card">
         <header class="topbar list-topbar">
           <div class="left">
@@ -521,10 +525,12 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
 </div>
 
 <script type="module">
+import {createAjoKulut} from "./ajo-kulut.js";
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
 const $=id=>document.getElementById(id);
 let user=null,ws=null,cs=[],ns=[],sel=null,view='today',search='',colorPriority='',customerSort='newest',historyOpen=false,editingCustomer=false;
+const ajoKulut=createAjoKulut({sb,getWorkspace:()=>workspace(),getUser:()=>user,getCustomers:()=>cs});
 let editingNoteId=null, formStash=null, saveInFlight=false;
 let editingPurchaseId=null, purchStash=null, creatingCustomer=false, newCustSaving=false, weekOffset=0;
 let filterPanelOpen=false;
@@ -546,7 +552,7 @@ const LS_LANG='kontakti_v5_lang';
 let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
 const TRANSLATIONS={
   fi:{
-    today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', settings:'Asetukset',
+    today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', travel:'Ajo ja kulut', settings:'Asetukset',
     searchPlaceholder:'Hae asiakasta…', refresh:'↻ Päivitä',
     splashLoading:'Ladataan Kontaktia…', splashErrorTitle:'Kontakti ei latautunut', splashRetry:'Yritä uudelleen', splashErrorHint:'Jos ongelma jatkuu, päivitä sivu hetken päästä.',
     splashErrNetwork:'Yhteyttä palvelimeen ei saatu. Tarkista verkkoyhteys.', splashErrGeneric:'Tietojen lataaminen epäonnistui.',
@@ -657,7 +663,7 @@ const TRANSLATIONS={
     deleteAllError:'Kaikkien asiakkaiden poistaminen epäonnistui. Yritä uudelleen.'
   },
   en:{
-    today:'Call today', customers:'Customers', weekly:'Weekly report', settings:'Settings',
+    today:'Call today', customers:'Customers', weekly:'Weekly report', travel:'Trips and expenses', settings:'Settings',
     searchPlaceholder:'Search customers…', refresh:'↻ Refresh',
     splashLoading:'Loading Kontakti…', splashErrorTitle:'Kontakti could not be loaded', splashRetry:'Try again', splashErrorHint:'If the problem continues, refresh the page in a moment.',
     splashErrNetwork:'Could not reach the server. Check your connection.', splashErrGeneric:'Loading data failed.',
@@ -2095,6 +2101,7 @@ function setHeaders(){
   if(view==='today'){ pageTitle.textContent=t('today'); searchWrap.style.display='none'; listToolbar.hidden=true; }
   else if(view==='customers'){ pageTitle.textContent=t('customers'); searchWrap.style.display='flex'; listToolbar.hidden=false; }
   else if(view==='weekly'){ pageTitle.textContent=t('weekly'); searchWrap.style.display='none'; listToolbar.hidden=true; }
+  else if(view==='ajo'){pageTitle.textContent=t('travel');searchWrap.style.display='none';listToolbar.hidden=true;}
   else { pageTitle.textContent=t('settings'); searchWrap.style.display='none'; listToolbar.hidden=true; }
   if($('mobileViewName')) $('mobileViewName').textContent=pageTitle.textContent;
   $('btnMobileMenu')?.setAttribute('aria-label',t('menu'));
@@ -2192,6 +2199,8 @@ function renderAll(){
   document.body.dataset.view=view;
   setHeaders(); setPills(); setActiveNav();
   document.querySelectorAll('.filter-dot').forEach(x=>x.classList.toggle('active',x.dataset.color===colorPriority));
+  $('ajoApp').hidden=view!=='ajo';
+  if(view==='ajo'){ajoKulut.open($('ajoApp'));return;}
   renderList(); renderDetail();
   updateSidebarToolCaptions(); updateCompanyLogoCard(); renderActiveFilterChips();
 }
