@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakti Cloud UI v12</title>
+<style>
+:root{
+  --bg0:#071226;--bg1:#091a35;--panel:rgba(255,255,255,.05);--stroke:rgba(255,255,255,.17);
+  --text:rgba(255,255,255,.96);--muted:rgba(255,255,255,.68);
+  --brand:#2d6bff;--brand2:#2153c8;--ok:#26d07c;--warn:#ffcc66;--amber:#ff9f43;--danger:#ff4d4d;--priority:#8b5cf6;
+  --shadow:0 14px 40px rgba(0,0,0,.35);--shadow2:0 10px 24px rgba(0,0,0,.22);--r22:22px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+  --tint:255,255,255;--popover-bg:rgba(7,18,38,.97);--solid-panel:#0d1a33;
+}
+:root[data-theme="light"]{
+  --bg0:#eef2fa;--bg1:#e3eaf6;--panel:rgba(24,46,90,.045);--stroke:rgba(24,46,90,.15);
+  --text:rgba(16,26,46,.94);--muted:rgba(30,46,76,.62);
+  --shadow:0 14px 40px rgba(30,50,90,.12);--shadow2:0 10px 24px rgba(30,50,90,.08);
+  --tint:24,46,90;--popover-bg:rgba(255,255,255,.98);--solid-panel:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--sans);color:var(--text);background:radial-gradient(1200px 700px at 18% 0%, rgba(45,107,255,.18), transparent 62%),radial-gradient(1000px 520px at 90% 10%, rgba(38,208,124,.08), transparent 65%),linear-gradient(180deg,var(--bg0),var(--bg1));overflow:hidden;transition:background-color .2s ease}
+.app{height:100%;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:18px;min-height:0}
+.sidebar,.card,.topbar{background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(6px)}
+.sidebar{border-radius:var(--r22);box-shadow:var(--shadow);padding:16px 14px;display:flex;flex-direction:column;min-height:0;overflow:auto}
+.brand{display:flex;align-items:center;gap:11px;margin:8px 10px 16px;padding-bottom:12px;border-bottom:1px solid rgba(var(--tint),.12)}
+.brand-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.opero-logo-mini{width:42px;height:42px;flex:0 0 42px}
+.opero-logo-img{display:block;width:100%;height:100%;object-fit:contain}
+.brand .title{font-size:27px;font-weight:600;line-height:1.02}.brand .sub{font-size:12px;font-weight:400;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:8px;padding:6px}
+.nav-btn{appearance:none;border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.035);color:var(--text);border-radius:14px;padding:11px 13px;text-align:left;cursor:pointer;font-weight:500;font-size:14px;display:flex;align-items:center;justify-content:space-between;transition:.15s ease;min-height:44px}
+.nav-btn:hover{background:rgba(var(--tint),.055);box-shadow:0 0 0 1px rgba(45,107,255,.12),0 8px 18px rgba(45,107,255,.10)}
+.nav-btn.active{border-color:rgba(45,107,255,.65);background:rgba(45,107,255,.14);box-shadow:0 0 0 1px rgba(45,107,255,.22),0 0 14px rgba(45,107,255,.24);transform:translateY(-1px)}
+.nav-btn-left{display:flex;align-items:center;gap:10px;min-width:0}
+.nav-icon{font-size:18px;line-height:1;flex:0 0 auto}
+.nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-btn.settings span:first-child{color:#8a97ab}
+.pill{font-size:11.5px;font-weight:560;color:var(--text);background:rgba(var(--tint),.07);border:1px solid rgba(var(--tint),.14);padding:2px 8px;border-radius:999px;flex:0 0 auto}
+.pill.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.16);font-weight:600}
+.nav-btn .pill{background:none;border:0;padding:0 2px;font-size:12px;font-weight:450;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+/* Natiivit kontrollit (select-listat, päivämäärävalitsin) teeman mukaisiksi */
+:root{color-scheme:dark} :root[data-theme="light"]{color-scheme:light}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat-card{border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:14px;padding:10px 12px;min-width:0}
+.stat-card .k{font-size:11.5px;color:var(--muted)}
+.stat-card .v{font-size:19px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-table{width:100%;border-collapse:collapse;font-size:13px}
+.mini-table th{font-size:11px;font-weight:460;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid rgba(var(--tint),.12)}
+.mini-table td{padding:7px 8px;border-bottom:1px solid rgba(var(--tint),.07);vertical-align:top;overflow-wrap:anywhere}
+.mini-table .num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.week-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dup-warn[hidden]{display:none}
+.dup-warn{border:1px solid rgba(255,204,102,.45);background:rgba(255,204,102,.08);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:8px}
+.edit-banner{font-size:12px;color:var(--muted);border:1px dashed rgba(45,107,255,.45);background:rgba(45,107,255,.07);border-radius:10px;padding:7px 10px;margin-bottom:8px}
+.note-edit{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;font-weight:450;padding:4px 8px;margin:4px 0 0 -8px;border-radius:8px;cursor:pointer}
+.note-edit:hover,.note-edit:focus-visible{color:var(--text);background:rgba(var(--tint),.06)}
+.tool-row{appearance:none;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);color:var(--text);border-radius:14px;padding:9px 13px;text-align:left;cursor:pointer;transition:.15s ease;min-height:52px;display:flex;flex-direction:column;justify-content:center;gap:2px;width:100%}
+.tool-row:hover{background:rgba(var(--tint),.055)}
+.tool-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tool-row-main{display:flex;align-items:center;gap:9px;font-weight:500;font-size:13.5px;min-width:0}
+.tool-row-main .nav-icon{font-size:15px}
+.tool-row-sub{font-size:11px;color:var(--muted);font-weight:400;padding-left:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-tools{display:flex;flex-direction:column;gap:8px;padding:2px 6px 4px}
+.sales-box{margin:8px 6px 0;padding:12px;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);border-radius:16px}
+.sales-title{font-size:11.5px;color:var(--muted);font-weight:500}.sales-main{font-size:19px;font-weight:600;line-height:1.05;margin-top:5px}
+.company-logo-card{margin:10px 6px 0;padding:10px 12px;border:1px solid rgba(var(--tint),.13);background:rgba(var(--tint),.03);border-radius:16px;display:flex;align-items:center;gap:10px}
+.company-logo-card[hidden]{display:none}
+.company-logo-img{width:34px;height:34px;border-radius:10px;object-fit:contain;background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);flex:0 0 34px}
+.company-logo-fallback{width:34px;height:34px;border-radius:10px;background:rgba(45,107,255,.13);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:15px;flex:0 0 34px}
+.company-logo-name{font-size:12px;font-weight:460;color:var(--muted);line-height:1.3;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Ladattu yrityslogo istuu suoraan sidebarin pinnalla ilman korttia; kuvasuhde säilyy (contain), ei rajausta */
+.company-logo-fallback[hidden]{display:none}
+.company-logo-card.has-logo{justify-content:center;margin:12px 6px 0;padding:0;border:0;background:none;border-radius:0}
+.company-logo-card.has-logo .company-logo-img{display:block;width:80%;max-width:100%;height:84px;flex:0 0 auto;margin:0 auto;object-fit:contain;object-position:center;background:none;border:0;border-radius:0}
+/* Logon koko (workspace-asetus): yksi valinta määrää sekä maksimileveyden (% sidebarin sisältöleveydestä) että maksimikorkeuden */
+.company-logo-card.has-logo.logo-size-small .company-logo-img{width:60%;height:56px}
+.company-logo-card.has-logo.logo-size-large .company-logo-img{width:100%;height:120px}
+.company-logo-card.has-logo .company-logo-name{display:none}
+.side-tools{margin-top:auto;padding:6px;display:flex;flex-direction:column;gap:8px}
+.tools-block{margin-top:6px;padding-top:10px;border-top:1px solid rgba(var(--tint),.10);display:flex;flex-direction:column;gap:6px}
+.tools-label{font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;padding:0 2px}
+.btn.tool{font-size:12.5px;padding:9px 10px;font-weight:500;background:rgba(var(--tint),.02);border-color:rgba(var(--tint),.12);color:var(--muted);min-height:38px}
+.btn.tool:hover{color:var(--text);background:rgba(var(--tint),.05)}
+.btn{appearance:none;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.04);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:520;transition:.15s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;user-select:none;text-decoration:none}
+.btn:hover{background:rgba(var(--tint),.07)} .btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:linear-gradient(180deg, rgba(45,107,255,.95), rgba(33,83,200,.95));border-color:rgba(45,107,255,.4);box-shadow:0 10px 18px rgba(45,107,255,.10);color:#fff;font-weight:560}
+.btn.priority{border-color:rgba(139,92,246,.48);background:rgba(139,92,246,.10)} .btn.priority.active{background:linear-gradient(180deg, rgba(139,92,246,.95), rgba(109,40,217,.95));border-color:rgba(139,92,246,.55);box-shadow:0 10px 18px rgba(139,92,246,.16);color:#fff}
+.btn.compact{padding:6px 10px;font-size:12.5px;border-radius:10px}
+.btn.danger{border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.09);color:var(--danger)}
+.btn.danger:hover{background:rgba(255,77,77,.15)}
+.danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,77,77,.20);display:flex;flex-direction:column;gap:8px}
+.danger-zone-title{font-weight:560;font-size:13px;color:var(--danger)}
+.danger-zone-desc{font-size:12px;color:var(--muted);font-weight:400}
+.danger-zone-box{border-color:rgba(255,77,77,.26)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{width:min(440px, calc(100vw - 32px));background:var(--solid-panel);border:1px solid rgba(var(--tint),.16);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.4);padding:20px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 40px);overflow:auto}
+.modal-title{font-size:16px;font-weight:620}
+.modal-text{font-size:13px;color:var(--muted);line-height:1.5;font-weight:400}
+.modal-text b{color:var(--text);font-weight:600}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;font-weight:400}.footer{margin-top:2px;font-size:11px;color:var(--muted);font-weight:400;text-align:center;padding:6px 0 0;opacity:.75}
+.lang-switch{display:flex;align-items:center;gap:5px}
+.lang-opt{appearance:none;background:none;border:none;color:var(--text);cursor:pointer;padding:2px 3px;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;opacity:.45;transition:.15s ease;border-radius:6px}
+.lang-opt:hover{opacity:.8;background:rgba(var(--tint),.06)}
+.lang-opt.active{opacity:1;background:rgba(var(--tint),.07)}
+.main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:14px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:var(--r22);box-shadow:var(--shadow);padding:12px 14px}
+.topbar .left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.page-title{font-size:15.5px;font-weight:600;white-space:nowrap}
+header.list-topbar{background:none;border:none;box-shadow:none;backdrop-filter:none;border-radius:0;padding:14px 14px 10px;border-bottom:1px solid rgba(var(--tint),.12);flex:0 0 auto}
+/* Kapealla listapalstalla (läppärit) painikkeet rivittyvät omalle rivilleen hakukentän alle, eivät mene sen päälle */
+header.list-topbar{flex-wrap:wrap;row-gap:10px}
+header.list-topbar .left{flex:1 1 auto}
+header.list-topbar .search{min-width:150px}
+header.list-topbar .right{display:flex;gap:8px;flex:0 0 auto;margin-left:auto}
+.search{flex:1;min-width:220px;display:flex;gap:10px;align-items:center;background:rgba(var(--tint),.04);border:1px solid rgba(var(--tint),.16);border-radius:999px;padding:10px 12px;max-width:520px}
+.search input{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-weight:400}.search input::placeholder{color:var(--muted)}
+.content{flex:1;min-height:0;display:grid;grid-template-columns:40% 60%;gap:14px}
+.card{border-radius:var(--r22);box-shadow:var(--shadow);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.list-toolbar{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid rgba(var(--tint),.10)}
+.list-toolbar[hidden]{display:none}
+.card-body{padding:12px 14px 14px;min-height:0;overflow:auto}
+.list{display:flex;flex-direction:column;gap:10px}.row{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:14px;padding:12px;cursor:pointer;transition:.14s ease;overflow:hidden}
+.row:hover{background:rgba(var(--tint),.055);transform:translateY(-1px)}
+.row.active{border-color:rgba(45,107,255,.68);background:rgba(45,107,255,.13);box-shadow:0 0 0 1px rgba(45,107,255,.22),0 14px 30px rgba(0,0,0,.10);transform:translateY(-2px)}
+.row-main{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.row-left{min-width:0;flex:1;display:flex;gap:10px;align-items:flex-start}.row-right{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.row-name{font-weight:580;line-height:1.2}.row-meta{font-size:12px;color:var(--muted);font-weight:400;margin-top:6px;line-height:1.35}
+.status-dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px;margin-top:4px;border:1px solid rgba(var(--tint),.26);box-shadow:0 0 0 3px rgba(var(--tint),.03)}
+.status-dot.green{background:var(--ok)} .status-dot.yellow{background:var(--warn)} .status-dot.orange{background:var(--amber)} .status-dot.red{background:var(--danger)} .status-dot.gray{background:rgba(var(--tint),.28)}
+.tagline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.tag{font-size:12px;font-weight:480;color:var(--text);background:rgba(var(--tint),.06);border:1px solid rgba(var(--tint),.14);padding:2px 8px;border-radius:999px}
+.tag.ok{border-color:rgba(38,208,124,.32);background:rgba(38,208,124,.10)} .tag.bad{border-color:rgba(255,77,77,.32);background:rgba(255,77,77,.10)} .tag.priority{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.13);font-weight:600}
+.detail{display:grid;grid-template-rows:auto 1fr;min-height:0}.detail-header{padding:12px 14px 8px;border-bottom:1px solid rgba(var(--tint),.12);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.detail-header h2{margin:0;font-size:22px;font-weight:600;line-height:1.1}.subline{margin-top:6px;font-size:12px;font-weight:400;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.detail-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.detail-body{padding:10px 14px 14px;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px}
+.note-box{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow2)}
+.note-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.note-top .t{font-weight:550;font-size:13.5px}.note-top .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}
+.field{display:flex;flex-direction:column;gap:8px}.label{font-size:12px;color:var(--muted);font-weight:400}
+input,textarea,select{width:100%;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.16);color:var(--text);border-radius:14px;padding:10px 12px;outline:none;font-weight:400;font-family:inherit}
+textarea{min-height:110px;resize:vertical} input::placeholder,textarea::placeholder{color:var(--muted)} select option{background:var(--solid-panel);color:var(--text)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap}
+.kvlist{display:flex;flex-direction:column;gap:8px}.kvrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:12px;padding:10px}
+.kvrow b{font-weight:550}.kvrow span,.kvrow a{color:var(--text);font-weight:400;text-decoration:none;word-break:break-word;text-align:right;max-width:65%}.kvrow a:hover{text-decoration:underline}
+.kv2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kv2-cell{border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);border-radius:12px;padding:9px 11px;min-width:0}
+.kv2-cell.kv2-full{grid-column:1 / -1}
+.kv2-label{font-size:11px;color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.02em;margin-bottom:3px}
+.kv2-value{font-size:14px;font-weight:430;color:var(--text);word-break:break-word;line-height:1.3}
+.kv2-value a{color:var(--text);text-decoration:none}
+.kv2-value a:hover{text-decoration:underline}
+@media (max-width:680px){.kv2-grid{grid-template-columns:1fr}}
+.sales-table{display:grid;grid-template-columns:minmax(46px,0.7fr) minmax(72px,1fr) minmax(72px,1fr) minmax(92px,1.15fr) minmax(72px,0.95fr);row-gap:7px;column-gap:8px;width:100%}
+.sales-row{display:contents}
+.sales-cell{font-size:12.5px;min-width:0;text-align:center;font-weight:520;color:var(--text)}
+.sales-cell.period{text-align:left;font-weight:500;color:var(--muted)}
+.sales-row.head .sales-cell{font-weight:460;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+.sales-cell.up{color:var(--ok)}
+.sales-cell.down{color:var(--danger)}
+.sales-cell.neutral{color:var(--muted)}
+@media (max-width:680px){
+  .sales-table{grid-template-columns:minmax(34px,0.6fr) minmax(54px,1fr) minmax(54px,1fr) minmax(66px,1.1fr) minmax(54px,0.9fr);column-gap:5px}
+  .sales-cell{font-size:11px}
+}
+.legend-list{display:flex;flex-direction:column;gap:8px}
+.legend-row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.legend-term{font-weight:560;font-size:12.5px;min-width:52px;flex:0 0 auto;color:var(--text)}
+.legend-term.up{color:var(--ok)}
+.legend-term.down{color:var(--danger)}
+.legend-desc{font-size:12.5px;color:var(--muted);font-weight:400}
+.legend-dots{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:2px}
+.quick{display:flex;gap:10px;flex-wrap:wrap}
+.btn.subtle{font-size:12.5px;padding:6px 10px;font-weight:480;background:rgba(var(--tint),.02);border-color:rgba(var(--tint),.12);color:var(--muted)}
+.btn.subtle:hover{color:var(--text);background:rgba(var(--tint),.05)}
+.history-popover{position:fixed;right:24px;bottom:24px;width:min(460px, calc(100vw - 32px));max-height:min(72vh,760px);z-index:120;border:1px solid rgba(var(--tint),.16);background:var(--popover-bg);backdrop-filter:blur(12px);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.30);display:flex;flex-direction:column;overflow:hidden}
+.history-popover[hidden]{display:none}
+.history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(var(--tint),.12)}.history-title{font-size:14.5px;font-weight:580}.history-sub{font-size:12px;color:var(--muted);font-weight:400;margin-top:3px}.history-body{padding:12px 14px 14px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.history-item{border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}.history-meta{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.history-date{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400}.history-badges{display:flex;gap:8px;flex-wrap:wrap}.history-text{white-space:pre-wrap;line-height:1.45;font-size:13px;font-weight:400}
+.saveflash.is-ok{background:rgba(38,208,124,.16)!important;border-color:rgba(38,208,124,.35)!important;box-shadow:0 0 0 1px rgba(38,208,124,.12),0 12px 26px rgba(38,208,124,.08)}
+.filter-dots{display:flex;gap:8px;align-items:center}.filter-dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(var(--tint),.28);cursor:pointer;box-shadow:0 0 0 2px rgba(var(--tint),.03);transition:.15s ease}
+.filter-dot:hover{transform:scale(1.08)} .filter-dot.active{box-shadow:0 0 0 2px rgba(var(--tint),.10),0 0 12px currentColor} .filter-dot.green{background:var(--ok);color:var(--ok)} .filter-dot.yellow{background:var(--warn);color:var(--warn)} .filter-dot.orange{background:var(--amber);color:var(--amber)} .filter-dot.red{background:var(--danger);color:var(--danger)}
+.list-arrows{display:flex;gap:6px}.list-arrows .btn{min-width:42px;padding-inline:0}
+.quick-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid rgba(var(--tint),.10)}
+.btn.qa{font-size:12.5px;padding:6px 13px;border-radius:13px;font-weight:520;letter-spacing:.005em;transition:.12s ease;border-width:1px}
+.btn.qa:active{transform:scale(.97)}
+.btn.qa-ok{border-color:rgba(38,208,124,.34);background:rgba(38,208,124,.09);color:var(--ok)}
+.btn.qa-ok:hover{background:rgba(38,208,124,.16);border-color:rgba(38,208,124,.48)}
+.btn.qa-miss{border-color:rgba(255,90,110,.32);background:rgba(255,90,110,.08);color:#ff8a97}
+.btn.qa-miss:hover{background:rgba(255,90,110,.15);border-color:rgba(255,90,110,.44)}
+.btn.qa-snooze{border-color:rgba(255,190,90,.34);background:rgba(255,190,90,.09);color:var(--amber)}
+.btn.qa-snooze:hover{background:rgba(255,190,90,.16);border-color:rgba(255,190,90,.48)}
+.empty{padding:14px 2px;color:var(--muted);font-size:13px;font-weight:400}
+.filter-badge{display:none;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--brand);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:16px}
+.filter-panel{position:fixed;width:min(380px, calc(100vw - 32px));max-height:calc(100vh - 24px);z-index:130;border:1px solid rgba(var(--tint),.16);background:var(--popover-bg);backdrop-filter:blur(12px);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.30);display:flex;flex-direction:column;overflow:hidden}
+.filter-panel[hidden]{display:none}
+.filter-panel-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 12px;border-bottom:1px solid rgba(var(--tint),.12)}
+.filter-panel-body{flex:1 1 auto;min-height:0;padding:12px 16px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.filter-section{display:flex;flex-direction:column;gap:8px;padding-bottom:12px;border-bottom:1px solid rgba(var(--tint),.09)}
+.filter-section:last-of-type{border-bottom:none;padding-bottom:0}
+.chk-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:400;cursor:pointer}
+.chk-row input{width:auto;margin:0}
+.chip-line{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;font-weight:400}
+.chip-line div{margin:0}
+.filter-panel-active{flex:0 0 auto;padding:10px 16px;border-top:1px solid rgba(var(--tint),.10)}
+.filter-panel-active[hidden]{display:none}
+.active-filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.af-chip{appearance:none;border:1px solid rgba(45,107,255,.35);background:rgba(45,107,255,.10);color:var(--text);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:480;cursor:pointer;transition:.15s ease}
+.af-chip:hover{background:rgba(45,107,255,.18);border-color:rgba(45,107,255,.5)}
+.filter-panel-footer{flex:0 0 auto;padding:12px 16px;border-top:1px solid rgba(var(--tint),.10)}
+.signin-banner{padding:16px;text-align:center}
+.signin-banner .big{font-size:16px;font-weight:620;color:var(--text)}
+@media (max-width:980px){body{overflow:auto}.app{grid-template-columns:1fr;overflow:auto}.content{grid-template-columns:1fr}}
+@media (max-width:680px){.content{position:relative}.card.detail{position:fixed;inset:12px;z-index:50;display:none}.card.detail.show{display:flex}.mobile-back{display:inline-flex!important}.grid2{grid-template-columns:1fr}.row-main{flex-direction:column}.row-right{justify-content:flex-start}.history-popover{left:12px;right:12px;bottom:12px;width:auto;max-height:68vh}}
+.mobile-back{display:none}
+/* ── Puhelinnäkymä (≤680 px): kompakti yläpalkki + ☰-valikko (sidebar avautuu valikkona), peittävät taustat ── */
+.mobile-bar,.mobile-menu-backdrop{display:none}
+.btn.qa-call{display:none}
+.table-scroll{max-height:372px;overflow-y:auto;overscroll-behavior:contain}
+.table-scroll .mini-table thead th{position:sticky;top:0;z-index:1;background:var(--solid-panel)}
+@media (max-width:680px){
+  .app{padding:0 10px 12px;gap:10px;grid-template-rows:auto minmax(0,1fr)}
+  .mobile-bar{display:flex;position:sticky;top:0;z-index:60;align-items:center;justify-content:space-between;gap:10px;margin:0 -10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:var(--solid-panel);border-bottom:1px solid var(--stroke)}
+  .mobile-bar-brand{display:flex;align-items:center;gap:8px;min-width:0}
+  .mobile-bar-logo{width:28px;height:28px;flex:0 0 28px;display:block}
+  .mobile-bar-title{font-weight:650;font-size:16px}
+  .mobile-bar-view{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .mobile-bar-view::before{content:"·";margin-right:6px}
+  .mobile-menu-btn{appearance:none;width:44px;height:44px;flex:0 0 44px;border-radius:12px;border:1px solid var(--stroke);background:rgba(var(--tint),.05);color:var(--text);font-size:20px;line-height:1;cursor:pointer}
+  .sidebar{display:none}
+  body.menu-open .sidebar{display:flex;position:fixed;top:calc(64px + env(safe-area-inset-top));left:10px;right:10px;z-index:70;max-height:calc(100dvh - 80px - env(safe-area-inset-top));overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+  body.menu-open .mobile-menu-backdrop{display:block;position:fixed;inset:0;z-index:65;background:rgba(0,0,0,.5)}
+  .sidebar,.card,.topbar{background:var(--solid-panel);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .history-popover,.filter-panel,.modal-box,.ac-list{background:var(--solid-panel);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .modal-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .card.detail{inset:0;border-radius:0;z-index:80;padding-top:env(safe-area-inset-top)}
+  /* Viikkoraportti ja Asetukset: sisältö näytetään suoraan (ei asiakaslistaa eikä Takaisin-nappia) */
+  body[data-view=weekly] .content>.card:not(.detail),body[data-view=settings] .content>.card:not(.detail){display:none}
+  body[data-view=weekly] .card.detail,body[data-view=settings] .card.detail{display:flex;position:relative;inset:auto;z-index:auto;border-radius:var(--r22);padding-top:0}
+  body[data-view=weekly] .mobile-back,body[data-view=settings] .mobile-back{display:none!important}
+  header.list-topbar{padding:10px 12px 8px}
+  header.list-topbar .page-title{display:none}
+  header.list-topbar .search{height:46px;padding:0 12px;border-radius:12px;min-width:0;max-width:none;flex:1 1 220px}
+  header.list-topbar .right .btn{padding:7px 10px;font-size:13px}
+  input,textarea,select{font-size:16px}
+  #listStatus{font-size:12px;color:var(--muted);font-weight:400}
+  .btn.qa-call{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-color:rgba(45,107,255,.45);background:rgba(45,107,255,.14);color:var(--text)}
+  .btn.qa-call:disabled{opacity:.45;cursor:default}
+  .quick-row .btn.qa{flex:1 1 0;min-height:42px;justify-content:center;padding:6px 8px}
+  .quick-row .btn.qa-snooze{flex-basis:100%;min-height:36px}
+}
+.status-dot.sm{width:8px;height:8px;flex:0 0 8px;margin-top:0;display:inline-block;vertical-align:middle;margin-left:6px;box-shadow:none}
+.due-overdue{color:var(--danger);font-weight:600}
+.due-today{color:var(--ok);font-weight:600}
+select:disabled{opacity:.5;cursor:not-allowed}
+.filter-group-label{font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.split-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.split-col.divider{border-left:1px solid rgba(var(--tint),.12);padding-left:16px}
+.split-col-label{font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+.prev-entry{border:1px solid rgba(var(--tint),.14);background:rgba(var(--tint),.03);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:5px}
+.prev-date{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.prev-text{white-space:pre-wrap;font-size:13px;line-height:1.4}
+.prev-next-action{font-size:12px;color:var(--muted);margin-top:2px}
+.total-sales{margin-top:2px;font-size:12.5px;font-weight:580;color:var(--text);border-top:1px solid rgba(var(--tint),.10);padding-top:8px}
+@media (max-width:680px){.split2{grid-template-columns:1fr}.split-col.divider{border-left:none;padding-left:0;border-top:1px solid rgba(var(--tint),.12);padding-top:12px}}
+.ac-wrap{position:relative}
+.ac-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;border:none;background:rgba(var(--tint),.08);color:var(--text);cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.ac-list{position:absolute;left:0;right:0;top:calc(100% + 4px);max-height:220px;overflow:auto;background:var(--popover-bg);border:1px solid var(--stroke);border-radius:12px;box-shadow:var(--shadow2);z-index:20;padding:4px}
+.ac-list[hidden]{display:none}
+.ac-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
+.ac-item:hover,.ac-item.ac-active{background:rgba(var(--tint),.09)}
+.ac-empty{padding:8px 10px;font-size:12.5px;color:var(--muted)}
+.theme-switch{display:flex;gap:8px}
+.theme-opt{appearance:none;border:1px solid rgba(var(--tint),.16);background:rgba(var(--tint),.03);color:var(--text);border-radius:12px;padding:9px 16px;cursor:pointer;font-weight:500;font-size:13px;transition:.15s ease}
+.theme-opt:hover{background:rgba(var(--tint),.06)}
+.theme-opt.active{border-color:rgba(45,107,255,.6);background:rgba(45,107,255,.14);box-shadow:0 0 0 1px rgba(45,107,255,.22)}
+.logo-upload-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo-preview{width:56px;height:56px;border-radius:14px;object-fit:contain;background:rgba(var(--tint),.05);border:1px solid rgba(var(--tint),.14);flex:0 0 56px}
+.logo-preview-fallback{width:56px;height:56px;border-radius:14px;background:rgba(45,107,255,.12);border:1px solid rgba(45,107,255,.28);display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 56px}
+.logo-actions{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:180px}
+
+/* Käynnistyksen latausnäkymä: peittää sovelluksen kunnes data on haettu ja ensimmäinen render tehty */
+body.booting>*:not(#splash){visibility:hidden}
+.splash{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left));
+  color:rgba(255,255,255,.96);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:
+    radial-gradient(900px 620px at 16% 18%, rgba(45,107,255,.24), transparent 60%),
+    radial-gradient(760px 580px at 88% 84%, rgba(130,92,246,.14), transparent 62%),
+    radial-gradient(620px 420px at 82% 6%, rgba(45,210,220,.08), transparent 60%),
+    linear-gradient(180deg,#050b1a,#0a1830);
+  opacity:1;transition:opacity .22s ease}
+.splash[hidden]{display:none}
+.splash.hide{opacity:0;pointer-events:none}
+.splash-inner{width:min(340px,100%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.splash-logo{width:64px;height:64px;display:block;object-fit:contain}
+.splash-title{font-size:30px;font-weight:720;line-height:1.05;letter-spacing:-.01em}
+.splash-sub{font-size:12px;color:rgba(255,255,255,.62);margin-top:4px}
+.splash-spinner{width:26px;height:26px;margin-top:10px;border-radius:50%;border:3px solid rgba(45,107,255,.22);border-top-color:#3d7bff;animation:splash-spin .9s linear infinite}
+@keyframes splash-spin{to{transform:rotate(360deg)}}
+.splash-status{font-size:13px;color:rgba(255,255,255,.68);min-height:18px}
+.splash-error{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:6px}
+.splash.is-error .splash-spinner,.splash.is-error .splash-status{display:none}
+.splash.is-error .splash-error{display:flex}
+.splash-err-title{font-size:16px;font-weight:620}
+.splash-err-msg{font-size:13.5px;line-height:1.45;color:rgba(255,255,255,.8);overflow-wrap:anywhere}
+.splash-err-detail{font-size:11.5px;line-height:1.4;color:rgba(255,255,255,.5);overflow-wrap:anywhere}
+.splash-err-detail:empty{display:none}
+.splash-retry{appearance:none;min-height:44px;padding:0 22px;border-radius:13px;border:1px solid rgba(45,107,255,.5);background:linear-gradient(180deg,rgba(51,112,255,.98),rgba(31,79,214,.98));color:#fff;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;margin-top:4px}
+.splash-retry:disabled{opacity:.6;cursor:default}
+.splash-err-hint{font-size:12px;color:rgba(255,255,255,.55)}
+@media (prefers-reduced-motion:reduce){.splash-spinner{animation-duration:2.4s}.splash{transition:none}}
+.history-actions{display:flex;justify-content:flex-end;margin-top:-2px}
+.note-del{appearance:none;background:none;border:0;color:var(--muted);font:inherit;font-size:11.5px;font-weight:450;padding:4px 8px;border-radius:8px;cursor:pointer}
+.note-del:hover,.note-del:focus-visible{color:var(--danger);background:rgba(255,77,77,.08)}
+</style>
+<link rel="stylesheet" href="../ajo-kulut.css">
+<style>body[data-view=ajo] .content{display:block}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px}#ajoApp[hidden]{display:none!important}</style>
+<style>.splash{display:none!important}.preview-theme{position:fixed;bottom:12px;right:12px;z-index:200}</style></head>
+<body class="booting">
+<div class="splash" id="splash" role="status" aria-live="polite">
+  <div class="splash-inner">
+    <img class="splash-logo" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+    <div><div class="splash-title">Kontakti</div><div class="splash-sub">by Opero</div></div>
+    <div class="splash-spinner" aria-hidden="true"></div>
+    <div class="splash-status" id="splashStatus">Ladataan Kontaktia…</div>
+    <div class="splash-error" id="splashError" role="alert">
+      <div class="splash-err-title" id="splashErrTitle"></div>
+      <div class="splash-err-msg" id="splashErrMsg"></div>
+      <div class="splash-err-detail" id="splashErrDetail"></div>
+      <button type="button" class="splash-retry" id="splashRetry"></button>
+      <div class="splash-err-hint" id="splashErrHint"></div>
+    </div>
+  </div>
+</div>
+<script>
+// Splash näkyy heti HTML:n jäsennyksessä, ennen moduuliskriptiä. Minimiaika mitataan tästä hetkestä.
+window.__splashT0=performance.now();
+try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById('splashStatus').textContent='Loading Kontakti…'; }catch(e){}
+</script>
+<div class="app">
+  <div class="mobile-bar" id="mobileBar">
+    <div class="mobile-bar-brand"><img class="mobile-bar-logo" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+"><span class="mobile-bar-title">Kontakti</span><span class="mobile-bar-view" id="mobileViewName"></span></div>
+    <button type="button" class="mobile-menu-btn" id="btnMobileMenu" aria-expanded="false" aria-controls="mainSidebar" aria-label="Valikko">☰</button>
+  </div>
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+  <aside class="sidebar" id="mainSidebar">
+    <div class="brand">
+      <div class="opero-logo-mini"><img class="opero-logo-img" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+">
+      </div>
+      <div>
+        <div class="title">Kontakti</div>
+        <div class="brand-row">
+          <span class="sub" data-i18n="byOperoCloud">by Opero</span>
+          <div class="lang-switch" id="langSwitch">
+            <button type="button" class="lang-opt" data-lang="fi" aria-label="Suomi">🇫🇮</button>
+            <button type="button" class="lang-opt" data-lang="en" aria-label="English">🇬🇧</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button type="button" class="nav-btn active" data-view="today"><span class="nav-btn-left"><span class="nav-icon">📞</span><span class="nav-label" data-i18n="today">Soita tänään</span></span><span class="pill" id="pillToday">0</span></button>
+      <button type="button" class="nav-btn" data-view="customers"><span class="nav-btn-left"><span class="nav-icon">👥</span><span class="nav-label" data-i18n="customers">Asiakkaat</span></span><span class="pill" id="pillCustomers">0</span></button>
+      <button type="button" class="nav-btn" data-view="weekly"><span class="nav-btn-left"><span class="nav-icon">📊</span><span class="nav-label" data-i18n="weekly">Viikkoraportti</span></span><span class="pill" id="pillWeek">vko</span></button>
+      <button type="button" class="nav-btn" data-view="ajo"><span class="nav-btn-left"><svg class="nav-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l5 18H3Z" fill="#287bbd" stroke="#67b5ed" stroke-width="1.2"/><path d="M12 4v2M12 10v3M12 17v3" stroke="#fff" stroke-width="1.7"/></svg><span class="nav-label" data-i18n="travel">Ajot &amp; Kulut</span></span></button>
+      <button type="button" class="nav-btn settings" data-view="settings"><span class="nav-btn-left"><span class="nav-icon">⚙</span><span class="nav-label" data-i18n="settings">Asetukset</span></span></button>
+    </nav>
+    <div class="list-tools">
+      <button class="tool-row" id="btnFilter" type="button">
+        <span class="tool-row-top"><span class="tool-row-main"><span class="nav-icon">🔍</span><span data-i18n="filterOnly">Suodata</span></span><span class="filter-badge" id="filterBadge">0</span></span>
+        <span class="tool-row-sub" id="filterRowSub"></span>
+      </button>
+      <button class="tool-row" id="btnSort" type="button">
+        <span class="tool-row-top"><span class="tool-row-main"><span class="nav-icon">⇅</span><span data-i18n="sortOnly">Järjestä</span></span></span>
+        <span class="tool-row-sub" id="sortRowSub"></span>
+      </button>
+    </div>
+    <div class="sales-box">
+      <div class="sales-title">💶 <span data-i18n="salesYTD">Myynti YTD</span></div>
+      <div class="sales-main" id="salesTotal">€0</div>
+    </div>
+    <div class="company-logo-card" id="companyLogoCard" hidden>
+      <img class="company-logo-img" id="companyLogoImg" alt="" hidden>
+      <div class="company-logo-fallback" id="companyLogoFallback">🏢</div>
+      <div class="company-logo-name" id="companyLogoName"></div>
+    </div>
+    <div class="side-tools">
+      <div class="tools-block">
+        <div class="tools-label" data-i18n="tools">Työkalut</div>
+        <a class="btn tool" href="data-tools.html">📥 <span data-i18n="import">Tuonti / Vienti</span></a>
+        <a class="btn tool" href="report.html?v=1">📊 <span data-i18n="report">Raportti</span></a>
+      </div>
+      <div class="footer"><span data-i18n="footerLine1">© 2026 Opero</span><br><span data-i18n="footerLine2">All rights reserved.</span></div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="filter-panel" id="filterPanel" hidden>
+      <div class="filter-panel-head">
+        <div><div class="history-title" data-i18n="filterOnly">Suodata</div><div class="history-sub" id="filterPanelSubtitle" data-i18n="customersView">Asiakkaat-näkymä</div></div>
+        <button class="btn" id="btnCloseFilter" type="button" data-i18n="close">Sulje</button>
+      </div>
+      <div class="filter-panel-body">
+        <div class="filter-section">
+          <div class="filter-group-label" data-i18n="groupDateRange">Aikaväli</div>
+          <select id="fRange">
+            <option value="all" data-i18n="allTime">Kaikki aika</option>
+            <option value="this-week" data-i18n="thisWeek">Tämä viikko</option>
+            <option value="last-week" data-i18n="lastWeek">Edellinen viikko</option>
+            <option value="this-month" data-i18n="thisMonth">Tämä kuukausi</option>
+            <option value="last-month" data-i18n="lastMonth">Edellinen kuukausi</option>
+            <option value="pick-week" data-i18n="pickWeek">Valittu viikko…</option>
+            <option value="pick-month" data-i18n="pickMonth">Valittu kuukausi…</option>
+            <option value="custom" data-i18n="customRange">Oma aikaväli…</option>
+          </select>
+          <div id="fRangeWeekWrap" style="display:none"><div class="label" data-i18n="dayInWeek">Päivä valitulla viikolla</div><input id="fRangeWeek" type="date"></div>
+          <div id="fRangeMonthWrap" style="display:none"><div class="label" data-i18n="month">Kuukausi</div><input id="fRangeMonth" type="month"></div>
+          <div id="fRangeCustomWrap" class="grid2" style="display:none">
+            <div class="field"><div class="label" data-i18n="startDate">Alkupäivä</div><input id="fRangeStart" type="date"></div>
+            <div class="field"><div class="label" data-i18n="endDate">Loppupäivä</div><input id="fRangeEnd" type="date"></div>
+          </div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-group-label" data-i18n="groupCustomer">Asiakas</div>
+          <label class="chk-row"><input type="checkbox" id="fPriorityOnly"> <span data-i18n="priorityOnlyLabel">Vain priority-asiakkaat</span></label>
+          <label class="chk-row"><input type="checkbox" id="fNeverContacted"> <span data-i18n="neverContactedLabel">Ei koskaan kontaktoitu</span></label>
+          <div class="field">
+            <div class="label" data-i18n="cityFieldLabel">Kaupunki</div>
+            <div class="ac-wrap">
+              <input id="fCityInput" type="text" autocomplete="off" data-i18n-ph="citySearchPlaceholder" placeholder="Hae kaupunkia...">
+              <button class="ac-clear" id="fCityClear" type="button" hidden>×</button>
+              <div class="ac-list" id="fCityList" hidden></div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="label" data-i18n="regionFieldLabel">Maakunta</div>
+            <div class="ac-wrap">
+              <input id="fRegionInput" type="text" autocomplete="off" data-i18n-ph="regionSearchPlaceholder" placeholder="Hae maakuntaa...">
+              <button class="ac-clear" id="fRegionClear" type="button" hidden>×</button>
+              <div class="ac-list" id="fRegionList" hidden></div>
+            </div>
+          </div>
+          <div id="fNextActionWrap"><select id="fNextAction">
+            <option value="" data-i18n="nextActionAll">Seuraava toimenpide: kaikki</option>
+            <option value="overdue" data-i18n="overdue">Erääntyneet</option>
+            <option value="today" data-i18n="dueToday">Tänään</option>
+            <option value="next7" data-i18n="next7">Seuraavat 7 päivää</option>
+            <option value="none" data-i18n="noNextAction">Ei seuraavaa toimenpidettä</option>
+          </select></div>
+          <div id="fNewWrap"><select id="fNew">
+            <option value="" data-i18n="newAll">Uudet asiakkaat: kaikki</option>
+            <option value="this-week" data-i18n="newThisWeek">Uudet tällä viikolla</option>
+            <option value="this-month" data-i18n="newThisMonth">Uudet tässä kuussa</option>
+          </select></div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-group-label" data-i18n="groupSales">Myynti</div>
+          <select id="fBought">
+            <option value="" data-i18n="boughtAll">Osto: kaikki</option>
+            <option value="bought" data-i18n="bought">Ostaneet</option>
+            <option value="not-bought" data-i18n="notBought">Ei ostaneet</option>
+          </select>
+          <select id="fChange" data-i18n-title="selectTimePeriodFirst" title="Valitse ensin aikaväli">
+            <option value="" data-i18n="changeAll">Myynnin muutos: kaikki</option>
+            <option value="down" data-i18n="salesDown">Myynti laskenut</option>
+            <option value="up" data-i18n="salesUp">Myynti kasvanut</option>
+            <option value="flat" data-i18n="salesFlat">Myynti ennallaan</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-panel-active" id="filterPanelActive" hidden></div>
+      <div class="filter-panel-footer"><button class="btn" id="btnClearFilters" type="button" data-i18n="clearFilters">Tyhjennä kaikki</button></div>
+    </div>
+    <div class="filter-panel" id="sortPanel" hidden>
+      <div class="filter-panel-head">
+        <div><div class="history-title" data-i18n="sortOnly">Järjestä</div><div class="history-sub" id="sortPanelSubtitle" data-i18n="customersView">Asiakkaat-näkymä</div></div>
+        <button class="btn" id="btnCloseSort" type="button" data-i18n="close">Sulje</button>
+      </div>
+      <div class="filter-panel-body">
+        <div class="filter-section">
+          <div class="label" data-i18n="sortBy">Järjestä</div>
+          <select id="fSort"></select>
+          <label class="chk-row"><input type="checkbox" id="fPriorityFirst"> <span data-i18n="priorityFirst">Priority ensin</span></label>
+        </div>
+      </div>
+    </div>
+    <section class="content">
+      <section id="ajoApp" class="ajo-app" hidden aria-label="Ajot & Kulut"></section>
+      <div class="card">
+        <header class="topbar list-topbar">
+          <div class="left">
+            <div class="page-title" id="pageTitle">Soita tänään</div>
+            <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta…"></div>
+          </div>
+          <div class="right">
+            <button class="btn subtle" id="btnNewCustomer" type="button" style="font-weight:500" data-i18n="newCustomerBtn">＋ Lisää asiakas</button>
+            <button class="btn subtle" id="btnRefresh" type="button" style="font-weight:500">↻ Päivitä</button>
+          </div>
+        </header>
+        <div class="list-toolbar" id="listToolbar" hidden>
+          <div class="filter-dots" id="filterDots">
+            <button class="filter-dot green" data-color="green" data-i18n-title="dot030" title="0–30 päivää kärkeen" type="button"></button>
+            <button class="filter-dot yellow" data-color="yellow" data-i18n-title="dot3160" title="31–60 päivää kärkeen" type="button"></button>
+            <button class="filter-dot orange" data-color="orange" data-i18n-title="dot6190" title="61–90 päivää kärkeen" type="button"></button>
+            <button class="filter-dot red" data-color="red" data-i18n-title="dot90plus" title="90+ päivää kärkeen" type="button"></button>
+          </div>
+          <div class="hint" id="listStatus"></div>
+        </div>
+        <div class="card-body" id="listBody"><div id="list" class="list"></div></div>
+      </div>
+      <div class="card detail" id="detailCard">
+        <div class="detail-header">
+          <div style="min-width:0;flex:1">
+            <div class="detail-name-row" id="detailNameRow"><h2 id="detailName">Valitse asiakas</h2></div>
+            <div class="subline" id="detailSub">Klikkaa listasta asiakasta.</div>
+          </div>
+          <button class="btn mobile-back" id="btnBack" type="button" data-i18n="back">← Takaisin</button>
+        </div>
+        <div class="detail-body" id="detailBody"><div class="note-box"><div class="hint">Valitse asiakas vasemmalta.</div></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+
+<div hidden><button id="fail"></button><p id="proof"></p></div><button class="btn preview-theme" id="previewTheme">Vaihda teemaa</button><script type="module">import{createAjoKulut}from'../ajo-kulut.js';
+window.print=()=>{document.querySelector('#proof').textContent+=' · PDF-kuvat '+document.querySelectorAll('#ajoPrint img').length};
+const tables=JSON.parse(sessionStorage.getItem('preview-db')||'null')||{kontakti_trips:[],kontakti_trip_customers:[],kontakti_expenses:[],kontakti_expense_receipts:[]};let fail=false;
+document.querySelector('#fail').onclick=()=>{fail=true;document.querySelector('#fail').textContent='Yhteyskatko aktivoitu'};
+const proof=()=>document.querySelector('#proof').textContent=`Tallennettuja ajoja ${tables.kontakti_trips.length}, kuluja ${tables.kontakti_expenses.length}`;
+const sb={from(table){let filters=[],start=0,end=499,single=false;const query={select(){return query},eq(k,v){filters.push(r=>r[k]===v);return query},is(k,v){filters.push(r=>(r[k]??null)===v);return query},order(){return query},range(a,b){start=a;end=b;return query},single(){single=true;return query},maybeSingle(){single=true;return query},then(resolve){const rows=tables[table].filter(r=>filters.every(f=>f(r))).slice(start,end+1);return Promise.resolve({data:single?(rows[0]||null):rows,error:null}).then(resolve)}};return query},async rpc(name,p){const isTrip=name==='kontakti_create_trip',table=isTrip?'kontakti_trips':'kontakti_expenses';if(!tables[table].some(r=>r.id===p.p_id)){tables[table].push(isTrip?{id:p.p_id,workspace_id:p.p_workspace,trip_date:p.p_date,route_text:p.p_route,kilometers:p.p_km,reimbursement:Math.round(p.p_km*p.p_rate*100)/100,notes:p.p_notes,created_at:new Date().toISOString()}:{id:p.p_id,workspace_id:p.p_workspace,expense_date:p.p_date,category:p.p_category,amount:p.p_amount,notes:p.p_notes,trip_id:p.p_trip,created_at:new Date().toISOString()});if(p.p_sha)tables.kontakti_expense_receipts.push({id:crypto.randomUUID(),expense_id:p.p_id,workspace_id:p.p_workspace,image_sha256:p.p_sha,storage_path:p.p_path});}sessionStorage.setItem('preview-db',JSON.stringify(tables));proof();if(!isTrip&&fail){fail=false;return {error:{message:'Testiyhteys katkesi tallennuksen jälkeen'}}}return {data:p.p_id,error:null}},storage:{from(){return {async upload(path,blob){sessionStorage.setItem('preview-receipt:'+path,await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob)}));return {data:{path},error:null}},async createSignedUrl(path){return {data:{signedUrl:sessionStorage.getItem('preview-receipt:'+path)},error:null}}}}}};
+proof();createAjoKulut({sb,getWorkspace:async()=>({id:'preview-workspace'}),getUser:()=>({id:'preview-user'}),getCustomers:()=>[]}).open(document.querySelector('#ajoApp'));
+
+const menu=document.querySelector('#btnMobileMenu');menu.onclick=()=>{document.body.classList.toggle('menu-open');menu.setAttribute('aria-expanded',document.body.classList.contains('menu-open'))};document.querySelector('#mobileMenuBackdrop').onclick=()=>document.body.classList.remove('menu-open');document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{document.body.dataset.view=b.dataset.view;document.querySelector('#ajoApp').hidden=b.dataset.view!=='ajo';document.querySelector('#mobileViewName').textContent=b.textContent.trim();document.body.classList.remove('menu-open')});document.querySelector('#previewTheme').onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light';};document.body.classList.remove('booting');document.body.dataset.view='ajo';document.querySelector('#ajoApp').hidden=false;document.documentElement.dataset.theme='light';document.querySelector('#mobileViewName').textContent='Ajot & Kulut';
+</script></body>
+</html>
