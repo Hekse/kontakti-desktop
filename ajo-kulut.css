@@ -95,3 +95,15 @@
 @media(max-width:420px){.ajo-app .ajo-panel{padding:16px}.ajo-app .ajo-dialog{padding:20px}}
 .ajo-app .ajo-panel>.ajo-title{justify-content:flex-end;margin-bottom:4px}
 .ajo-app .ajo-panel>.ajo-title>span{display:none}
+
+/* Match both existing Kontakti theme tokens and the mobile module tokens. */
+.ajo-app{--brand-rgb:45,107,255;--solid:var(--solid-panel);--danger-rgb:255,77,77}
+.ajo-app .ajo-btn.primary{background:var(--brand,#2d6bff);border:1px solid rgba(255,255,255,.22);color:#fff;box-shadow:0 4px 14px rgba(45,107,255,.2)}
+.ajo-app input[type=time],.ajo-app input[type=datetime-local]{color-scheme:dark}
+:root[data-theme="light"] .ajo-app input[type=time],:root[data-theme="light"] .ajo-app input[type=datetime-local]{color-scheme:light}
+#ajoSettings h3{margin-top:18px}
+#ajoSettings .ajo-place{margin:8px 0}
+@media(max-width:420px){.ajo-app .ajo-row:has(input[type=datetime-local]){grid-template-columns:1fr}}
+
+#ajoSettings .ajo-place .ajo-btn{width:auto;padding:8px 14px}
+#ajoSettings .ajo-record{display:grid;gap:8px}

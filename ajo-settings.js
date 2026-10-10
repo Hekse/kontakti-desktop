@@ -1,0 +1,28 @@
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export const settingsKey=(user,workspace)=>'kontakti-ajo-settings:'+user+':'+workspace;
+export function readSettings(key){const s=JSON.parse(localStorage.getItem(key)||'{}');return {...s,places:Array.isArray(s.places)?s.places:[],vehicles:Array.isArray(s.vehicles)?s.vehicles:[]}}
+export function writeSettings(key,patch){localStorage.setItem(key,JSON.stringify({...readSettings(key),...patch}));}
+export async function mountAjoSettings(root,{getWorkspace,getUser}){
+  try{
+    const workspace=await getWorkspace(),key=settingsKey(getUser().id,workspace.id);
+    if(!root.isConnected)return;
+    const draw=()=>{
+      const s=readSettings(key);
+      root.innerHTML=`<h3>Ajot & Kulut</h3><p>Omat paikat ja ajoneuvot muistetaan tässä selaimessa käyttäjä- ja työtilakohtaisesti. Ajolle valitut ajoneuvo- ja aikatiedot tallennetaan ajokirjauksen mukana pilveen.</p>
+      <h3>Omat paikat</h3><form id="placeForm"><div class="ajo-field"><label for="newPlace">Paikka / osoite</label><input id="newPlace" maxlength="120" required></div><button class="ajo-btn" type="submit">Lisää paikka</button></form>
+      <div>${s.places.map((p,i)=>`<div class="ajo-place"><input aria-label="Muokkaa paikkaa" data-place="${i}" value="${esc(p)}" maxlength="120"><button class="ajo-btn" type="button" data-save-place="${i}">Tallenna</button><button class="ajo-small" type="button" data-remove-place="${i}">Poista</button></div>`).join('')}</div>
+      <h3>Ajoneuvot</h3><form id="vehicleForm"><div class="ajo-field"><label for="vehicleRegistration">Rekisterinumero</label><input id="vehicleRegistration" maxlength="20" required></div><div class="ajo-field"><label for="vehicleModel">Merkki / malli (valinnainen)</label><input id="vehicleModel" maxlength="100"></div><div class="ajo-field"><label for="vehicleType">Kulkuneuvo</label><select id="vehicleType"><option>Auto</option><option>Moottoripyörä</option><option>Mopo</option><option>Muu</option></select></div><button class="ajo-btn" type="submit">Lisää ajoneuvo</button></form>
+      <div>${s.vehicles.map((v,i)=>`<div class="ajo-record"><input aria-label="Rekisterinumero ${esc(v.registration)}" data-vehicle-reg="${i}" maxlength="20" value="${esc(v.registration)}"><input aria-label="Merkki ja malli ${esc(v.registration)}" data-vehicle-model="${i}" maxlength="100" value="${esc(v.model)}"><select aria-label="Kulkuneuvo ${esc(v.registration)}" data-vehicle-type="${i}">${["Auto","Moottoripyörä","Mopo","Muu"].map(t=>`<option ${t===v.type?"selected":""}>${t}</option>`).join("")}</select><button class="ajo-btn" type="button" data-save-vehicle="${i}">Tallenna</button> <button class="ajo-small" type="button" data-remove-vehicle="${i}">Poista</button></div>`).join('')}</div>
+      <div class="ajo-field"><label for="defaultVehicle">Oletusajoneuvo</label><select id="defaultVehicle"><option value="">Ei oletusta</option>${s.vehicles.map(v=>`<option value="${esc(v.id)}" ${s.defaultVehicle===v.id?'selected':''}>${esc(v.registration)} ${esc(v.model)}</option>`).join('')}</select></div><p id="ajoSettingsMessage" role="status"></p>`;
+      const message=t=>root.querySelector('#ajoSettingsMessage').textContent=t;
+      const save=patch=>{try{writeSettings(key,patch);draw();message('Tallennettu tähän selaimeen.');return true}catch{message('Tallennus epäonnistui. Muutos ei tallentunut.');return false}};
+      root.querySelector('#placeForm').onsubmit=e=>{e.preventDefault();const place=root.querySelector('#newPlace').value.trim();if(place)save({places:[...new Set([...s.places,place])]})};
+      root.querySelector('#vehicleForm').onsubmit=e=>{e.preventDefault();const registration=root.querySelector('#vehicleRegistration').value.trim().toUpperCase();if(!registration)return;if(s.vehicles.some(v=>v.registration.toUpperCase()===registration)){message('Ajoneuvo on jo listassa.');return}const v={id:crypto.randomUUID(),registration,model:root.querySelector('#vehicleModel').value.trim(),type:root.querySelector('#vehicleType').value};save({vehicles:[...s.vehicles,v],defaultVehicle:s.defaultVehicle||v.id})};
+      root.querySelector('#defaultVehicle').onchange=e=>save({defaultVehicle:e.target.value});
+      root.querySelectorAll('[data-save-place]').forEach(button=>button.onclick=()=>{const index=Number(button.dataset.savePlace),value=root.querySelector('[data-place="'+index+'"]').value.trim();if(!value){message('Paikka ei saa olla tyhjä.');return}const places=[...s.places];places[index]=value;save({places:[...new Set(places)]})});
+      root.querySelectorAll('[data-save-vehicle]').forEach(button=>button.onclick=()=>{const index=Number(button.dataset.saveVehicle),registration=root.querySelector('[data-vehicle-reg="'+index+'"]').value.trim().toUpperCase(),model=root.querySelector('[data-vehicle-model="'+index+'"]').value.trim(),type=root.querySelector('[data-vehicle-type="'+index+'"]').value;if(!registration||s.vehicles.some((v,i)=>i!==index&&v.registration.toUpperCase()===registration)){message('Tarkista yksilöllinen rekisterinumero.');return}save({vehicles:s.vehicles.map((v,i)=>i===index?{...v,registration,model,type}:v)})});
+      root.querySelectorAll('[data-remove-place]').forEach(b=>b.onclick=()=>save({places:s.places.filter((_,i)=>i!==Number(b.dataset.removePlace))}));
+      root.querySelectorAll('[data-remove-vehicle]').forEach(b=>b.onclick=()=>{const vehicles=s.vehicles.filter((_,i)=>i!==Number(b.dataset.removeVehicle));save({vehicles,defaultVehicle:vehicles.some(v=>v.id===s.defaultVehicle)?s.defaultVehicle:''})});
+    };draw();
+  }catch{root.textContent='Ajot & Kulut -asetuksia ei voitu ladata.'}
+}

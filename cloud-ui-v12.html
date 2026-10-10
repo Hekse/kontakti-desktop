@@ -319,7 +319,7 @@ body.booting>*:not(#splash){visibility:hidden}
 .lang-flag{display:block;width:22px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(128,145,175,.25)}
 .lang-opt{display:inline-flex;align-items:center;justify-content:center}
 </style>
-<link rel="stylesheet" href="./ajo-kulut.css">
+<link rel="stylesheet" href="./ajo-kulut.css?v=1.2.2">
 <style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
 </head>
 <body class="booting">
@@ -528,7 +528,8 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
 </div>
 
 <script type="module">
-import {createAjoKulut} from "./ajo-kulut.js";
+import {mountAjoSettings} from './ajo-settings.js?v=1.2.2';
+import {createAjoKulut} from "./ajo-kulut.js?v=1.2.2";
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
 const $=id=>document.getElementById(id);
@@ -1955,6 +1956,7 @@ function renderSettingsDetail(){
         <span>🔴 ${esc(t('legendColor90plus'))}</span>
       </div>
     </div>
+    <div class="note-box ajo-app" id="ajoSettings"></div>
     <div class="note-box danger-zone-box">
       <div class="note-top"><div class="t" style="color:var(--danger)">${esc(t('dangerZone'))}</div></div>
       <div class="hint">${esc(t('dangerZoneDesc'))}</div>
@@ -1964,6 +1966,7 @@ function renderSettingsDetail(){
       </div>
     </div>
     <div class="note-box"><div class="note-top"><div class="t">${esc(t('tools'))}</div></div><div class="actions"><a class="btn" href="data-tools.html">📥 ${esc(t('import'))}</a><a class="btn" href="report.html?v=1">📊 ${esc(t('report'))}</a></div></div><div class="actions" style="margin-top:2px"><button class="btn subtle" id="btnSignOutDetail" type="button">${esc(t('signOut'))}</button></div>`;
+  mountAjoSettings($('ajoSettings'),{getWorkspace:()=>workspace(),getUser:()=>user});
   $('btnSignOutDetail')?.addEventListener('click',doSignOut);
   $('btnDeleteAllCustomers')?.addEventListener('click',confirmDeleteAllStep1);
   $('btnThemeDark')?.addEventListener('click',()=>setTheme('dark'));

@@ -23,3 +23,19 @@ export function batchIds(storage,key,fingerprint,count,uuid){
   const batch={fingerprint,trip:uuid(),expenses:Array.from({length:count},uuid)};
   storage.setItem(key,JSON.stringify(batch));return batch;
 }
+
+const validDateTime=value=>{if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value||''))return false;const [year,month,day,hour,minute]=value.split(/[-T:]/).map(Number),d=new Date(year,month-1,day,hour,minute);return d.getFullYear()===year&&d.getMonth()===month-1&&d.getDate()===day&&d.getHours()===hour&&d.getMinutes()===minute};
+const TRIP_METADATA='\n[Kontakti-ajotiedot-v1]';
+export function tripDetails(notes){
+  const value=String(notes||''),i=value.lastIndexOf(TRIP_METADATA);
+  if(i<0)return {notes:value,metadata:null};
+  try{const metadata=JSON.parse(value.slice(i+TRIP_METADATA.length));if(metadata.version!==1||!metadata.vehicle||typeof metadata.vehicle.registration!=='string'||typeof metadata.vehicle.type!=='string'||typeof metadata.startAt!=='string'||typeof metadata.endAt!=='string'||!validDateTime(metadata.startAt)||!validDateTime(metadata.endAt)||metadata.endAt<metadata.startAt)return {notes:value,metadata:null};return {notes:value.slice(0,i),metadata}}catch{return {notes:value,metadata:null}}
+}
+export function withTripDetails(trip,{vehicle,startAt,endAt}){
+  if(!vehicle?.registration||!vehicle?.type)throw Error('Lisää ajoneuvo asetuksissa ja valitse se ajolle.');
+  if(!validDateTime(startAt)||!validDateTime(endAt)||endAt<startAt||startAt.slice(0,10)!==trip.date)throw Error('Tarkista lähtö- ja paluuajankohdat. Paluu ei voi olla ennen lähtöä.');
+  const metadata={version:1,vehicle:{registration:vehicle.registration,model:vehicle.model||'',type:vehicle.type},startAt,endAt};
+  const notes=trip.notes+TRIP_METADATA+JSON.stringify(metadata);
+  if(notes.length>2000)throw Error('Muistiinpano on liian pitkä ajoneuvo- ja aikatietojen kanssa.');
+  return {...trip,notes};
+}
