@@ -319,7 +319,7 @@ body.booting>*:not(#splash){visibility:hidden}
 .lang-flag{display:block;width:22px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(128,145,175,.25)}
 .lang-opt{display:inline-flex;align-items:center;justify-content:center}
 </style>
-<link rel="stylesheet" href="./ajo-kulut.css?v=1.2.2">
+<link rel="stylesheet" href="./ajo-kulut.css?v=1.2.3">
 <style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
 </head>
 <body class="booting">
@@ -528,8 +528,8 @@ try{ if(localStorage.getItem('kontakti_v5_lang')==='en') document.getElementById
 </div>
 
 <script type="module">
-import {mountAjoSettings} from './ajo-settings.js?v=1.2.2';
-import {createAjoKulut} from "./ajo-kulut.js?v=1.2.2";
+import {mountAjoSettings} from './ajo-settings.js?v=1.2.3';
+import {createAjoKulut} from "./ajo-kulut.js?v=1.2.3";
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
 const $=id=>document.getElementById(id);
@@ -801,6 +801,7 @@ function setLang(lang){
   LANG=(lang==='en')?'en':'fi';
   localStorage.setItem(LS_LANG,LANG);
   applyStaticI18n(); updateLangSwitcherUI();
+  ajoKulut.refreshLanguage();
   renderAll();
 }
 
@@ -2345,6 +2346,7 @@ async function init(){
   try{
     applyTheme();
     applyStaticI18n(); updateLangSwitcherUI();
+  ajoKulut.refreshLanguage();
     wire();
     $('splashRetry').addEventListener('click',boot);
   }catch(e){ splashShowError(e); return; }
