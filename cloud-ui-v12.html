@@ -320,7 +320,7 @@ body.booting>*:not(#splash){visibility:hidden}
 .lang-opt{display:inline-flex;align-items:center;justify-content:center}
 </style>
 <link rel="stylesheet" href="./ajo-kulut.css">
-<style>body[data-view=ajo] .content{display:block}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px}#ajoApp[hidden]{display:none!important}</style>
+<style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
 </head>
 <body class="booting">
 <div class="splash" id="splash" role="status" aria-live="polite">
