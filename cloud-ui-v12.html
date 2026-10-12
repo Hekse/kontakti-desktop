@@ -1329,6 +1329,17 @@ function totalSalesFor(customerId){
 }
 
 const nextActionOptions=['Soitto','Tapaaminen','Tarjous','Seuranta','Sähköposti','Muu'];
+function getRelatedByBusinessId(c){
+  const businessId=String(c?.business_id||'').toLowerCase().trim();
+  if(!businessId) return [];
+  return cs.filter(x=>x.id!==c.id&&String(x.business_id||'').toLowerCase().trim()===businessId)
+    .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+}
+function renderRelatedPlaces(c){
+  const related=getRelatedByBusinessId(c);
+  if(!related.length) return '';
+  return `<section class="note-box"><div class="note-top"><div class="t">${esc(LANG==='en'?'Other locations of the same company':'Muut saman yrityksen paikat')}</div></div>${related.map(x=>`<button class="btn" type="button" data-related-id="${esc(x.id)}">${esc(x.name||'')}${x.city?` · ${esc(x.city)}`:''}</button>`).join('')}</section>`;
+}
 function renderDetail(){
   if(view==='settings') return renderSettingsDetail();
   if(view==='weekly') return renderWeeklyDetail();
@@ -1420,6 +1431,7 @@ function renderDetail(){
         <button class="btn" id="btnEmail" type="button" ${emailBtnMail?'':'disabled'}>${esc(t('email'))}</button>
       </div>`}
     </div>
+    ${renderRelatedPlaces(c)}
     ${renderHistoryPopover(c)}
   `;
   wireDetail(c,callTel,emailBtnMail,mapsUrl);
@@ -1437,6 +1449,10 @@ function renderHistoryPopover(c){
 function buttonSaved(btn,text){ if(!btn) return; const old=btn.textContent; btn.classList.add('is-ok'); btn.textContent=text||'✓'; setTimeout(()=>{btn.classList.remove('is-ok');btn.textContent=old},1600); }
 
 function wireDetail(c,tel,mail,mapsUrl){
+  $('detailBody').querySelectorAll('[data-related-id]').forEach(btn=>btn.addEventListener('click',()=>{
+    sel=btn.dataset.relatedId; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false;
+    renderAll();
+  }));
   $('btnOpenHistory')?.addEventListener('click',()=>{ historyOpen=!historyOpen; renderDetail(); });
   $('btnCloseHistory')?.addEventListener('click',()=>{ historyOpen=false; renderDetail(); });
   $('btnCall')?.addEventListener('click',()=>{ if(tel) window.location.href=tel; });
