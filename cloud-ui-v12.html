@@ -293,7 +293,7 @@ body.booting>*:not(#splash){visibility:hidden}
 </style>
 <link rel="stylesheet" href="./ajo-kulut.css?v=20261015">
 <style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
-<link rel="stylesheet" href="./login-screen.css?v=20261015b">
+<link rel="stylesheet" href="./login-screen.css?v=20261015c">
 <link rel="preload" as="image" href="./assets/kontakti-login-town.png">
 <link rel="icon" href="./favicon.ico?v=20261015" sizes="48x48 192x192">
 <link rel="icon" href="./assets/kontakti-mark.svg?v=20261015" type="image/svg+xml" sizes="any">
@@ -513,7 +513,7 @@ body.booting>*:not(#splash){visibility:hidden}
 <script type="module">
 import {mountAjoSettings} from './ajo-settings.js?v=1.2.3';
 import {createAjoKulut} from "./ajo-kulut.js?v=1.2.3";
-import{createLoginScreen}from'./login-screen.js?v=20261015b';
+import{createLoginScreen}from'./login-screen.js?v=20261015c';
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
 const $=id=>document.getElementById(id);
@@ -2295,7 +2295,7 @@ function wire(){
 // (fetchAllRows), indeksit rakennettu ja ensimmäinen render tehty. Virheessä splash vaihtuu virhetilaan
 // eikä keskeneräistä sovellusta näytetä. Ei automaattista uudelleenyritystä.
 let bootRunning=false;
-const loginScreen=createLoginScreen({host:$('splash'),sb,onAuthenticated:()=>boot(),onLanguageChange:lang=>{LANG=lang;applyStaticI18n();updateLangSwitcherUI();ajoKulut.refreshLanguage();}});
+const loginScreen=createLoginScreen({host:$('splash'),sb,onAuthenticated:()=>boot(),onThemeChange:theme=>{THEME=theme;applyTheme();},onLanguageChange:lang=>{LANG=lang;applyStaticI18n();updateLangSwitcherUI();ajoKulut.refreshLanguage();}});
 function splashShowLoading(){ loginScreen.loading(); }
 function splashShowError(e){
   console.error('[Kontakti] käynnistys epäonnistui',e);

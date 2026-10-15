@@ -5,11 +5,15 @@ const translations={
 
 // Credentials stay in the form and go only to the existing Supabase Auth call.
 // Workspace data is loaded by the application once, before this screen is hidden.
-export function createLoginScreen({host,sb,onAuthenticated,onLanguageChange}){
+export function createLoginScreen({host,sb,onAuthenticated,onLanguageChange,onThemeChange}){
  const q=id=>host.querySelector('#'+id);
  let lang='fi';try{lang=localStorage.getItem('kontakti_v5_lang')==='en'?'en':'fi'}catch{}
  let submitting=false,loadingKey='loading',errorKey=null;
  const t=key=>translations[lang][key];
+ const themeButton=document.createElement('button');themeButton.type='button';themeButton.className='login-theme';themeButton.textContent='◐';
+ host.querySelector('.login-languages')?.appendChild(themeButton);
+ function updateThemeButton(){const dark=document.documentElement.getAttribute('data-theme')==='dark';themeButton.setAttribute('aria-pressed',String(dark));themeButton.setAttribute('aria-label',lang==='en'?'Switch light or dark theme':'Vaihda vaalea tai tumma teema')}
+ themeButton.addEventListener('click',()=>{const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';try{localStorage.setItem('kontakti_theme',next)}catch{}document.documentElement.setAttribute('data-theme',next);onThemeChange?.(next);updateThemeButton()});
  function applyLanguage(){
   host.querySelectorAll('[data-login-i18n]').forEach(el=>{el.textContent=t(el.dataset.loginI18n)});
   host.querySelectorAll('[data-login-lang]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.loginLang===lang)));
@@ -17,6 +21,7 @@ export function createLoginScreen({host,sb,onAuthenticated,onLanguageChange}){
   q('loginLoadingTitle').textContent=t(loadingKey);
   if(errorKey)q('loginError').textContent=t(errorKey);
   document.documentElement.lang=lang;
+  updateThemeButton();
  }
  function loading(key='loading'){
   loadingKey=key;host.hidden=false;q('loginLoading').hidden=false;q('loginError').hidden=true;q('splashRetry').hidden=true;

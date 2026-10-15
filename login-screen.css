@@ -9,7 +9,7 @@
 .login-page .login-hero-brand img{width:64px;height:64px}
 .login-page .login-hero-brand strong,.login-page .login-brand strong{display:block;font-size:36px;letter-spacing:-1px;line-height:1.15}
 .login-page .login-hero-brand span,.login-page .login-brand span{display:block;color:#55729b;font-size:16px;margin-top:4px}
-.login-page h1{font-size:clamp(30px,3.1vw,50px);font-weight:720;letter-spacing:-1.6px;line-height:1.15;margin:0 0 22px;color:#102a4c}
+.login-page h1{font-size:clamp(30px,3.1vw,50px);font-weight:500;letter-spacing:-1.3px;line-height:1.2;margin:0 0 22px;color:#102a4c}
 .login-page h1 span{display:block;color:inherit}
 .login-page .login-intro{font-size:19px;line-height:1.65;color:#526f97;max-width:470px;margin:0 0 40px}
 .login-page .login-features{padding:0;list-style:none;margin:0;display:grid;gap:26px;max-width:430px}
@@ -55,3 +55,14 @@
 @media(max-width:1100px){.login-page .login-layout{grid-template-columns:minmax(0,1fr) 390px;gap:28px;padding:28px}.login-page .login-card{padding:28px}.login-page .login-hero-brand{margin-bottom:34px}.login-page .login-features{gap:19px}.login-page .login-feature-icon{flex-basis:48px;height:48px}.login-page .login-features li{gap:14px}.login-page .login-features strong{font-size:16px}.login-page .login-features small{font-size:14px}.login-page .login-intro{font-size:17px;max-width:360px}}
 @media(max-width:800px){.login-page{background-position:55% top;background-size:auto 900px;background-attachment:local}.login-page .login-layout{grid-template-columns:1fr;max-width:510px;gap:24px;padding:28px 16px;min-height:100%}.login-page .login-hero{padding:0}.login-page .login-hero-brand,.login-page .login-features{display:none}.login-page h1{font-size:30px;letter-spacing:-1px;margin:0 0 12px}.login-page .login-intro{font-size:15px;max-width:390px;margin:0}.login-page .login-card{padding:28px 24px;border-radius:24px}.login-page .login-brand{gap:10px}.login-page .login-brand strong{font-size:28px}.login-page .login-brand img{width:48px;height:48px}.login-page .login-languages{gap:0}.login-page .login-languages button{width:34px}.login-page .login-brand{margin-bottom:24px;padding-bottom:22px}}
 @media(prefers-reduced-motion:reduce){.login-page .login-spinner,.login-page .login-progress span{animation:none}}
+.login-page .login-hero-brand strong,.login-page .login-brand strong{font-weight:550}
+.login-page h2{font-weight:500}
+.login-page .login-languages svg{outline:1px solid #889bb444;outline-offset:0}
+.login-page .login-languages .login-theme{opacity:1;color:inherit;font-size:23px}
+:root[data-theme="dark"] .login-page{background-color:#101d30;background-image:linear-gradient(#08162bd9,#08162bd9),url('./assets/kontakti-login-town.png');color:#edf3fc;color-scheme:dark}
+:root[data-theme="dark"] .login-page .login-card{background:#17263b}
+:root[data-theme="dark"] .login-page h1,:root[data-theme="dark"] .login-page h2,:root[data-theme="dark"] .login-page label,:root[data-theme="dark"] .login-page .login-loading strong{color:#edf3fc}
+:root[data-theme="dark"] .login-page .login-intro,:root[data-theme="dark"] .login-page .login-brand span,:root[data-theme="dark"] .login-page .login-hero-brand span,:root[data-theme="dark"] .login-page .login-features small,:root[data-theme="dark"] .login-page .login-welcome p,:root[data-theme="dark"] .login-page .login-forgot,:root[data-theme="dark"] .login-page .login-loading small{color:#b5c6df}
+:root[data-theme="dark"] .login-page input{background:#0d1b2e;border-color:#4a6486;color:#edf3fc}
+:root[data-theme="dark"] .login-page .login-brand,:root[data-theme="dark"] .login-page .login-loading{border-color:#405470}
+:root[data-theme="dark"] .login-page .login-feature-icon{background:#243c60}
