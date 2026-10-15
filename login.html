@@ -74,9 +74,49 @@ input::placeholder{color:var(--muted)}
   .login-card{padding:26px 22px;gap:22px;border-radius:20px}
   .title{font-size:26px}
 }
+
+/* Shared Opero family: light introduction and a focused sign-in card. */
+:root{--text:#102a4c;--muted:#516985;--danger:#b42332;color-scheme:light}
+body{height:auto;min-height:100vh;padding:40px;background:radial-gradient(ellipse at 38% 50%,#dceaff,transparent 65%),#edf3fa}
+.login-layout{width:min(1380px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,500px);align-items:center;gap:72px}
+.login-hero{min-width:0;padding:12px 0}
+.hero-brand{display:flex;align-items:center;gap:16px;margin-bottom:44px}
+.hero-brand img{width:64px;height:64px}.hero-brand strong{display:block;font-size:36px;letter-spacing:-1px}.hero-brand span{color:var(--muted)}
+.login-hero h1{font-size:clamp(30px,3.5vw,48px);line-height:1.15;letter-spacing:-1.5px;margin:0 0 22px;max-width:620px}
+.login-hero h1 span{display:block;color:#4d6f9f}
+.hero-intro{font-size:18px;line-height:1.65;color:var(--muted);max-width:490px;margin:0}
+.contact-network{width:100%;max-height:260px;margin:20px 0 8px;overflow:visible}
+.hero-features{display:grid;grid-template-columns:1fr 1fr;gap:20px;list-style:none;padding:0;margin:12px 0 0}
+.hero-features li{display:flex;gap:12px;align-items:center}.feature-icon{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:50%;background:#d9e6f9;color:#245baf;font-size:22px}.hero-features strong{display:block;font-size:15px}.hero-features small{display:block;color:var(--muted);line-height:1.5;margin-top:4px;font-size:13px}
+.login-card{width:100%;background:rgba(255,255,255,.96);border:1px solid #fff;border-radius:30px;padding:42px;gap:30px;box-shadow:0 20px 60px #25476f12;backdrop-filter:none}
+.login-brand{padding-bottom:28px;border-bottom:1px solid #d6e1f0}.title{font-size:32px}.sub{font-size:14px}
+.lang-opt{color:var(--text);background:#edf3fc;border-color:#cfdbec;font-size:12px;min-height:30px;min-width:32px}.lang-opt:hover{background:#dce9fc}.lang-opt.active{box-shadow:none;background:#e5eeff}
+.welcome-title{font-size:24px}.welcome-sub{font-size:15px}.label{font-size:14px;color:var(--text);font-weight:550}
+input{background:#edf3ff;border-color:#c4d3e9;color:var(--text);min-height:54px;border-radius:15px;font-size:16px}input:hover{border-color:#8da8cd}input:focus{background:#f4f7ff;border-color:var(--brand)}
+.pw-toggle:hover{background:#e0eafa}.forgot-link{font-size:14px;color:#42658f}.btn{min-height:54px;border-radius:15px;font-size:16px}:focus-visible{outline:3px solid #2d6bff;outline-offset:4px}
+@media(max-width:1000px){body{padding:28px}.login-layout{gap:32px;grid-template-columns:minmax(0,1fr) minmax(340px,440px)}.login-card{padding:32px}.hero-features{grid-template-columns:1fr}.contact-network{max-height:210px}}
+@media(max-width:760px){body{padding:24px 16px}.login-layout{max-width:480px;grid-template-columns:1fr;gap:24px}.hero-brand,.contact-network,.hero-features{display:none}.login-hero{padding:0 6px}.login-hero h1{font-size:30px;letter-spacing:-.8px;margin-bottom:12px}.hero-intro{font-size:15px;line-height:1.5}.login-card{padding:28px 24px;border-radius:24px;gap:24px}.login-brand{padding-bottom:22px}}
 </style>
 </head>
 <body>
+  <main class="login-layout">
+  <section class="login-hero" aria-labelledby="heroTitle">
+    <div class="hero-brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+" alt=""><div><strong>Kontakti</strong><span>by Opero</span></div></div>
+    <h1 id="heroTitle"><span data-i18n="heroTitle" style="color:inherit">Asiakkuudet mukana.</span><span data-i18n="heroSubtitle">Seuraava yhteys selvillä.</span></h1>
+    <p class="hero-intro" data-i18n="heroIntro">Pidä asiakkaat, puhelut ja seuraavat askeleet yhdessä. Näet yhdellä silmäyksellä, kehen on aika olla yhteydessä.</p>
+    <svg class="contact-network" viewBox="0 0 620 260" fill="none" aria-hidden="true">
+      <g stroke="#9dbbe5" stroke-width="2"><path d="M105 80L295 135L485 65M295 135L505 210M295 135L120 220"/><path d="M105 80Q265 -20 485 65M120 220Q310 285 505 210" stroke-dasharray="5 8" opacity=".6"/></g>
+      <g fill="#f7faff" stroke="#c5d8f1" stroke-width="2"><circle cx="105" cy="80" r="34"/><circle cx="485" cy="65" r="29"/><circle cx="505" cy="210" r="30"/><circle cx="120" cy="220" r="25"/><circle cx="295" cy="135" r="57"/></g>
+      <g stroke="#5986c0" stroke-width="2.5" stroke-linecap="round"><circle cx="105" cy="72" r="9"/><path d="M89 94c0-17 32-17 32 0"/><path d="M473 77V55h24v22m-17-14h2m7 0h2m-11 7h2m7 0h2"/><path d="M492 203h26v17h-26zM497 198h16"/><path d="M112 220l6 6 11-14"/></g>
+      <circle cx="295" cy="135" r="43" fill="#2d6bff" fill-opacity=".09"/>
+      <g stroke="#2d6bff" stroke-width="3" stroke-linecap="round"><circle cx="295" cy="123" r="12"/><path d="M273 153c0-24 44-24 44 0"/></g>
+      <g fill="#2d6bff"><circle cx="202" cy="108" r="4"/><circle cx="394" cy="98" r="4"/><circle cx="398" cy="172" r="4"/></g>
+    </svg>
+    <ul class="hero-features">
+      <li><span class="feature-icon" aria-hidden="true">↗</span><div><strong data-i18n="featureCalls">Soita oikeaan aikaan</strong><small data-i18n="featureCallsSub">Päivän yhteydenotot selkeästi</small></div></li>
+      <li><span class="feature-icon" aria-hidden="true">◎</span><div><strong data-i18n="featureCustomers">Asiakkaat yhdessä</strong><small data-i18n="featureCustomersSub">Tiedot ja historia aina mukana</small></div></li>
+    </ul>
+  </section>
   <div class="login-card">
     <div class="login-brand">
       <div class="opero-logo-mini"><img class="opero-logo-img" alt="Opero" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik9wZXJvIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlIiB4MT0iODgiIHkxPSI3MiIgeDI9IjQyNCIgeTI9IjQ0MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMEM4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjQ1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNDZDOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ib3Blcm9CbHVlMiIgeDE9IjE1MCIgeTE9IjEyMCIgeDI9IjM3MCIgeTI9IjM5MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM3OEU4RkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjM1IiBzdG9wLWNvbG9yPSIjMEE4NEZGIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwMzdBOCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9InNvZnRHbG93IiB4PSItMzAlIiB5PSItMzAlIiB3aWR0aD0iMTYwJSIgaGVpZ2h0PSIxNjAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIGluPSJTb3VyY2VHcmFwaGljIiBzdGREZXZpYXRpb249IjEwIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlQ29sb3JNYXRyaXggaW49ImJsdXIiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMDQgIDAgMCAwIDAgMC41MiAgMCAwIDAgMCAxICAwIDAgMCAuNTUgMCIgcmVzdWx0PSJnbG93Ii8+CiAgICAgIDxmZU1lcmdlPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iZ2xvdyIvPgogICAgICAgIDxmZU1lcmdlTm9kZSBpbj0iU291cmNlR3JhcGhpYyIvPgogICAgICA8L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE4IiBmaWxsPSIjMDcxMjI2Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzA1MjY1RiIgc3Ryb2tlLXdpZHRoPSI1OCIgb3BhY2l0eT0iLjU1Ii8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxNjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNvcGVyb0JsdWUpIiBzdHJva2Utd2lkdGg9IjUyIiBmaWx0ZXI9InVybCgjc29mdEdsb3cpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDgiIGZpbGw9IiMwNzEyMjYiLz4KICA8cGF0aCBkPSJNMTY0IDI1NmMwLTUzIDM5LTkyIDkyLTkyIDM1IDAgNjUgMTcgODIgNDMiCiAgICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI29wZXJvQmx1ZTIpIiBzdHJva2Utd2lkdGg9IjI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cGF0aCBkPSJNMzM4IDMwNWMtMTcgMjYtNDcgNDMtODIgNDMtNTMgMC05Mi0zOS05Mi05MiIKICAgICAgICBmaWxsPSJub25lIiBzdHJva2U9IiMwQTg0RkYiIHN0cm9rZS13aWR0aD0iMjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjg4Ii8+CiAgPHBhdGggZD0iTTExMiAxNjVjMzQtNTggODgtODcgMTQ0LTg3IDM4IDAgNzUgMTIgMTA1IDM1IgogICAgICAgIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzlCRUZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuNTUiLz4KPC9zdmc+"></div>
@@ -85,8 +125,8 @@ input::placeholder{color:var(--muted)}
         <div class="brand-row">
           <span class="sub" data-i18n="byOpero">by Opero</span>
           <div class="lang-switch" id="langSwitch">
-            <button type="button" class="lang-opt" data-lang="fi" aria-label="Suomi">🇫🇮</button>
-            <button type="button" class="lang-opt" data-lang="en" aria-label="English">🇬🇧</button>
+            <button type="button" class="lang-opt" data-lang="fi" aria-label="Suomi">FI</button>
+            <button type="button" class="lang-opt" data-lang="en" aria-label="English">EN</button>
           </div>
         </div>
       </div>
@@ -113,6 +153,7 @@ input::placeholder{color:var(--muted)}
     </form>
   </div>
 
+  </main>
 <script type="module">
 import{createClient}from'https://esm.sh/@supabase/supabase-js@2.117.2';
 const sb=createClient('https://miahuckcphquawobehtk.supabase.co','sb_publishable_tY1y97VnFfhXyKJ_9XCNGw_-rEq2pLx');
@@ -125,6 +166,7 @@ const LS_LANG='kontakti_v5_lang';
 let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
 const TRANSLATIONS={
   fi:{
+    heroTitle:'Asiakkuudet mukana.', heroSubtitle:'Seuraava yhteys selvillä.', heroIntro:'Pidä asiakkaat, puhelut ja seuraavat askeleet yhdessä. Näet yhdellä silmäyksellä, kehen on aika olla yhteydessä.', featureCalls:'Soita oikeaan aikaan', featureCallsSub:'Päivän yhteydenotot selkeästi', featureCustomers:'Asiakkaat yhdessä', featureCustomersSub:'Tiedot ja historia aina mukana',
     byOpero:'by Opero', email:'Sähköposti', password:'Salasana', signIn:'Kirjaudu', signingIn:'Kirjaudutaan...',
     signInFailed:'Kirjautuminen epäonnistui. Tarkista sähköposti ja salasana.',
     showPassword:'Näytä salasana', hidePassword:'Piilota salasana',
@@ -133,6 +175,7 @@ const TRANSLATIONS={
     forgotPassword:'Unohditko salasanan?', rateLimited:'Liian monta kirjautumisyritystä. Odota hetki ja yritä uudelleen.'
   },
   en:{
+    heroTitle:'Keep customers close.', heroSubtitle:'Know your next connection.', heroIntro:'Keep customers, calls and next steps together. See at a glance who it is time to contact.', featureCalls:'Call at the right time', featureCallsSub:'Your daily contacts at a glance', featureCustomers:'Customers together', featureCustomersSub:'Details and history wherever you go',
     byOpero:'by Opero', email:'Email', password:'Password', signIn:'Sign in', signingIn:'Signing in...',
     signInFailed:'Sign in failed. Check your email and password.',
     showPassword:'Show password', hidePassword:'Hide password',

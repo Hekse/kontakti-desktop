@@ -318,8 +318,9 @@ body.booting>*:not(#splash){visibility:hidden}
 
 .lang-flag{display:block;width:22px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(128,145,175,.25)}
 .lang-opt{display:inline-flex;align-items:center;justify-content:center}
+.tomorrow-heading{padding:22px 6px 8px;color:var(--muted);font-size:14px;font-weight:600;border-top:1px solid var(--stroke);margin-top:12px}.row.tomorrow-preview{opacity:.62}.row.tomorrow-preview:hover,.row.tomorrow-preview.active{opacity:.85}
 </style>
-<link rel="stylesheet" href="./ajo-kulut.css?v=1.2.3">
+<link rel="stylesheet" href="./ajo-kulut.css?v=20261015">
 <style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
 </head>
 <body class="booting">
@@ -556,7 +557,7 @@ const LS_LANG='kontakti_v5_lang';
 let LANG=(localStorage.getItem(LS_LANG)==='en')?'en':'fi';
 const TRANSLATIONS={
   fi:{
-    today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', travel:'Ajot & Kulut', settings:'Asetukset',
+    tomorrowPreview:'Huomenna · ennakkonäkymä ({n})', today:'Soita tänään', customers:'Asiakkaat', weekly:'Viikkoraportti', travel:'Ajot & Kulut', settings:'Asetukset',
     searchPlaceholder:'Hae asiakasta…', refresh:'↻ Päivitä',
     splashLoading:'Ladataan Kontaktia…', splashErrorTitle:'Kontakti ei latautunut', splashRetry:'Yritä uudelleen', splashErrorHint:'Jos ongelma jatkuu, päivitä sivu hetken päästä.',
     splashErrNetwork:'Yhteyttä palvelimeen ei saatu. Tarkista verkkoyhteys.', splashErrGeneric:'Tietojen lataaminen epäonnistui.',
@@ -667,7 +668,7 @@ const TRANSLATIONS={
     deleteAllError:'Kaikkien asiakkaiden poistaminen epäonnistui. Yritä uudelleen.'
   },
   en:{
-    today:'Call today', customers:'Customers', weekly:'Weekly report', travel:'Trips and expenses', settings:'Settings',
+    tomorrowPreview:'Tomorrow · preview ({n})', today:'Call today', customers:'Customers', weekly:'Weekly report', travel:'Trips and expenses', settings:'Settings',
     searchPlaceholder:'Search customers…', refresh:'↻ Refresh',
     splashLoading:'Loading Kontakti…', splashErrorTitle:'Kontakti could not be loaded', splashRetry:'Try again', splashErrorHint:'If the problem continues, refresh the page in a moment.',
     splashErrNetwork:'Could not reach the server. Check your connection.', splashErrGeneric:'Loading data failed.',
@@ -1103,12 +1104,12 @@ async function load(){
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); }
 }
 
-function visible(){
+function visible(previewTomorrow=false){
   let arr=[...cs];
   if(view==='today'){
     const t0=todayISO();
-    arr=arr.filter(c=>c.next_date&&c.next_date<=t0);
-    lastTodayEligibleTotal=arr.length;
+    arr=arr.filter(c=>previewTomorrow ? c.next_date===addDaysISO(t0,1) : c.next_date&&c.next_date<=t0);
+    if(!previewTomorrow) lastTodayEligibleTotal=arr.length;
   }
   if(view==='today'||view==='customers'){
     const f=curFilters();
@@ -1186,7 +1187,7 @@ function visible(){
       }
     });
 
-    lastRange=range; lastPrevRange=prevRange; lastMetrics=metrics; lastEffectiveSort=effectiveSort; lastVisibleArr=arr;
+    if(!previewTomorrow){ lastRange=range; lastPrevRange=prevRange; lastMetrics=metrics; lastEffectiveSort=effectiveSort; lastVisibleArr=arr; }
   }
   return arr;
 }
@@ -1196,16 +1197,22 @@ function renderList(){
   if(view==='weekly'){ renderWeeklyList(); return; }
   if(view==='settings'){ renderSettingsList(); return; }
   const arr=visible();
-  if(!arr.length){ host.innerHTML=`<div class="empty">${esc(t('noCustomersInView'))}</div>`; return; }
+  const tomorrow=view==='today'?visible(true):[];
+  if(!arr.length&&!tomorrow.length){ host.innerHTML=`<div class="empty">${esc(t('noCustomersInView'))}</div>`; return; }
   const showQuick=view==='today';
   const wrap=document.createElement('div'); wrap.className='list';
-  arr.forEach(c=>{
+  [...arr,...tomorrow].forEach((c,index)=>{
+    const preview=view==='today'&&index>=arr.length;
+    if(preview&&index===arr.length){
+      const heading=document.createElement('div'); heading.className='tomorrow-heading';
+      heading.textContent=t('tomorrowPreview',{n:tomorrow.length}); wrap.appendChild(heading);
+    }
     const due=dueTag(c.next_date), status=contactStatus(c.last_contact);
     const cityText=[c.city,c.region].filter(Boolean).join(' • ')||'–';
-    const row=document.createElement('div'); row.className='row'+(c.id===sel?' active':'');
+    const row=document.createElement('div'); row.className='row'+(preview?' tomorrow-preview':'')+(c.id===sel?' active':'');
     const callNum=c.contact_phone||c.phone||'', callHref=callNum?'tel:'+String(callNum).replace(/[^\d+]/g,''):'';
     const callBtn=callHref?`<a class="btn qa qa-call" href="${esc(callHref)}">📞 ${esc(t('call'))}</a>`:`<button class="btn qa qa-call" type="button" disabled title="${esc(t('noPhoneNumber'))}">📞 ${esc(t('call'))}</button>`;
-    const quickHtml=showQuick?`<div class="quick-row">${callBtn}<button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
+    const quickHtml=showQuick&&!preview?`<div class="quick-row">${callBtn}<button class="btn qa qa-ok" data-qa="${esc(c.id)}" data-qt="answered" type="button">${esc(t('calledBtn'))}</button><button class="btn qa qa-miss" data-qa="${esc(c.id)}" data-qt="missed" type="button">${esc(t('noAnswerBtn'))}</button><button class="btn qa qa-snooze" data-qa="${esc(c.id)}" data-qt="snooze" type="button">${esc(t('tomorrowBtn'))}</button></div>`:'';
     const salesTagHtml=view==='customers'?periodSalesTags(c):`<span class="tag">${esc(t('salesColon'))}: €${esc(fmtMoney(ytdSalesFor(c.id)))}</span>`;
     row.innerHTML=`<div class="row-main"><div class="row-left"><span class="status-dot ${status.cls}"></span><div style="min-width:0;flex:1"><div class="row-name">${esc(c.name||t('unnamed'))}</div><div class="row-meta">${esc(cityText)}${c.phone?`<br>${esc(t('phone'))}: ${esc(c.phone)}`:''}</div></div></div><div class="row-right">${c.priority?'<span class="tag priority">🟣 '+esc(t('priority'))+'</span>':''}</div></div><div class="tagline"><span class="tag ${due.cls}">${esc(t('next'))}: ${esc(toFI(c.next_date))} (${esc(due.text)})</span><span class="tag">${esc(t('lastContact'))}: ${esc(toFI(c.last_contact))} (${esc(status.text)})</span><span class="tag">${esc(actionLabel(c.next_action||'Soitto'))}</span>${salesTagHtml}</div>${quickHtml}`;
     row.onclick=(e)=>{ if(e.target.closest('[data-qa],.qa-call')) return; sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll(); if(window.matchMedia('(max-width:680px)').matches) $('detailCard').classList.add('show'); };

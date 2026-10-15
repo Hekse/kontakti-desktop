@@ -107,3 +107,13 @@
 
 #ajoSettings .ajo-place .ajo-btn{width:auto;padding:8px 14px}
 #ajoSettings .ajo-record{display:grid;gap:8px}
+
+/* Report disclosure presents an explicit, keyboard-accessible action. */
+.ajo-app details.ajo-panel:has(>summary){padding:0;overflow:hidden}
+.ajo-app details.ajo-panel>summary{padding:18px 20px;gap:14px;list-style:none;min-height:64px;color:var(--text);background:rgba(var(--brand-rgb),.08);transition:background .15s}
+.ajo-app details.ajo-panel>summary::-webkit-details-marker{display:none}
+.ajo-app details.ajo-panel>summary::after{content:'＋';margin-left:auto;font-size:24px;color:var(--brand,#2d6bff);font-weight:400}
+.ajo-app details.ajo-panel[open]>summary::after{content:'−'}
+.ajo-app details.ajo-panel>summary:hover{background:rgba(var(--brand-rgb),.15)}
+.ajo-app details.ajo-panel>summary:focus-visible{outline:3px solid var(--brand,#2d6bff);outline-offset:-4px;border-radius:18px}
+.ajo-app details.ajo-panel>.ajo-panel{padding:20px}
