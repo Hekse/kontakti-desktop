@@ -1,0 +1,32 @@
+{
+  "id": "./",
+  "name": "Opero Kontakti",
+  "short_name": "Kontakti",
+  "lang": "fi",
+  "description": "Asiakkaat, yhteydenotot ja seuraavat askeleet yhdessä paikassa.",
+  "start_url": "./cloud-ui-v12.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#edf6ff",
+  "theme_color": "#edf6ff",
+  "icons": [
+    {
+      "src": "./assets/kontakti-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/kontakti-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/kontakti-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
