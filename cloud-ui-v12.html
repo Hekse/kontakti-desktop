@@ -291,6 +291,7 @@ body.booting>*:not(#splash){visibility:hidden}
 .lang-opt{display:inline-flex;align-items:center;justify-content:center}
 .tomorrow-heading{padding:22px 6px 8px;color:var(--muted);font-size:14px;font-weight:600;border-top:1px solid var(--stroke);margin-top:12px}.row.tomorrow-preview{opacity:.62}.row.tomorrow-preview:hover,.row.tomorrow-preview.active{opacity:.85}
 </style>
+<link rel="stylesheet" href="./customer-workflow.css?v=20261020a">
 <link rel="stylesheet" href="./ajo-kulut.css?v=20261015">
 <style>body[data-view=ajo] .content{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-gutter:stable}body[data-view=ajo] .content>.card{display:none}#ajoApp{max-width:720px;margin:0 auto;padding:12px 12px calc(32px + env(safe-area-inset-bottom))}#ajoApp[hidden]{display:none!important}</style>
 <link rel="stylesheet" href="./login-screen.css?v=20261015c">
@@ -477,7 +478,7 @@ body.booting>*:not(#splash){visibility:hidden}
       <div class="card">
         <header class="topbar list-topbar">
           <div class="left">
-            <div class="page-title" id="pageTitle">Soita tänään</div>
+            <div class="page-title" id="pageTitle">Soita tänään</div><div id="todayProgress" class="today-progress" hidden aria-live="polite"></div>
             <div class="search" id="searchWrap" style="display:none"><span style="opacity:.7;font-weight:650">⌕</span><input id="search" placeholder="Hae asiakasta…"></div>
           </div>
           <div class="right">
@@ -510,7 +511,9 @@ body.booting>*:not(#splash){visibility:hidden}
   </main>
 </div>
 
+<dialog id="purchaseHistoryDialog" class="purchase-history" aria-labelledby="purchaseHistoryTitle"></dialog>
 <script type="module">
+import {validPurchaseDate,purchaseHistory,purchasePeriod,updateDayPlan,isPurchase} from './customer-workflow.js?v=20261020';
 import {mountAjoSettings} from './ajo-settings.js?v=1.2.3';
 import {createAjoKulut} from "./ajo-kulut.js?v=1.2.3";
 import{createLoginScreen}from'./login-screen.js?v=20261015c';
@@ -762,6 +765,70 @@ const TRANSLATIONS={
     deleteAllError:'Deleting all customers failed. Please try again.'
   }
 };
+Object.assign(TRANSLATIONS.fi,{
+  "purchaseDate": "Ostospäivämäärä",
+  "invalidPurchaseDate": "Valitse kelvollinen ostospäivämäärä.",
+  "contactHistory": "Yhteydenottohistoria",
+  "allPurchases": "Näytä kaikki ostot ({n})",
+  "purchaseHistory": "Ostohistoria",
+  "historyAll": "Kaikki ostot",
+  "historyMonth": "Tämä kuukausi",
+  "historyPrevMonth": "Edellinen kuukausi",
+  "historyYear": "Kuluva vuosi",
+  "historyPrevYear": "Edellinen vuosi",
+  "historyCustom": "Oma ajanjakso",
+  "historyFrom": "Alkaen",
+  "historyTo": "Päättyen",
+  "historyApply": "Näytä ostot",
+  "historyReset": "Poista rajaus",
+  "historyInclusive": "Alku- ja loppupäivä sisältyvät jaksoon.",
+  "historyCount": "Ostokertoja",
+  "historyTotal": "Myynti yhteensä",
+  "historyDescription": "Tuotteet / kuvaus",
+  "historyAmount": "Summa",
+  "historyNoRows": "Ei ostoksia valitulla ajanjaksolla.",
+  "historyInvalidRange": "Tarkista ajanjakso: alku ei voi olla lopun jälkeen.",
+  "historyEdit": "Muokkaa ostosta",
+  "historyDate": "Päivämäärä",
+  "remainingToday": "{left}/{total} jäljellä",
+  "completedToday": "{done}/{total} hoidettu",
+  "dayComplete": "Päivän asiakkaat käsitelty",
+  "progressUnavailable": "Päivän laskuri ei säily tässä selaimessa, koska selainmuisti ei ole käytettävissä.",
+  "combinedDateHint": "Tämän vanhan merkinnän päivä koskee myös yhteydenottoa. Ostoksen kuvausta ja summaa voi muokata; päivä säilyy ennallaan.",
+  "contactHistoryEmpty": "Ei yhteydenottoja."
+});
+Object.assign(TRANSLATIONS.en,{
+  "purchaseDate": "Purchase date",
+  "invalidPurchaseDate": "Select a valid purchase date.",
+  "contactHistory": "Contact history",
+  "allPurchases": "Show all purchases ({n})",
+  "purchaseHistory": "Purchase history",
+  "historyAll": "All purchases",
+  "historyMonth": "This month",
+  "historyPrevMonth": "Previous month",
+  "historyYear": "Current year",
+  "historyPrevYear": "Previous year",
+  "historyCustom": "Custom period",
+  "historyFrom": "From",
+  "historyTo": "To",
+  "historyApply": "Show purchases",
+  "historyReset": "Clear filter",
+  "historyInclusive": "Both the start and end dates are included.",
+  "historyCount": "Purchases",
+  "historyTotal": "Total sales",
+  "historyDescription": "Products / description",
+  "historyAmount": "Amount",
+  "historyNoRows": "No purchases in the selected period.",
+  "historyInvalidRange": "Check the period: the start cannot be after the end.",
+  "historyEdit": "Edit purchase",
+  "historyDate": "Date",
+  "remainingToday": "{left}/{total} remaining",
+  "completedToday": "{done}/{total} completed",
+  "dayComplete": "Today's customers completed",
+  "progressUnavailable": "Daily progress cannot be retained because browser storage is unavailable.",
+  "combinedDateHint": "This older entry also records a contact. You can edit the purchase description and amount; its shared date is preserved.",
+  "contactHistoryEmpty": "No contacts recorded."
+});
 function t(key,vars){
   let s=(TRANSLATIONS[LANG]&&TRANSLATIONS[LANG][key]);
   if(s===undefined) s=TRANSLATIONS.fi[key]??key;
@@ -782,11 +849,12 @@ function updateLangSwitcherUI(){
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active',b.dataset.lang===LANG));
 }
 function setLang(lang){
+  const keep=captureForm();
   LANG=(lang==='en')?'en':'fi';
   localStorage.setItem(LS_LANG,LANG);
   applyStaticI18n(); updateLangSwitcherUI();
   ajoKulut.refreshLanguage();
-  renderAll();
+  renderAll(); restoreForm(keep);
 }
 
 // Sallittu poikkeus: localStoragea käytetään VAIN teemavalinnan (tumma/vaalea) muistamiseen,
@@ -891,8 +959,8 @@ function renderSalesComparisons(list){
     const diffCls=diff>0?'up':diff<0?'down':'neutral';
     return `<div class="sales-row">
       <div class="sales-cell period">${esc(p.label)}</div>
-      <div class="sales-cell">€${esc(fmtMoney(cur))}</div>
-      <div class="sales-cell">€${esc(fmtMoney(prev))}</div>
+      <div class="sales-cell"><button class="sales-drilldown" type="button" data-purchase-from="${p.start}" data-purchase-to="${p.end}">€${esc(fmtMoney(cur))}</button></div>
+      <div class="sales-cell"><button class="sales-drilldown" type="button" data-purchase-from="${p.prevStart}" data-purchase-to="${p.prevEnd}">€${esc(fmtMoney(prev))}</button></div>
       <div class="sales-cell ${diffCls}">${esc(diffText)}</div>
       <div class="sales-cell ${pctCls}">${esc(pctText)}</div>
     </div>`;
@@ -1074,6 +1142,7 @@ async function fetchData(){
     ]);
     cs=customers;
     ns=notes;
+    workflowDataReady=true;
     if(sel&&!cs.some(c=>c.id===sel)) sel=null;
     if(!sel&&cs[0]) sel=cs[0].id;
     populateAreaDropdowns();
@@ -1083,8 +1152,8 @@ async function load(){
   try{
     setListStatus(t('fetching'));
     await fetchData();
-    setListStatus(t('fetchedCount',{n:cs.length}),'ok');
-  }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); }
+    setListStatus(t('fetchedCount',{n:cs.length}),'ok');return true;
+  }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err');return false; }
 }
 
 function visible(previewTomorrow=false){
@@ -1181,7 +1250,9 @@ function renderList(){
   if(view==='settings'){ renderSettingsList(); return; }
   const arr=visible();
   const tomorrow=view==='today'?visible(true):[];
-  if(!arr.length&&!tomorrow.length){ host.innerHTML=`<div class="empty">${esc(t('noCustomersInView'))}</div>`; return; }
+  const dayDone=view==='today'&&dayPlan?.total>0&&dayPlan.remaining===0;
+  if(dayDone)host.innerHTML=`<div class="empty day-done">✓ ${esc(t('dayComplete'))}</div>`;
+  if(!arr.length&&!tomorrow.length){if(!dayDone)host.innerHTML=`<div class="empty">${esc(t('noCustomersInView'))}</div>`;return;}
   const showQuick=view==='today';
   const wrap=document.createElement('div'); wrap.className='list';
   [...arr,...tomorrow].forEach((c,index)=>{
@@ -1244,7 +1315,9 @@ async function quickAction(id,type,btn){
       if(ur.error) throw ur.error;
       toast(t('tomorrowToast'));
     }
-    await load();
+    const advance=sel===id,nextId=visible().find(x=>x.id!==id)?.id;
+    if(!await load())return;
+    if(advance){sel=visible().find(x=>x.id===nextId)?.id||visible()[0]?.id||null;historyOpen=false;editingNoteId=null;editingPurchaseId=null;renderAll();}
   }catch(e){ setListStatus(t('genericError',{msg:e.message}),'err'); toast(t('genericError',{msg:e.message})); }
   finally{
     quickInFlight.delete(id);
@@ -1312,7 +1385,7 @@ function notesForCustomer(customerId){
 }
 function lastNoteFor(customerId){ const list=notesForCustomer(customerId); return list.length?list[0]:null; }
 function recentPurchasesFor(customerId,limit){
-  return notesForCustomer(customerId).filter(n=>(n.purchases_text&&n.purchases_text.trim())||Number(n.sales||0)>0).slice(0,limit||5);
+  return purchaseHistory(ns,customerId).rows.slice(0,limit||3);
 }
 function totalSalesFor(customerId){
   return ns.filter(n=>n.customer_id===customerId).reduce((s,n)=>s+Number(n.sales||0),0);
@@ -1362,7 +1435,19 @@ function renderDetail(){
         ${kv2Cell(t('action'), esc(actionLabel(c.next_action||'Soitto')), true)}
       </div>
       ${renderSalesComparisons(notesForCustomer(c.id))}
-      <div class="actions" style="margin-top:2px"><button class="btn" id="btnOpenHistory" type="button">${esc(t('showHistory'))}</button></div>
+    </div>
+    <div class="note-box">
+      <div class="note-top"><div class="t">${esc(t('purchases'))}</div></div>
+      <div class="split2">
+        ${purchaseLeftCol(c)}
+        <div class="split-col divider">
+          <div class="split-col-label">${esc(t('previousPurchases'))}</div>
+          ${(()=>{ const rp=recentPurchasesFor(c.id,3); return rp.length ? rp.map(n=>`<div class="prev-entry"><div class="prev-date">${esc(toFI(n.note_date))}</div>${n.purchases_text?`<div class="prev-text">${esc(n.purchases_text)}</div>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}</div>`).join('') : `<div class="hint">${esc(t('noEntriesYet'))}</div>`; })()}
+          <div class="total-sales">${esc(t('customerTotalSales'))}: €${esc(fmtMoney(totalSalesFor(c.id)))}</div>
+          <div class="actions"><button class="btn" id="btnAllPurchases" type="button">${esc(t('allPurchases',{n:purchaseHistory(ns,c.id).count}))}</button></div>
+          ${!editingPurchaseId&&latestPurchaseNote(c.id)?`<button class="note-edit" id="btnEditPurchase" type="button">${esc(t('editPurchase'))}</button>`:''}
+        </div>
+      </div>
     </div>
     <div class="note-box">
       <div class="note-top"><div class="t">${esc(t('noteAndNextAction'))}</div><div class="d">${esc(todayISO())}</div></div>
@@ -1372,7 +1457,7 @@ function renderDetail(){
       <div class="edit-banner">${esc(t('editingNote',{date:toFI(en.note_date)}))}</div>
       <div class="field"><textarea id="editNoteText">${esc(en.note_text||'')}</textarea></div>
       <div class="hint err" id="editNoteError" hidden></div>
-      <div class="actions"><button class="btn subtle" id="btnCancelEditNote" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveEditNote" type="button">${esc(t('saveChanges'))}</button></div>`;
+      <div class="actions"><button class="btn subtle" id="btnCancelEditNote" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveEditNote" type="button">${esc(t('saveChanges'))}</button><button class="btn" id="btnOpenHistory" type="button" aria-controls="historyPopover" aria-expanded="${historyOpen}">${esc(t('contactHistory'))}</button></div>`;
         const ln=latestTextNote(c.id);
         const nextLine=c.next_action?`<div class="prev-next-action">${esc(t('nextAction'))}: <b>${esc(actionLabel(c.next_action))}</b>${c.next_date?' · '+esc(toFI(c.next_date)):''}</div>`:'';
         const prev=ln?`<div class="prev-entry"><div class="prev-date">${esc(toFI(ln.note_date))}</div><div class="prev-text">${esc(ln.note_text)}</div>${nextLine}</div><button class="note-edit" id="btnEditLatest" type="button">${esc(t('editLatest'))}</button>`:`<div class="hint">${esc(t('noEntriesYet'))}</div>`;
@@ -1392,21 +1477,9 @@ function renderDetail(){
         <div class="field"><div class="label">${esc(t('nextDate'))}</div><input id="nextDateInput" type="date" value="${esc(c.next_date||'')}"></div>
       </div>
       <div class="hint err" id="noteSaveError" hidden></div>
-      <div class="actions"><button class="btn primary saveflash" id="btnSaveNote" type="button">${esc(t('saveEntry'))}</button></div>
+      <div class="actions"><button class="btn primary saveflash" id="btnSaveNote" type="button">${esc(t('saveEntry'))}</button><button class="btn" id="btnOpenHistory" type="button" aria-controls="historyPopover" aria-expanded="${historyOpen}">${esc(t('contactHistory'))}</button></div>
       <div class="hint">${esc(t('noteOrActionHint'))}</div>`;
       })()}
-    </div>
-    <div class="note-box">
-      <div class="note-top"><div class="t">${esc(t('purchases'))}</div></div>
-      <div class="split2">
-        ${purchaseLeftCol(c)}
-        <div class="split-col divider">
-          <div class="split-col-label">${esc(t('previousPurchases'))}</div>
-          ${(()=>{ const rp=recentPurchasesFor(c.id,5); return rp.length ? rp.map(n=>`<div class="prev-entry"><div class="prev-date">${esc(toFI(n.note_date))}</div>${n.purchases_text?`<div class="prev-text">${esc(n.purchases_text)}</div>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}</div>`).join('') : `<div class="hint">${esc(t('noEntriesYet'))}</div>`; })()}
-          <div class="total-sales">${esc(t('customerTotalSales'))}: €${esc(fmtMoney(totalSalesFor(c.id)))}</div>
-          ${!editingPurchaseId&&latestPurchaseNote(c.id)?`<button class="note-edit" id="btnEditPurchase" type="button">${esc(t('editPurchase'))}</button>`:''}
-        </div>
-      </div>
     </div>
     <div class="note-box">
       <div class="note-top">
@@ -1428,12 +1501,12 @@ function renderDetail(){
 }
 
 function renderHistoryPopover(c){
-  const items=ns.filter(n=>n.customer_id===c.id).slice().sort((a,b)=>(b.note_date||'').localeCompare(a.note_date||'')||(b.created_at||'').localeCompare(a.created_at||''));
+  const items=ns.filter(n=>n.customer_id===c.id&&(!isPurchase(n)||Boolean((n.note_text||'').trim()))).slice().sort((a,b)=>(b.note_date||'').localeCompare(a.note_date||'')||(b.created_at||'').localeCompare(a.created_at||''));
   const body=items.length?items.map(n=>{
     const hasNote=Boolean((n.note_text||'').trim()), hasPurch=Boolean((n.purchases_text||'').trim());
     return `<div class="history-item"><div class="history-meta"><div class="history-date">${esc(toFI(n.note_date))}</div><div class="history-badges">${n.note_type?`<span class="tag">${esc(actionLabel(n.note_type))}</span>`:''}${n.sales?`<span class="tag ok">€${esc(fmtMoney(n.sales))}</span>`:''}${n.next_date?`<span class="tag">${esc(t('nextBadge'))} ${esc(toFI(n.next_date))}</span>`:''}</div></div>${hasNote?`<div class="history-text"><b>${esc(t('note'))}</b>\n${esc(n.note_text)}</div>`:''}${hasPurch?`<div class="history-text"><b>${esc(t('purchases'))}</b>\n${esc(n.purchases_text)}</div>`:''}${canDeleteNote(n)?`<div class="history-actions"><button class="note-del" type="button" data-note-del="${esc(n.id)}">${esc(t('deleteNote'))}</button></div>`:''}</div>`;
   }).join(''):`<div class="note-box"><div class="hint">${esc(t('noHistoryYet'))}</div></div>`;
-  return `<div class="history-popover" id="historyPopover" ${historyOpen?'':'hidden'}><div class="history-head"><div><div class="history-title">${esc(t('history'))}</div><div class="history-sub">${esc(t('entriesFor',{name:c.name||''}))}</div></div><button class="btn" id="btnCloseHistory" type="button">${esc(t('close'))}</button></div><div class="history-body">${body}</div></div>`;
+  return `<div class="history-popover" id="historyPopover" ${historyOpen?'':'hidden'}><div class="history-head"><div><div class="history-title">${esc(t('contactHistory'))}</div><div class="history-sub">${esc(t('entriesFor',{name:c.name||''}))}</div></div><button class="btn" id="btnCloseHistory" type="button">${esc(t('close'))}</button></div><div class="history-body">${body}</div></div>`;
 }
 
 function buttonSaved(btn,text){ if(!btn) return; const old=btn.textContent; btn.classList.add('is-ok'); btn.textContent=text||'✓'; setTimeout(()=>{btn.classList.remove('is-ok');btn.textContent=old},1600); }
@@ -1443,8 +1516,10 @@ function wireDetail(c,tel,mail,mapsUrl){
     sel=btn.dataset.relatedId; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false;
     renderAll();
   }));
-  $('btnOpenHistory')?.addEventListener('click',()=>{ historyOpen=!historyOpen; renderDetail(); });
-  $('btnCloseHistory')?.addEventListener('click',()=>{ historyOpen=false; renderDetail(); });
+  $('btnOpenHistory')?.addEventListener('click',()=>{historyOpen=!historyOpen;$('historyPopover').hidden=!historyOpen;$('btnOpenHistory').setAttribute('aria-expanded',String(historyOpen));});
+  $('btnCloseHistory')?.addEventListener('click',()=>{historyOpen=false;$('historyPopover').hidden=true;$('btnOpenHistory')?.setAttribute('aria-expanded','false');$('btnOpenHistory')?.focus();});
+  $('btnAllPurchases')?.addEventListener('click',()=>openPurchaseHistory(c));
+  $('detailBody').querySelectorAll('[data-purchase-from]').forEach(b=>b.onclick=()=>openPurchaseHistory(c,{from:b.dataset.purchaseFrom,to:b.dataset.purchaseTo}));
   $('btnCall')?.addEventListener('click',()=>{ if(tel) window.location.href=tel; });
   $('btnMaps')?.addEventListener('click',()=>{ if(mapsUrl) window.open(mapsUrl,'_blank','noopener'); });
   $('btnEmail')?.addEventListener('click',()=>{ if(mail) window.location.href=mail; });
@@ -1457,6 +1532,7 @@ function wireDetail(c,tel,mail,mapsUrl){
   $('btnEditPurchase')?.addEventListener('click',()=>startEditPurchase(c));
   $('btnCancelEditPurchase')?.addEventListener('click',endEditPurchase);
   $('btnSaveEditPurchase')?.addEventListener('click',()=>saveEditedPurchase(c));
+  $('btnDeletePurchase')?.addEventListener('click',()=>confirmDeleteNote(ns.find(n=>n.id===editingPurchaseId)));
   $('btnBack')?.addEventListener('click',()=>$('detailCard')?.classList.remove('show'));
   $('btnEditCustomer')?.addEventListener('click',()=>{ editingCustomer=true; renderDetail(); });
   $('btnCancelCustomerEdit')?.addEventListener('click',()=>{ editingCustomer=false; renderDetail(); });
@@ -1667,7 +1743,7 @@ async function deleteAllCustomers(){
 // Toimenpide-nappi tallentaa muistiinpanon ja/tai seuraavan toimenpiteen; ostokset tallennetaan omana
 // rivinään eivätkä muuta asiakkaan seuraavaa toimenpidettä. Myynti elää vain kontakti_notes.sales-riveillä.
 // saveInFlight estää tuplaklikkauksen: sama kirjaus ei voi lähteä kahdesti.
-const FORM_IDS=['noteText','nextActionSelect','nextDateInput','purchasesText','salesInput','editNoteText','editPurchasesText','editSalesInput'];
+const FORM_IDS=['noteText','nextActionSelect','nextDateInput','purchasesText','purchaseDate','salesInput','editNoteText','editPurchasesText','editPurchaseDate','editSalesInput'];
 const omitKeys=(o,keys)=>Object.fromEntries(Object.entries(o||{}).filter(([k])=>!keys.includes(k)));
 function captureForm(ids=FORM_IDS){ const d={}; ids.forEach(id=>{ const el=$(id); if(el) d[id]=el.value; }); return d; }
 function restoreForm(d){ if(d) Object.entries(d).forEach(([id,v])=>{ const el=$(id); if(el) el.value=v; }); }
@@ -1702,7 +1778,7 @@ async function saveNote(c){
     const patch=noteText?{last_contact:today,next_date:nextDateVal,next_action:actionType}:{next_date:nextDateVal,next_action:actionType};
     const ur=await sb.from('kontakti_customers').update(patch).eq('id',c.id);
     if(ur.error) throw ur.error;
-    const keep=captureForm(['purchasesText','salesInput','editPurchasesText','editSalesInput']);
+    const keep=captureForm(['purchasesText','purchaseDate','salesInput','editPurchasesText','editPurchaseDate','editSalesInput']);
     await load(); sel=c.id; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; renderAll();
     restoreForm(keep);
     buttonSaved($('btnSaveNote'),'✓ '+t('saveEntry'));
@@ -1715,11 +1791,14 @@ async function savePurchases(c){
   const purchasesText=($('purchasesText').value||'').trim();
   const sales=parseNum($('salesInput').value);
   if(!purchasesText&&!(sales>0)){ showFormError('purchaseSaveError',t('purchasesRequired')); return; }
+  const purchaseDate=$('purchaseDate')?.value;
+  if(!validPurchaseDate(purchaseDate)){showFormError('purchaseSaveError',t('invalidPurchaseDate'));return;}
+  if(!validAmount($('salesInput').value)){showFormError('purchaseSaveError',t('invalidAmount'));return;}
   saveInFlight=true; const btn=$('btnSavePurchases'); if(btn) btn.disabled=true;
   try{
     const w=await workspace(); const today=todayISO();
     // Ostosrivi ei kirjoita muistiinpanoa eikä muuta asiakkaan next_action/next_date/sales_ytd-kenttiä.
-    await insertNoteRow({workspace_id:w.id,customer_id:c.id,note_type:null,note_text:null,purchases_text:purchasesText||null,sales:sales||0,note_date:today,next_date:null,created_source:'cloud-ui-v12'});
+    await insertNoteRow({workspace_id:w.id,customer_id:c.id,note_type:null,note_text:null,purchases_text:purchasesText||null,sales:sales||0,note_date:purchaseDate,next_date:null,created_source:'cloud-ui-v12'});
     const keep=captureForm(['noteText','nextActionSelect','nextDateInput','editNoteText']);
     await load(); sel=c.id; renderAll();
     restoreForm(keep);
@@ -1771,14 +1850,14 @@ function latestPurchaseNote(customerId){ return notesForCustomer(customerId).fin
 function purchaseLeftCol(c){
   const ep=editingPurchaseId?ns.find(n=>n.id===editingPurchaseId&&n.customer_id===c.id&&canEditPurchase(n)):null;
   if(ep) return `<div class="split-col">
-          <div class="edit-banner">${esc(t('editingPurchase',{date:toFI(ep.note_date)}))}</div>
+          <div class="edit-banner">${esc(t('editingPurchase',{date:toFI(ep.note_date)}))}</div><div class="field"><label for="editPurchaseDate">${esc(t('purchaseDate'))}</label><input id="editPurchaseDate" type="date" value="${esc(ep.note_date)}" ${(ep.note_text||'').trim()?'disabled':''} required></div>${(ep.note_text||'').trim()?`<p class="hint">${esc(t('combinedDateHint'))}</p>`:''}
           <div class="field"><textarea id="editPurchasesText" placeholder="${esc(t('purchasesPlaceholder'))}">${esc(ep.purchases_text||'')}</textarea></div>
           <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="editSalesInput" inputmode="decimal" placeholder="0" value="${esc(parseNum(ep.sales)?String(parseNum(ep.sales)).replace('.',','):'')}"></div>
           <div class="hint err" id="editPurchaseError" hidden></div>
-          <div class="actions"><button class="btn subtle" id="btnCancelEditPurchase" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveEditPurchase" type="button">${esc(t('saveChanges'))}</button></div>
+          <div class="actions"><button class="btn subtle" id="btnCancelEditPurchase" type="button">${esc(t('cancelEdit'))}</button><button class="btn primary" id="btnSaveEditPurchase" type="button">${esc(t('saveChanges'))}</button>${canDeleteNote(ep)?`<button class="btn danger" id="btnDeletePurchase" type="button">${esc(t('deleteNote'))}</button>`:''}</div>
         </div>`;
   return `<div class="split-col">
-          <div class="split-col-label">${esc(t('newPurchase'))}</div>
+          <div class="split-col-label">${esc(t('newPurchase'))}</div><div class="field"><label for="purchaseDate">${esc(t('purchaseDate'))}</label><input id="purchaseDate" type="date" value="${todayISO()}" required></div>
           <div class="field"><textarea id="purchasesText" placeholder="${esc(t('purchasesPlaceholder'))}"></textarea></div>
           <div class="field"><div class="label">${esc(t('salesEuroOptional'))}</div><input id="salesInput" inputmode="decimal" placeholder="0"></div>
           <div class="hint err" id="purchaseSaveError" hidden></div>
@@ -1786,16 +1865,16 @@ function purchaseLeftCol(c){
         </div>`;
 }
 const validAmount=v=>{ const s=String(v||'').replace(/\s/g,''); return !s||/^\d+([.,]\d{1,2})?$/.test(s); };
-function startEditPurchase(c){
-  const n=latestPurchaseNote(c.id); if(!n) return;
+function startEditPurchase(c,id=null){
+  const n=id?ns.find(n=>n.id===id&&n.customer_id===c.id&&canEditPurchase(n)):latestPurchaseNote(c.id); if(!n) return;
   purchStash=captureForm(); editingPurchaseId=n.id;
-  renderDetail(); restoreForm(omitKeys(purchStash,['editPurchasesText','editSalesInput']));
+  renderDetail(); restoreForm(omitKeys(purchStash,['editPurchasesText','editPurchaseDate','editSalesInput']));
   const ta=$('editPurchasesText'); if(ta){ ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); }
 }
 function endEditPurchase(){
-  const keep=omitKeys(captureForm(),['editPurchasesText','editSalesInput']);
+  const keep=omitKeys(captureForm(),['editPurchasesText','editPurchaseDate','editSalesInput']);
   editingPurchaseId=null; renderAll();
-  restoreForm({...omitKeys(purchStash,['editPurchasesText','editSalesInput']),...keep}); purchStash=null;
+  restoreForm({...omitKeys(purchStash,['editPurchasesText','editPurchaseDate','editSalesInput']),...keep}); purchStash=null;
 }
 async function saveEditedPurchase(c){
   if(saveInFlight) return;
@@ -1803,20 +1882,21 @@ async function saveEditedPurchase(c){
   if(!n||n.customer_id!==c.id||!canEditPurchase(n)){ endEditPurchase(); return; }
   const text=($('editPurchasesText').value||'').trim(), salesRaw=($('editSalesInput').value||'').trim();
   if(!validAmount(salesRaw)){ showFormError('editPurchaseError',t('invalidAmount')); return; }
-  const sales=parseNum(salesRaw);
+  const sales=parseNum(salesRaw),purchaseDate=(n.note_text||'').trim()?n.note_date:$('editPurchaseDate')?.value;
+  if(!validPurchaseDate(purchaseDate)){showFormError('editPurchaseError',t('invalidPurchaseDate'));return;}
   if(!text&&!(sales>0)){ showFormError('editPurchaseError',t('purchaseEditEmpty')); return; }
-  if(text===(n.purchases_text||'').trim()&&sales===parseNum(n.sales)){ endEditPurchase(); return; }
+  if(text===(n.purchases_text||'').trim()&&sales===parseNum(n.sales)&&purchaseDate===n.note_date){ endEditPurchase(); return; }
   saveInFlight=true; const btn=$('btnSaveEditPurchase'); if(btn) btn.disabled=true;
   try{
     const w=await workspace();
-    const ur=await sb.from('kontakti_notes').update({purchases_text:text||null,sales}).eq('id',n.id).eq('workspace_id',w.id);
+    const ur=await sb.from('kontakti_notes').update({purchases_text:text||null,sales,note_date:purchaseDate}).eq('id',n.id).eq('workspace_id',w.id);
     if(ur.error) throw ur.error;
     // RLS voi ohittaa päivityksen hiljaa -> varmistetaan että arvot todella muuttuivat.
-    const chk=await sb.from('kontakti_notes').select('id,purchases_text,sales').eq('id',n.id).eq('workspace_id',w.id);
+    const chk=await sb.from('kontakti_notes').select('id,purchases_text,sales,note_date').eq('id',n.id).eq('workspace_id',w.id);
     if(chk.error) throw chk.error;
     const got=chk.data&&chk.data[0];
-    if(!got||(got.purchases_text||'')!==text||parseNum(got.sales)!==sales) throw new Error(t('noteUpdateNotApplied'));
-    n.purchases_text=text||null; n.sales=sales;
+    if(!got||(got.purchases_text||'')!==text||parseNum(got.sales)!==sales||got.note_date!==purchaseDate) throw new Error(t('noteUpdateNotApplied'));
+    n.purchases_text=text||null; n.sales=sales;n.note_date=purchaseDate;
     endEditPurchase();
     toast(t('purchaseUpdated'));
   }catch(e){ showFormError('editPurchaseError',t('saveError',{msg:e.message})); }
@@ -2105,6 +2185,47 @@ function renderWeeklyDetail(){
   $('btnWeekNext')?.addEventListener('click',()=>{ if(weekOffset<0){ weekOffset++; renderAll(); } });
 }
 
+let workflowDataReady=false,dayPlan=null,dayPlanKey='';
+function renderDayProgress(){
+  const host=$('todayProgress');host.hidden=view!=='today';
+  if(!workflowDataReady||!user||!ws)return;
+  const key='kontakti-day-plan:'+user.id+':'+ws.id;
+  if(dayPlanKey!==key){dayPlan=null;dayPlanKey=key;}
+  let stored=dayPlan,storageOk=true;
+  try{stored=JSON.parse(localStorage.getItem(key)||'null')||stored;}catch{storageOk=false;}
+  dayPlan=updateDayPlan(stored,todayISO(),cs);
+  try{const value=JSON.stringify({date:dayPlan.date,ids:dayPlan.ids});if(localStorage.getItem(key)!==value)localStorage.setItem(key,value);}catch{storageOk=false;}
+  if(view!=='today')return;
+  const done=dayPlan.total>0&&dayPlan.remaining===0;
+  $('pageTitle').innerHTML=esc(t('today'))+' <span class="today-remaining'+(done?' day-complete':'')+'">'+esc(t('remainingToday',{left:dayPlan.remaining,total:dayPlan.total}))+(done?' ✓':'')+'</span>';
+  const caption=t('completedToday',{done:dayPlan.completed,total:dayPlan.total});
+  host.innerHTML='<span>'+esc(caption)+'</span><progress max="'+(dayPlan.total||1)+'" value="'+dayPlan.completed+'" aria-label="'+esc(caption)+'"></progress>'+(!storageOk?'<span title="'+esc(t('progressUnavailable'))+'">⚠</span>':'');
+  if($('mobileViewName'))$('mobileViewName').textContent=$('pageTitle').textContent;
+}
+window.addEventListener('storage',e=>{if(e.key==='kontakti-day-plan:'+user?.id+':'+ws?.id)renderDayProgress();});
+window.addEventListener('focus',()=>{if(workflowDataReady)renderDayProgress();});
+setInterval(()=>{if(workflowDataReady&&dayPlan?.date!==todayISO()){renderDayProgress();renderList();}},60000);
+const purchaseMoney=value=>Number(value||0).toLocaleString(LANG==='en'?'en-GB':'fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2});
+function openPurchaseHistory(c,range={from:'',to:''}){
+  const dialog=$('purchaseHistoryDialog');
+  dialog.innerHTML=`<div class="history-head"><div><h2 class="history-title" id="purchaseHistoryTitle">${esc(t('purchaseHistory'))}</h2><div class="history-sub">${esc(c.name)}</div></div><button class="btn" type="button" id="closePurchaseHistory">${esc(t('close'))}</button></div><div class="purchase-scroll"><div class="purchase-presets">${[['all','historyAll'],['month','historyMonth'],['prevmonth','historyPrevMonth'],['year','historyYear'],['prevyear','historyPrevYear'],['custom','historyCustom']].map(([key,label])=>`<button class="btn" type="button" data-purchase-period="${key}">${esc(t(label))}</button>`).join('')}</div><form class="purchase-filters" id="purchaseFilters"><div class="field"><label for="purchaseFrom">${esc(t('historyFrom'))}</label><input id="purchaseFrom" type="date" value="${esc(range.from)}"></div><div class="field"><label for="purchaseTo">${esc(t('historyTo'))}</label><input id="purchaseTo" type="date" value="${esc(range.to)}"></div><button class="btn primary" type="submit">${esc(t('historyApply'))}</button><button class="btn" type="button" id="clearPurchaseFilter">${esc(t('historyReset'))}</button></form><p class="hint">${esc(t('historyInclusive'))}</p><p class="history-error" id="purchaseRangeError" role="alert"></p><div id="purchaseResults" aria-live="polite"></div></div>`;
+  const markPeriod=which=>dialog.querySelectorAll('[data-purchase-period]').forEach(b=>{b.classList.toggle('active',b.dataset.purchasePeriod===which);b.setAttribute('aria-pressed',String(b.dataset.purchasePeriod===which));});
+  const results=()=>{
+    try{
+      const result=purchaseHistory(ns,c.id,$('purchaseFrom').value,$('purchaseTo').value);
+      $('purchaseRangeError').textContent='';
+      $('purchaseResults').innerHTML=`<div class="purchase-totals"><span>${esc(t('historyTotal'))}: <b>€${esc(purchaseMoney(result.total))}</b></span><span>${esc(t('historyCount'))}: <b>${result.count}</b></span></div>${result.count?`<table><thead><tr><th>${esc(t('historyDate'))}</th><th>${esc(t('historyDescription'))}</th><th>${esc(t('historyAmount'))}</th><th></th></tr></thead><tbody>${result.rows.map(n=>`<tr><td>${esc(toFI(n.note_date))}</td><td>${esc(n.purchases_text||'—')}</td><td>€${esc(purchaseMoney(n.sales||0))}</td><td>${canEditPurchase(n)?`<button class="btn subtle" type="button" data-edit-history-purchase="${esc(n.id)}">${esc(t('editCustomer'))}</button>`:''}</td></tr>`).join('')}</tbody></table>`:`<p class="hint">${esc(t('historyNoRows'))}</p>`}`;
+      dialog.querySelectorAll('[data-edit-history-purchase]').forEach(button=>button.onclick=()=>{dialog.close();startEditPurchase(c,button.dataset.editHistoryPurchase);$('editPurchaseDate')?.focus();});
+    }catch{$('purchaseRangeError').textContent=t('historyInvalidRange');$('purchaseResults').replaceChildren();}
+  };
+  $('closePurchaseHistory').onclick=()=>dialog.close();
+  $('purchaseFilters').onsubmit=e=>{e.preventDefault();markPeriod('custom');results();};
+  const selectPeriod=which=>{markPeriod(which);const range=purchasePeriod(which,todayISO());$('purchaseFrom').value=range.from;$('purchaseTo').value=range.to;results();};
+  $('clearPurchaseFilter').onclick=()=>selectPeriod('all');
+  dialog.querySelectorAll('[data-purchase-period]').forEach(button=>button.onclick=()=>{if(button.dataset.purchasePeriod==='custom'){markPeriod('custom');$('purchaseFrom').focus();return;}selectPeriod(button.dataset.purchasePeriod);});
+  markPeriod(range.from||range.to?'custom':'all');results();dialog.showModal();
+}
+
 function setHeaders(){
   const pageTitle=$('pageTitle'), searchWrap=$('searchWrap'), listToolbar=$('listToolbar');
   const toolBtnsVisible = (view==='today'||view==='customers');
@@ -2125,6 +2246,7 @@ function setHeaders(){
 }
 function setPills(){
   const t0=todayISO();
+  renderDayProgress();
   $('pillToday').textContent=String(cs.filter(c=>c.next_date&&c.next_date<=t0).length);
   $('pillCustomers').textContent=String(cs.length);
   $('pillWeek').textContent=t('weekAbbr')+' '+isoWeekNumber(new Date());
@@ -2238,6 +2360,7 @@ function positionPanel(btnId,panelId){
 }
 
 function wire(){
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&historyOpen){historyOpen=false;if($('historyPopover'))$('historyPopover').hidden=true;$('btnOpenHistory')?.setAttribute('aria-expanded','false');$('btnOpenHistory')?.focus();}});
   document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ view=btn.dataset.view; search=''; if($('search'))$('search').value=''; historyOpen=false; editingCustomer=false; editingNoteId=null; editingPurchaseId=null; creatingCustomer=false; $('detailCard')?.classList.remove('show'); if(filterPanelOpen){ syncFilterPanelInputs(); } if(sortPanelOpen){ syncSortPanelInputs(); } renderAll(); }));
   $('search')?.addEventListener('input',e=>{ search=e.target.value||''; renderList(); });
   $('btnRefresh')?.addEventListener('click',load);

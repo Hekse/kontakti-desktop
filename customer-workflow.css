@@ -1,0 +1,36 @@
+.sales-drilldown{border:0;background:none;color:var(--brand);font:inherit;cursor:pointer;padding:4px;text-decoration:underline;text-underline-offset:3px}
+body[data-view="today"] .list-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+body[data-view="today"] .list-topbar .left{display:contents}
+body[data-view="today"] .list-topbar .page-title{grid-column:1;grid-row:1;white-space:normal}
+body[data-view="today"] .list-topbar .right{grid-column:2;grid-row:1;margin-left:auto}
+.today-remaining{font-size:13px;font-weight:450;margin-left:6px;white-space:nowrap;color:var(--muted)}
+.today-remaining.day-complete{color:var(--ok)}
+.today-progress{grid-column:1 / -1;grid-row:2;width:100%;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.today-progress[hidden]{display:none}
+.today-progress progress{flex:1;min-width:40px;width:100%;height:7px;border:0;border-radius:20px;overflow:hidden;appearance:none;background:rgba(var(--tint),.12)}
+.today-progress progress::-webkit-progress-bar{background:rgba(var(--tint),.12);border-radius:20px}
+.today-progress progress::-webkit-progress-value{background:var(--ok);border-radius:20px}
+.today-progress progress::-moz-progress-bar{background:var(--ok);border-radius:20px}
+.purchase-history{color:var(--text);background:var(--solid-panel);border:1px solid var(--stroke);border-radius:20px;padding:0;width:min(960px,94vw);max-height:90vh;max-height:90dvh;box-shadow:var(--shadow)}
+.purchase-history[open]{display:flex;flex-direction:column}
+.purchase-history::backdrop{background:rgba(0,0,0,.55)}
+.purchase-history .history-head{flex:none}
+.purchase-history .history-title{font-size:20px}
+.purchase-history .purchase-scroll{overflow:auto;padding:16px;min-height:0}
+.purchase-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.purchase-presets .btn{min-height:40px}
+.purchase-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+.purchase-filters .field{flex:1 1 150px;margin:0}
+.purchase-history label{display:block;font-size:13px;margin-bottom:5px;color:var(--muted)}
+.purchase-totals{display:flex;gap:24px;flex-wrap:wrap;padding:12px 0;margin:10px 0;border-block:1px solid var(--stroke)}
+.purchase-history table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.purchase-history th,.purchase-history td{text-align:left;border-bottom:1px solid var(--stroke);padding:10px 6px;overflow-wrap:anywhere;vertical-align:top}
+.purchase-history td:nth-child(2){white-space:pre-wrap}
+.purchase-history th:first-child{width:108px}.purchase-history th:nth-child(3){width:110px}.purchase-history th:last-child{width:96px}
+.purchase-history td:nth-child(3){text-align:right;font-variant-numeric:tabular-nums}
+.purchase-history .history-error{color:var(--danger);margin-top:8px}
+@media(max-width:540px){.purchase-history .purchase-scroll{padding:10px}.purchase-history table{font-size:12px}.purchase-history th:first-child{width:76px}.purchase-history th:nth-child(3){width:76px}.purchase-history th:last-child{width:68px}.purchase-history td,.purchase-history th{padding:8px 3px}.purchase-history .btn{font-size:12px;padding:7px}.page-title{white-space:normal}}
+
+.day-done{color:var(--ok);font-weight:600}
+
+.purchase-presets .btn.active{border-color:var(--brand);background:var(--brand);color:#fff}
